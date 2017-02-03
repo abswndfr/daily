@@ -1,8 +1,3 @@
-```diff
-+ this will be highlighted in green
-- this will be highlighted in red
-```
-
 https://msdn.microsoft.com/en-us/library/hh279676.aspx
 
 ```diff
