@@ -1,10 +1,13 @@
+class
+-----
  . class member function can be accessed without object if it's static
  
  . enum variable can be accessed by class and object both
  
  . main should return "int" type 
 
-  
+string
+------
  . string class size()
 
  . string class c_str()    (or data() for C++11)
@@ -28,7 +31,8 @@
     }
 
 
-  
+pointer
+-------              
  . pointer to char in C++
  
      void *memcpy( void * destination, const void * source, size_t num );
@@ -37,7 +41,8 @@
 
   
 
- 
+class - constructor
+-----------              
  . initialization in constructor
  
     class VmFile {
