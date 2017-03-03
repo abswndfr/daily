@@ -20,7 +20,8 @@ unique_ptr uniquely manages a resource. Each unique_ptr object stores a pointer 
 http://ootips.org/yonat/4dev/smart-pointers.html
 
 
-# without smart pointer
+without smart pointer
+---------------------
 
     void foo()
     {
@@ -30,7 +31,8 @@ http://ootips.org/yonat/4dev/smart-pointers.html
     }
 
 
-# with smart pointer
+with smart pointer
+------------------
 
     void foo()
     {
@@ -38,7 +40,8 @@ http://ootips.org/yonat/4dev/smart-pointers.html
         p->DoSomething();
     }
 
-# dangling pointer after moving
+dangling pointer after moving
+-----------------------------
 
     MyClass* p(new MyClass);
     MyClass* q = p;
@@ -47,7 +50,8 @@ http://ootips.org/yonat/4dev/smart-pointers.html
     p = NULL;           // p is no longer dangling
     q->DoSomething();   // Ouch! q is still dangling!
 
-# fix dangling pointer using auto_ptr overloading = 
+fix dangling pointer using auto_ptr overloading = 
+-------------------------------------------------
     template <class T>
     auto_ptr<T>& auto_ptr<T>::operator=(auto_ptr<T>& rhs)
     {
