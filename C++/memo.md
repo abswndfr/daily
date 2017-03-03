@@ -6,8 +6,28 @@
 
   
  . string class size()
+
  . string class c_str()    (or data() for C++11)
-  
+
+ . std::to_str(int/long/float/...);    // requires -std=c++11
+
+    int main ()
+    {
+      int fd;
+      /*
+        std::string pi = "pi is " + std::to_string(3.1415926);
+        std::cout << pi << '\n';
+      */
+      fd = open("to_string.txt", O_CREAT | O_RDWR, 0767);
+      for(int i=0; i<100 ; i++) {
+        write(fd, std::to_string(i).c_str(), std::to_string(i).size());
+        write(fd, "\n", 1);
+      }
+      close(fd);
+      return 0;
+    }
+
+
   
  . pointer to char in C++
  
