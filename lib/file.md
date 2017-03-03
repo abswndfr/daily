@@ -56,6 +56,10 @@ read
 
     ssize_t read(int fd, void *buf, size_t count);
     
+    for(int i=0; i<block_count; i++) {
+      read(fd, data, block_size);     
+      std::cout << data << std::endl; 
+    }
 
 write
 -----
@@ -63,6 +67,13 @@ write
     ssize_t write(int fd, const void *buf, size_t count);
       ;file pointer advances by return value(written/read bytes)
      
+     
+    for(int i=0; i<ul; i++) 
+    {
+      len = sprintf(data, "%d\n", i);
+      write(fd, data, len);
+    }
+
 
 l_seek
 ------
