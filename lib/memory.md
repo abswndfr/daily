@@ -6,6 +6,7 @@
       ; return destination
 
 ex>
+
     /* memcpy example */
     #include <stdio.h>
     #include <string.h>
