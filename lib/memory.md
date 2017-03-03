@@ -1,11 +1,19 @@
 
 
-    int memset( void *addr, int, size_t );
- 
-    void *memcpy( void * destination, const void * source, size_t num );    
-      ; return destination
+  int memset( void *addr, int, size_t );
 
-ex>
+    char data[256];
+    for(int i=0; i<4096/256; i++) {
+      memset(data, 'A'+i, 256);
+      pos_w = write(fd, data, 256);
+    }
+
+
+
+
+  void *memcpy( void * destination, const void * source, size_t num );    
+    ; return destination
+
 
     /* memcpy example */
     #include <stdio.h>
