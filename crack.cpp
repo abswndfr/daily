@@ -1,541 +1,970 @@
-// ConsoleApplication1.cpp : 콘솔 응용 프로그램에 대한 진입점을 정의합니다.
-//
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-/*
-char* itoa(int val, char* buf, int base) {
-	int i = 30;
-	for (; val && i; --i, val /= base)
-		buf[i] = "0123456789abcdef"[val % base];
-	return &buf[i + 1];
-}
-*/
+
+
 //1.1
+// init bitmap after creating
+// while(*str), not while(str)
+#define ASCII_CODE_SIZE		128
 bool isUnique(char* str)
 {
-	// if ASCII,   
-	bool bitmap[128];
+	bool* found = (bool*)malloc(sizeof(bool) * ASCII_CODE_SIZE);
 
-	// fill zeros to bitmap
-	memset(bitmap, 0, sizeof(bool) * 128);
+	if (found) {
+		memset(found, 0, sizeof(bool) * ASCII_CODE_SIZE);
+	}
+	else {
+		return false;
+	}
 
-	// get string length
-	int len = strlen(str);
-
-	// test if 
-	for (int i = 0; i < len; i++) {
-		if (bitmap[str[i]] == true) {
-			printf("%c is duplicated\n", str[i]);
+	while (*str) {
+		if (found[*str] == true) {
 			return false;
 		}
-		bitmap[str[i]] = true;
+		found[*str] = true;
+		str++;
 	}
 
 	return true;
 }
 
 //1.2
-#define ASCII_CODE_SIZE		128
-
-bool isPermutation(char *strA, char *strB)
+// is each character unique ? boolean type if yes, int type if no.
+bool isPermutation(char* strA, char* strB)
 {
+	int* charBin = (int*)malloc(sizeof(int) * ASCII_CODE_SIZE);
 	int lenA = strlen(strA);
 	int lenB = strlen(strB);
 
-	if ((lenA == 0) || (lenB == 0) || (lenA == lenB)) {
+	if (charBin) {
+		memset(charBin, 0, sizeof(int) * ASCII_CODE_SIZE);
+	}
+	else {
 		return false;
 	}
 
-	// ASCii
-	int bitmap[ASCII_CODE_SIZE];
-
-	// clear bitmap with zeros
-	memset(bitmap, 0, sizeof(int) * ASCII_CODE_SIZE);
-
-	// get occurrence of each character of strA
-	for (int i=0; i < lenA; i++) {
-		bitmap[strA[i]]++;
+	if ((lenA != lenB) || (lenA == 0) ) {
+		return false;
 	}
 
-	// compare occurrence of each character of strB to strA
-	for (int i = 0; i < lenB; i++) {
-		bitmap[strB[i]]--;
+	while (*strA) {
+		charBin[*strA]++;
+		strA++;
+	}
 
-		if (bitmap[strB[i]] < 0) {
+	while (*strB) {
+		charBin[*strB]--;
+		if (charBin[*strB] < 0) {
 			return false;
 		}
+		strB++;
 	}
+
 	return true;
 }
 
 //1.4
-#define ASCII_CODE_SIZE		128
-
+// is null string a palindrome ? 
+// reinit ptr after string reaches '/0' -> or use for instead while w/ str++
 bool isPalindromePermutation(char* str)
 {
+	int* occurrence = (int*)malloc(sizeof(int) * ASCII_CODE_SIZE);
 	int len = strlen(str);
-	int occurrence[ASCII_CODE_SIZE];
-	bool odd_allowed = true;
+	bool oddFound = false;
 
-	// clear frequency table
-	memset(occurrence, 0, sizeof(int) * ASCII_CODE_SIZE);
-
-	// Counter(str)
-	for (int i = 0; i < len; i++) {
-		occurrence[str[i]]++;
+	if (occurrence) {
+		memset(occurrence, 0, sizeof(int) * ASCII_CODE_SIZE);
 	}
-
-	// check the occurrences are all even or only one odd.
-	for (int i = 0; i < len; i++) {
-		if ((occurrence[str[i]] & 1) != 0) {
-			//printf("odd found with %c ", str[i]);
-			if (odd_allowed == true) {
-				odd_allowed = false;
-				printf("\n");
-			}
-			else {
-				//printf("more than once\n");
-				return false;
-			}
-		}
-	}
-
-	return true;
-}
-
-//1.5 char edit like insert, remove, or replace => same str?
-#define MAX(A, B)		(A > B ? A : B)
-#define ABS(A)			(A > 0 ? A : -A)
-
-bool isOneEditAway(char* strA, char* strB) 
-{
-	int lenA = strlen(strA);
-	int lenB = strlen(strB);
-	int diff_found = false;
-
-	if (ABS(lenA - lenB) > 1) {
+	else {
 		return false;
 	}
 
-	if (lenA == lenB) {
-		while (*strA) {
-			printf("%c %c %d", *strA, *strB, diff_found);
-			if (*strA != *strB) {
-				printf("!\n");
-				if (diff_found) {
-					return false;
-				}
-				diff_found = true;
+	// Counter
+	//while (*str) {
+	for(int i=0; i<len; i++) {
+		occurrence[str[i]]++;
+		//str++;	this will move ptr to '/0'
+	}
+
+	for (int i = 0; i < len; i++) {
+		if ((occurrence[str[i]] & 1) != 0) {
+			if (oddFound == true) {
+				return false;
 			}
-			else {
-				printf("\n");
-			}
-			strA++;
-			strB++;
+			oddFound = true;
 		}
 	}
 
 	return true;
 }
 
+#define MAX(A, B)		((A) > (B) ? (A) : (B))
+#define ABS(A)			((A) > 0 ? (A) : (A) * (-1))
 
-//1.6
-char* string_compression(char* str)
+//1.5 char edit like insert, remove, or replace => same str?
+// move next in one string only if lenA != lenB
+// asdfjkl & asejkl : 2 edits away(replace & insert) -> needs 'continue'
+bool isOneEditAway(char* strA, char* strB)
 {
+	int lenA = strlen(strA);
+	int lenB = strlen(strB);
 
-	int len = strlen(str);
-	int count;
+	bool mismatchFound = false;
 
-	for (int i = 0; i < len; i++) {
-		printf("%c[%d]", str[i], i);
-		if (i == len - 1) {
-			printf("[%d] i=%d\n", 1, i);
-			break;
-		}
-
-		// repeating
-		if (str[i] == str[i + 1]) {		
-			count = 2;
-			for (int j = i + 2; j < len; j++) {
-				if (str[i] == str[j]) {
-					count++;
-				}
-				else {
-					i = j - 1;
-					break;
-				}
-			}
-			printf("[%d] i=%d\n", count, i);
-		}
-		else { // not repeating
-			printf("[%d]\n", 1);
-			count = 1;
-		}
-
+	// same or +/-1
+	if (ABS(lenA - lenB) > 1) {
+		printf("%d %d\n", lenA, lenB);
+		return false;
 	}
 
-	return str;
+	// count mismatches 
+	while (*strA && *strB) {
+		if (*strA != *strB) {
+			printf("%c %c\n", *strA, *strB);
+			if (mismatchFound == true) {
+				return false;
+			}
+
+			mismatchFound = true;
+
+			if (lenA > lenB) {
+				strA++;
+				continue;
+			}
+			else if (lenA < lenB){
+				strB++;
+				continue;
+			}
+			else {
+				// same length : move both forward 
+			}
+		}
+		
+		strA++;
+		strB++;
+	}
+
+	return true;
 }
+
+//1.6
+// index should be the current one at the bottom of for loop. It will advance at the top of for loop.
+char* string_compression(char* str)
+{
+	int len = strlen(str);
+	char* res = (char*)malloc(sizeof(char) * len);
+	int count;
+
+	printf("%s\n", str);
+
+	if (res) {
+		memset(res, 0, sizeof(char) * len);
+	}
+	else {
+		return NULL;
+	}
+
+	//          1      
+	//0123456789012345
+	//Hello, world!
+	// 	i = 2, j = 3   -> i = 4
+	// 	i = 2, j = 3~6 -> i = 7
+	// aaa bbbbb c dddd ee fff k
+	for (int i = 0; i < len; i++) {
+		printf("%c", str[i]);
+		count = 1;
+
+		if (i == len - 1) {								// last charcter
+			printf("%d ", count);
+		} else {
+
+			if (str[i] == str[i + 1]) {					// found repeating
+				count = 2;
+				int j;
+				for (j = i + 1; j < len - 1; j++) {		// next one repeating ?
+					if (str[j] == str[j + 1]) {
+						count++;
+					}
+					else {
+						break;							// no more repeating
+					}
+				}
+				i = j;									// don't use i = j + 1. There's i++ above !!!
+			}
+			printf("%d ", count);
+		}
+	}
+
+	return res;
+}
+
 
 //1.7 
 // cw : transpose -> swap columns
 // ccw: transpose -> reverse columns
 /*
 void rotate(vector<vector<int>>& matrix) {
-	int n = matrix.size();
-	int m = matrix[0].size();
-	vector<vector<int>> temp(n, vector<int>(m, 0));
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < i; j++) {
-			swap(matrix[i][j], matrix[j][i]);
-		}
-	}
-	for (int i = 0; i < n; i++) {
-		reverse(matrix[i].begin(), matrix[i].end());
-	}
+
 }*/
 
 //1.8
-/*1. Check if the first row and first column have any zeros, and set variables rowHasZero and columnHasZero.[We'll nullify the first row and first column later, if necessary.)
-  2. Iterate through the rest of the matrix, setting matrix[i][0] and matri x[0][j] to zero whenever there's a zero in matri x [i] [j].
-  3. Iterate through rest of matrix, nullifying row i if there's a zero in matri x [i ] [0] .
-  4. Iterate through rest of matrix, nullifying column j if there's a zero inmatrix[0 ] [ j] ,
-  5. Nullify the first row and first column, if necessary(based on values from Step 1).*/
 bool zero_matrix(int** matrix, int len)
 {
-	bool firstlow, firstcol;
-	int i, j;
-	firstlow = firstcol = false;
-
-	// 1
-	for (i = 0; i < len; i++)
-		if (matrix[i][0] == 0) { firstlow = true; break; }
-
-	for (i = 0; i < len; i++)
-		if (matrix[0][i] == 0) { firstcol = true; break; }
-	// 2
-	for (i = 1; i < len; i++)
-	{
-		for (j = 1; j < len; j++)
-		{
-			if (matrix[i][j] == 0)
-			{
-				matrix[i][0] = 0;
-				matrix[0][j] = 0;
-			}
-		}
-	}
-	// 4
-	for (i = 0; i < len; i++)
-		if (matrix[0][i] == 0)
-			for (j = 1; j < len; j++)
-				matrix[j][i] = 0;
-	// 3
-	for (i = 0; i < len; i++)
-		if (matrix[i][0] == 0)
-			for (j = 1; j < len; j++)
-				matrix[i][j] = 0;
-	// 5
-	if (firstlow)
-		for (i = 0; i < len; i++)
-			matrix[0][i] = 0;
-	// 5
-	if (firstcol)
-		for (i = 0; i < len; i++)
-			matrix[i][0] = 0;
 	return true;
 }
 
 //1.9
 bool string_rotation(char* stra, char* strb)
 {
-	//new strstr = stra+stra
-	//isSubstring() is provided
-	//if(isSubstring(strstr,strb)) => the result is what we want
 	return true;
 }
+
+
 
 typedef struct _node {
 	int data;
 	struct _node* next;
-	//bool visited;
 } NODE;
 
+
 void addList(NODE** pHead, int data)
-{
-	NODE* node = (NODE *)malloc(sizeof(NODE));
-
-	if (node) {
-		node->data = data;
-		node->next = *pHead;
-		*pHead = node;
-	}
-	else {
-		exit(1);
-	}
-}
-
-NODE* addList1(NODE** pHead, int data)
 {
 	NODE* node = (NODE*)malloc(sizeof(NODE));
 
 	if (node) {
 		node->data = data;
-		node->next = *pHead;
+		node->next = *pHead;	
 		*pHead = node;
 	}
 	else {
-		exit(1);
+		//
 	}
-	return node;
 }
 
+NODE* addList1(NODE** pHead, int data)
+{
+	return *pHead;
+}
 
 void printList(NODE* pNode)
 {
-	while (pNode != NULL) {
+	while (pNode) {
 		printf("%d->", pNode->data);
 		pNode = pNode->next;
 	}
 	printf("NULL\n");
 }
 
-
-
 //2.1
+// NODE **pHead; -> *pHead->next (X) but (*pHead)->next (O)
+// add list : newNode->next = *pHead, not *pHead->next unless pHead is a dummy
 void remove_duplication(NODE* node)
 {
-	NODE* prev;;
-	NODE* temp;
+	NODE *curr;
+	NODE* prev;
 
+	// out loop for the reference
 	while (node) {
+		// inner loop for the target	
+		printf("%d-", node->data);
 		prev = node;
-		temp = node->next;
-		while (temp) {
-			//printf("%p %d %p %d\n", node, node->data, temp, temp->data);
-			if (node->data == temp->data) {
-				prev->next = temp->next;
-				temp = temp->next;
+		curr = node->next;
+
+		while (curr) {
+			printf("%d ", curr->data);
+			if (node->data == curr->data) {
+				// remove dup
+				printf("    dup[%d]   ", curr->data);
+				prev->next = curr->next;
 			}
 			else {
-				prev = prev->next;
-				temp = temp->next;
+				// move forward
+				prev = curr;
 			}
+			curr = curr->next;
 		}
-		//printf("\n");
+
+		printf("\n");
 		node = node->next;
 	}
 }
 
 //2.2
-void returnKthToLast(NODE* node, int k)
+// 0 base or 1 base ? (is 1st to last a[n-1] or a[n-2] ?)
+// missing index++;
+NODE* returnKthToLast(NODE* node, int k)
 {
-	NODE* temp = node;
 	int len = 0;
+	int index = 0;
+	NODE* ptr = node;
 
-	if (node == NULL) return;
-
-	while (temp) {
-		temp = temp->next;
+	while (ptr) {
 		len++;
+		ptr = ptr->next;
 	}
+	printf("len:%d\n", len);
 
-	if (k + 1 > len) {
-		printf("can't reach kth node\n");
+	if (k > len) return NULL;
+
+	while (node) {
+		if (k == len - index) {
+			return node;
+		}
+		index++;
+		node = node->next;
 	}
-
-	temp = node;
-	for (int i = 0; i < k; i++) {
-		temp = temp->next;
-	}
-
-	printf("node at index %d is %d\n", k, temp->data);
 }
+/*
+node* nthToLast(node* head, int k, int& i)
+{
+	if (head== NULL) {
+		return NULL;
+	}
+
+	node* nd = nthToLast(head->next, k, i);
+
+	i = i + 1;
+	if (i == k) {
+		return head;
+	}
+
+	return nd;
+}
+
+node* nthToLast(node* head, int k)
+{
+	int i = 0;
+	return nthToLast(head, k, i);
+} */
+
 
 //2.3
 bool delete_middle_node(NODE* node)
 {
-	if ((node == NULL) || (node->next == NULL)) {
-		return false;
+	if (node && node->next) {
+		node->data = node->next->data;
+		node->next = node->next->next;
+		return true;
 	}
 
-	node->data = node->next->data;
-	node->next = node->next->next;
-
-	return true;
+	return false;
 }
 
 //2.4
+// less.next can be null but less can never : 	temp = &less;	// less->next; while(temp) {}
 NODE* partition(NODE* node, int x)
 {
 	NODE less;
 	NODE more;
-	NODE* tmp;
-
-	less.next = NULL;
+	NODE* temp;
 	more.next = NULL;
+	less.next = NULL;
 
 	while (node) {
-		tmp = node->next;
-
-		// compare to x and move to less if less
+		temp = node->next;
 		if (node->data < x) {
 			node->next = less.next;
 			less.next = node;
 		}
-		else { // move to more if more
+		else {
 			node->next = more.next;
 			more.next = node;
 		}
-
-		node = tmp;
+		node = temp;
 	}
 
-	// merge less & more
-	/*printf("\nmore: ");
+	printList(less.next);
 	printList(more.next);
-	printf("less: ");
-	printList(less.next);*/
 
-	tmp = less.next;
-	while (tmp->next) {
-		tmp = tmp->next;
+	temp = &less;	// less->next;
+	while (temp && temp->next) {
+		temp = temp->next;
 	}
-	tmp->next = more.next;
 
-	//printList(less.next);
-
+	temp->next = more.next;
 	return less.next;
 }
 
 //2.5
+// advance pointer to struct :  node = node->next;  not node++;
+// dont' overwrite to head : head->data = sum;
 NODE* sumList(NODE* nodeA, NODE* nodeB)
 {
-	NODE* ptr = (NODE*)malloc(sizeof(NODE));
-	NODE* tmp = ptr;
-
+	NODE* head = (NODE*)malloc(sizeof(NODE));
+	NODE* result = head;
+	int sum = 0;
 	int carry = 0;
 
-	while ((nodeA != NULL) || (nodeB != NULL) || (carry > 0)) {
-		int sum = 0;
+	if (head) {
+		head->next = NULL;
+	}
+	else {
+		return NULL;
+	}
 
-		if(nodeA) printf("nodeA : %d ", nodeA->data);
-		if(nodeB) printf("nodeB : %d ", nodeB->data);
-
-		if (nodeA != NULL) {
-			sum += nodeA->data;
+	while (nodeA || nodeB || carry) {
+		if (nodeA) {
+			sum = nodeA->data;
 			nodeA = nodeA->next;
 		}
 
-		if (nodeB != NULL) {
+		if (nodeB) {
 			sum += nodeB->data;
 			nodeB = nodeB->next;
 		}
-
 		sum += carry;
+
 		carry = sum / 10;
+		sum = sum % 10;
+		//printf("sum:%d carry:%d\n", sum, carry);
 
-		printf(" %d\n", carry);
+		// next place digit
+		NODE* node = (NODE*)malloc(sizeof(NODE));
+		node->data = sum;
+		node->next = head->next;
 
-		NODE* New = (NODE*)malloc(sizeof(NODE));
-		New->data = sum % 10;
-		New->next = NULL;
-
-		tmp->next = New;
-		tmp = tmp->next;
+		head->next = node;
 	}
-
-	return ptr->next;
+	
+	return result->next;
 }
 
 //2.6
 bool palindrome(NODE* node)
 {
+	NODE revHead;
 	NODE* head = node;
-	NODE* reverse = (NODE*)malloc(sizeof(NODE));
-	NODE* tmp;
 
-	reverse->next = NULL;
+	revHead.next = NULL;
 
-/*
-	head     -> n1 -> n2 -> n3 -> null
-
-	revserse -> n1 -> null
-	revserse -> n2 -> n1 -> null
-	revserse -> n3 -> n2 -> n1 -> null
-*/
 	while (node) {
-		NODE* New = (NODE*)malloc(sizeof(NODE));
-		New->data = node->data;
-		New->next = reverse->next;
+		NODE *newNode = (NODE*)malloc(sizeof(NODE));
 
-		reverse->next = New;
+		newNode->data = node->data;
+		newNode->next = revHead.next;
+		revHead.next = newNode;
 		node = node->next;
 	}
 
-	//printList(reverse->next);
-	reverse = reverse->next;
-	//printList(reverse);
+	printList(revHead.next);
 
-	node = head;
-
-	while (node) {
-		//printf("%d %d\n", node->data, reverse->data);
-		if (node->data != reverse->data) {
+	while (head) {
+		//printf("%d %d .. ", revHead.next->data, head->data);
+		if (revHead.next->data != head->data) {
+			//printf("false\n");
 			return false;
 		}
-		node = node->next;
-		reverse = reverse->next;
+		//printf("\n");
+
+		revHead.next = revHead.next->next;
+		head = head->next;
 	}
 
 	return true;
 }
 
-//2.7
-bool intersection(NODE* nodea, NODE* nodeb)
+
+
+void printBin(unsigned int a)
 {
-	//1. if we know lenght then can find start node with same length => compare node till finding same node.
-	//2. reverse each nodes and compare from first node whether same or not.
+	for (int i = 6; i >= 0; i--)
+		printf("%d", (a & (1 << i)) >> i);
+	printf("  ");
+}
+
+
+int countOnes(unsigned int a)
+{
+	int count = 0;
+	/*
+		for (int i = 0;i < 32; i++) {
+			if (a & (1 << i)) {
+				count++;
+			}
+		}*/
+		/*
+			while (a) {
+				if(a & 1) {
+					count++;	// count += a & 1;
+				}
+				a = a >> 1;
+			}
+		*/
+	while (a) {
+		a = a & (a - 1);
+		count++;
+	}
+
+	return count;
+}
+
+//5.1
+unsigned int bitInsert(unsigned int a, unsigned int b, int i, int j)
+{
+	int mask = ((1 << j) - 1) ^ ((1 << i) - 1);
+	return a & (~mask) | (b << i);
+}
+
+//5.4
+/*
+13  12  11  10  9  8  7  6  5  4  3  2  1  0
+---------------------------------------------
+ 1   1   0   1  1  0  0  1  1  1  1  1  0  0
+					  ^
+ 1   1   0   1  1  0  1  1  1  1  1  1  0  0
+
+ 1   1   0   1  1  0  1  0  0  0  0  0  0  0
+						 ^  ^  ^  ^  ^  ^  ^
+ 1   1   0   1  1  0  1  0  0  0  1  1  1  1
+								  ^  ^  ^  ^
+	int c = a;
+	int c0 = 0;
+	int c1 = 0;
+
+	while (((c & 1) == 0) && (c != 0)) {	// trailing zero
+		c0++;
+		c >>= 1;
+	}
+
+	while ((c & 1) == 1) {					// non trailing ones
+		c1++;
+		c >>= 1;
+	}
+
+	printf("c0:%d c1:%d\n", c0, c1);
+	// If there is no bigger number with the same no. of 1's
+	if (c0 + c1 == 31 || c0 + c1 == 0)
+		return -1;
+
+	// position of rightmost non-trailing zero
+	int p = c0 + c1;
+
+	// Flip rightmost non-trailing zero
+	a |= (1 << p);
+
+	// Clear all bits to the right of p
+	a &= ~((1 << p) - 1);
+
+	// Insert (c1-1) ones on the right.
+	a |= (1 << (c1 - 1)) - 1;
+
+	return a;
+
+ 13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ ---------------------------------------------
+ 1   0   0    1  1  1  1  0  0  0  0  0  1  1
+					   ^
+ 1   0   0    1  1  1  0  0  0  0  0  0  0  0
+										^  ^
+ 1   0   0    1  1  1  0  1  1  1  0  0  0  0
+						  ^  ^  ^
+
+	int temp = a;
+	int c0 = 0;
+	int c1 = 0;
+
+	// count 1s
+	while ((temp & 1) == 1) {
+		c1++;
+		temp = temp >> 1;
+	}
+
+	if (temp == 0) {
+		return -1;
+	}
+
+	// count 0s except leading 0s
+	while (((temp & 1) == 0) && (temp != 0)) {
+		c0++;
+		temp = temp >> 1;
+	}
+
+	// position of rightmost non-trailing one.
+	int p = c0 + c1;
+
+	// clears from bit p onwards
+	a = a & ((~0) << (p + 1));
+
+	// Sequence of (c1+1) ones
+	int mask = (1 << (c1 + 1)) - 1;
+
+	a = a | mask << (c0 - 1);
+
+	return a;
+*/
+unsigned int bigSmallFromGiven(unsigned int a)
+{
+/* 1  1  0  1  1  0  0  1  1  1  1  1  0  0
+   1  1  0  1  1  0  1  1  1  1  1  1  0  0
+   1  1  0  1  1  0  1  0  0  0  1  1  1  1 */
+	//-- closet bigger number
+	// find the right most non trailing zero and set to it
+	bool oneFound = false;
+	int bit = 0;
+	int temp = a;
+	int count = 0;
+
+	while (bit < 32) {
+		// find 1 first
+		if (temp & (1 << bit)) {
+			oneFound = true;
+		}
+
+		// then find 0 
+		if (oneFound) {
+			if (!(temp & (1 << bit))) {
+				temp |= 1 << bit;
+				break;
+			}
+			count++;
+		}
+		bit++;
+	}
+
+	// clear after the 1st one and then set count - 1
+	temp = temp & ~((1 << bit) - 1);
+	for (int i = 0; i < count - 1; i++) {
+		temp |= 1 << i;
+	}
+
+
+/* 1  0  0  1  1  1  1  0  0  0  0  0  1  1
+   1  0  0  1  1  1  0  0  0  0  0  0  0  0
+   1  0  0  1  1  1  0  1  1  1  0  0  0  0 */
+
+	//-- closet smaller number
+	// find the right most non trailing one and set it
+	int zeroFound = false;
+	bit = 0;
+	temp = a;
+	count = 0;
+
+	printBin(temp);
+
+	while (bit < 32) {
+		// find 0 first
+		if (!(temp & (1 << bit))) {
+			zeroFound = true;
+		}
+
+		// then find 1 and clear the bit
+		if (zeroFound) {
+			if (temp & (1 << bit)) {
+				temp &= ~(1 << bit);
+				break;
+			}
+		}
+		else {
+			count++;
+		}
+		bit++;
+	}
+	printf("..%d..", count);
+	printBin(temp);
+
+	// clear after the flipped bit and then set count + 1
+	temp = temp & ~((1 << bit) - 1);
+	printBin(temp);
+	for (int i = 0; i < count + 1; i++) {
+		temp |= 1 << (bit - i - 1);
+	}
+	printBin(temp);
+
+	return temp;
+}
+
+//5.6
+int conversion(int a, int b)
+{
+	int t;
+	int	count = 0;
+
+	t = a ^ b;
+
+	while (t) {
+		t = t & (t - 1);
+		count++;
+	}
+
+	return count;
+}
+
+//10.1
+/*
+void sorted_merge(int* a, int* b, int la, int lb)
+{
+	int size = la + lb - 1;
+	la--;
+	lb--;
+
+	while (lb >= 0) {
+		if (a[la] > b[lb]) {
+			a[size--] = a[la--];
+		} else {
+			a[size--] = b[lb--];
+		}
+	}
+}
+void sorted_merge(int* a, int* b, int lastA, int lastB)
+{
+	int indexA = lastA - 1;	
+	int indexB = lastB - 1;
+	int indexMerged = lastB + lastA - 1;
+		
+	while (indexB >= 0) {
+		if (indexA >= 0 && (a[indexA] > b[indexB])) {
+			a[indexMerged] = a[indexA];
+			indexA--;
+		}
+		else {
+			a[indexMerged] = b[indexB];
+			indexB--;
+		}
+		indexMerged--;
+	}
+}*/
+
+void sorted_merge(int* a, int* b, int lastA, int lastB)
+{
+
+	int index = lastA + lastB - 1;
+	int indexA = lastA - 1;
+	int indexB = lastB - 1;
+
+	while ((indexA >= 0) && (indexB >= 0)) {
+		if (a[indexA] > b[indexB]) {
+			a[index] = a[indexA];
+			indexA--;
+		}
+		else {
+			a[index] = b[indexB];
+			indexB--;
+		}
+		index--;
+	}
+
+	if (indexB > 0) {
+		for (; indexB >= 0; indexB--) {
+			a[index] = b[indexB];
+			index--;
+		}
+	}
+}
+
+//prime
+bool prime(int n)
+{
+/*
+	for () {
+	
+	
+	}
+*/
 	return true;
 }
 
-//2.8
-NODE* loopDetection(NODE* node)
+bool find_prime(int n)
 {
-	NODE* fast = node;
-	NODE* slow = node;
-	bool detected = false;
+	return true;
+}
 
-	while (fast && slow) {
-		if (fast->next == NULL) break;
-		if (fast->next->next == NULL) break;
+//memcpy
+char* mymemcpy(char* src, char* desc, int size)
+{
+	return desc;
+}
 
-		slow = slow->next;
-		fast = fast->next->next;
+typedef struct _treeNode {
+	int key;
+	struct _treeNode* parent;
+	struct _treeNode* left;
+	struct _treeNode* right;
+} Node;
 
-		if (fast->data == slow->data) {
-			detected = true;
-			break;
+
+// passing by value of a pointer never gets newly allocated address. Pass it by reference, ie, **p, or "RETURN IT".
+#if 1
+// call by value
+/*Node* insertNode(Node* root, int data)
+{
+	if (root == NULL) {
+		root = (Node*)malloc(sizeof(Node));
+		if (root) {
+			root->key = data;
+			root->left = NULL;
+			root->right = NULL;
+			root->parent = NULL;
+		}
+	}
+	else {
+		if (root->key < data) {
+			root->right = insertNode(root->right, data);
+			root->right->parent = root;
+		}
+		else {
+			root->left = insertNode(root->left, data);
+			root->left->parent = root;
 		}
 	}
 
-	if (!detected) {
+	return root;
+}*/
+// call by reference
+void insertNode(Node** root, int data)
+{
+	Node* node = *root;
+
+	if (node == NULL) {
+		node = (Node*)malloc(sizeof(Node));
+		if (node) {
+			node->key = data;
+			node->left = NULL;
+			node->right = NULL;
+			node->parent = NULL;
+			*root = node;
+		}
+	}
+	else {
+		if (data > node->key) {
+			insertNode(&node->right, data);
+			node->right->parent = *root;
+		}
+		else {
+			insertNode(&node->left, data);
+			node->left->parent = *root;
+		}
+	}
+}
+#else
+void createBST(Node** root, int* arr, int start, int end)
+{
+	Node* node = *root;
+
+	if (start >= end) {
+		return;
+	}
+	else {
+
+		arr[start];
+
+	}
+}
+#endif
+
+
+void InOrder(Node*node)
+{
+	if (node) {
+		InOrder(node->left);
+		printf("%d[%d] ", node->key, node->parent != NULL ? node->parent->key : NULL);
+		InOrder(node->right);
+	}
+}
+
+
+#define QUE_MAX	10
+Node* queue[QUE_MAX];
+int head = 0;
+int tail = 0;
+//int count = 0;
+
+void levelOrder(Node* node)
+{
+	//Node* node = NULL;
+	//queue[head++] = root;				// push(root);
+	//node = queue[tail++];				// node = pop();
+	while (node) {
+		printf("%d ", node->key);
+
+		if (node->left) {
+			queue[head++] = node->left;		// push(node->left);
+		}
+
+		if (node->right) {
+			queue[head++] = node->right;	// push(node->right);
+		}
+
+		node = queue[tail++];			// node = pop();
+	}
+}
+
+//min depth
+#define MIN(A, B)	(A < B ? A : B)
+
+int minDepth(Node* node)
+{
+	int left = 100000;
+	int right = 100000;
+
+	if (node == NULL) {
+		return 0;
+	}
+
+	if ((node->left == NULL) && (node->right == NULL)) {
+		return 1;
+	}
+
+	if (node->left) left = minDepth(node->left);
+	if (node->right) right = minDepth(node->right);
+
+	return MIN(left, right) + 1;
+}
+
+/*
+int minDepth(Node* node)
+{
+	int left = 1000;
+	int right = 1000;
+
+	if (node == NULL) {
+		return 0;
+	}
+	else if ((node->left == NULL) && (node->right == NULL)) {
+		printf("%d\n", node->key);
+		return 1;
+	}
+	else {
+		printf("%d\n", node->key);
+	}
+
+	if (node->left) {
+		left = minDepth(node->left);
+	}
+
+	if (node->right) {
+		right = minDepth(node->right);
+	}
+
+	return MIN(left, right) + 1;
+}
+*/
+
+//4.1 graph
+
+
+//4.2
+// need to be sorted !!!!!
+Node* createMinimalBST(int* arr, int start, int end) 
+{
+	if (end < start) {
 		return NULL;
 	}
 
-	slow = node;
+	int mid = (start + end) / 2;
 
-	while (slow->data != fast->data) {
-		slow = slow->next;
-		fast = fast->next;
-	}
+	Node *node = (Node *)malloc(sizeof(Node));
+		
+	node->key = arr[mid];
+	node->left = createMinimalBST(arr, start, mid - 1);
+	node->right = createMinimalBST(arr, mid + 1, end);
 
-	return slow;
+	return node;
 }
 
-//tree struct
+
+//4.3
+//#define MAX 128
 typedef struct _tree {
 	int data;
 	struct _tree* left;
@@ -543,30 +972,13 @@ typedef struct _tree {
 	struct _tree* next;
 }Tree;
 
-//4.2
-Tree* minimal_tree(int* arry, int s, int e)
-{
-	int mid;
-	Tree* root;
-	if (s < e) return NULL;
-	mid = (s + e) / 2;
-	root = (Tree*)malloc(sizeof(Tree));
-	root->data = arry[mid];
-	root->left = minimal_tree(arry, s, mid - 1);
-	root->right = minimal_tree(arry, mid + 1, e);
-	return root;
-}
-
-
-//4.3
-#define MAX 128
 typedef struct _treelist
 {
 	Tree* t;
 	int dep;
 	struct _treelist* next;
 } TreeList;
-
+/*
 TreeList* link_of_depth(Tree* t, TreeList* tl, int depth)
 {
 	TreeList* cur, * tmp;
@@ -606,178 +1018,293 @@ TreeList* setlink(Tree* t)
 	tl->dep = 1;
 	tl->next = NULL;
 	return link_of_depth(t, tl, tl->dep);
+}*/
+
+#if 0
+Node* link_of_depth(Tree* t, TreeList* tl, int depth)
+{
+	cur;
+
+	return 
 }
+#endif
 
 //4.4
-int max_depth(Tree* t, int depth)
+int maxDepth(Node* node)
 {
-	int left, right;
-	if (t == NULL) return depth - 1;
-	left = max_depth(t->left, depth + 1);
-	right = max_depth(t->right, depth + 1);
-	return left > right ? left : right;
+	int left = 0;
+	int right = 0;
+
+	if (node == NULL) {
+		return 0;
+	}
+
+	/*if ((node->left == NULL) && (node->right == NULL)) {
+		return 1;
+	}*/
+
+	left = maxDepth(node->left);
+	right = maxDepth(node->right);
+
+	return MAX(left, right) + 1;
 }
 
-bool balanced_depth(Tree* t)
+bool balanced_depth(Node* node)
 {
-	int depl, depr;
-	if (t == NULL) true;
-	depl = max_depth(t->left, 1);
-	depr = max_depth(t->right, 1);
-	if (abs(depl - depr) > 1) return false;
-	if (!balanced_depth(t->left)) return false;
-	if (!balanced_depth(t->right)) return false;
+	int left = maxDepth(node->left);
+	int right = maxDepth(node->right);
+
+	//printf("l:%d r:%d abs(l-r):%d\n", left, right, ABS(left - right));
+
+	return (ABS(left - right) <= 1) ;
+}
+
+
+//4.5 - leecode #98
+int left = -100;
+int right=  100;
+int count = 0;
+
+#if 1
+bool isValidBST(Node* root)
+{
+	bool result = true;
+
+	if (root == NULL) {
+		return true;
+	}
+
+	if ((root->left) && (root->key <= root->left->key)) {
+		return false;
+	}
+
+	if ((root->right) && (root->key >= root->right->key)) {
+		return false;
+	}
+
+	if (!(isValidBST(root->left))) {
+		return false;
+	}
+
+	if (!(isValidBST(root->right))) {
+		return false;
+	}
+
 	return true;
 }
-
-//4.5
-bool valid_btree(Tree* t)
+#else
+// neetcode
+bool isValidBST(Node *root, int left, int right)
 {
-	if (t == NULL) return true;
-	
-	if (t->left)
-	{
-		if (t->left->data > t->data) return false;
+	bool result = true;
+
+	if (root == NULL) {
+		return true;
 	}
 	
-	if (t->right)
-	{
-		if (t->right->data < t->data) return false;
+	// test code to fail
+	if (count++ == 3) {
+		root->key = 0;
 	}
-	
-	if (!valid_btree(t->left)) return false;
-	if (!valid_btree(t->right)) return false;
-	return true;
+	printf("%4d %4d %4d\n", left, root->key, right);
+
+	if (!((root->key > left) && (root->key < right))) {
+		return false;
+	}
+
+	return (isValidBST(root->left, left, root->key) && isValidBST(root->right, root->key, right));
+}
+#endif
+
+/*
+	#1  check arr[i] < arr[i+1]	after inorder traversal
+	#2	def valid(node, left, right):
+			if not node: return True
+			if not (node.val < right and node.val > left): return False
+			return valid(node.left, left, node.val) and valid(node.right, node.val, right)
+
+		return valid(root, float("-inf"), float("inf")) */
+/*
+#if 0
+int inOrderResult[] = {0,0,0,0,0,0,0,0,0,0};
+int index = 0;
+
+void inOrderTraverse(Node* node) 
+{
+	if (node == NULL) {
+		return;
+	}
+
+	inOrderTraverse(node->left);
+	inOrderResult[index++] = node->key;
+	inOrderTraverse(node->right);
 }
 
-//4.10 Check Subtree
+bool isValidBST(Node* root)
+{
+	inOrderTraverse(root);
+	// fail case !
+	//inOrderResult[3] = 0;
+	printf("\n");
+
+	for (int i = 0;i < index-1; i++) {
+		printf("%d %d\n", inOrderResult[i], inOrderResult[i+1]);
+		if (inOrderResult[i] >= inOrderResult[i+1]) {
+			return false;
+		}
+	}
+	printf("\n");
+
+	return true;
+}
+#else
+int prevKey = -1;
+
+bool inOrderTraverse(Node* node)
+{
+	if (node == NULL) {
+		return true;
+	}
+
+	inOrderTraverse(node->left);
+	printf("%2d %2d\n", prevKey, node->key);
+	if (prevKey > node->key) {
+		return false;
+	}
+	prevKey = node->key;
+	inOrderTraverse(node->right);
+}
+
+bool isValidBST(Node* root)
+{
+	bool result = inOrderTraverse(root);
+
+	return result;
+}
+#endif
+*/
+
+
+//4.6 successor
+/*
+   				20			
+   			  /	  \			
+   			8*	   22		
+   		  /  \   
+   		 4    12  
+			 /  \
+			10*	 14*
+ 
+   case #1. 8 -> 10  : 8  has right subtree and the minumum of right subtree is 10.
+   case #2. 10-> 12  : 10 doesn't have a right subtree, but the left child of its parent node, 12.
+   case #3. 14-> 20  : 14 doesn't have a right subtree, and it's right child of its parent node, 12. (8 is first left child to 20 while going up)
+   case #4. 22-> NULL: no untraversed parent -> just return NULL  */
+   //				4			// 2 -> 3
+   //			  /	  \			// 4 -> 6
+   //			2	   7		// 3 -> 4 *
+   //		     \    /  \		// 6 -> 7
+   //		      3* 6	  8		// 8 -> NULL *
+
+
+#if 1 // with parent link
+int inOrderSuccessor(Node *node)
+{
+	int prevKey;
+	Node* temp;
+
+	if (node == NULL) {
+		return NULL;
+	}
+	printf("%d->", node->key);
+
+	// case #1 : 
+	if (node->right) { // find min on the right subtree
+		temp = node->right;
+		while (temp) {
+			prevKey = temp->key;
+			temp = temp->left;
+		}
+		return prevKey;
+	}
+	else {
+		// is the node left child of its parent ?
+		temp = node->parent;
+		while (temp && (node == temp->right)) {
+			node = temp;
+			temp = temp->parent;
+		}
+		if (temp) {
+			return temp->key;
+		}
+	}
+	return NULL;
+}
+#else // without parent link
+
+
+#endif
+
+
+//4.7 topology sort
+
+
+//4.8 lowest common ancestor
+
+
+
+
+//4.9 BST sequence
+
+
+//4.10 subtree
 //T1, T2, T2 is sub of T2??
 //1. T1==T2 then T1.left==T2.left && T1.right==T2.right
 //2. T1!=T2 then T1.left==T2 or T1.right T2 => one of them matching then goto #1
 
 
+//4.11 rondom node
 
-void printBin(unsigned int a)
+
+//4.12 path sum
+
+
+
+
+
+#if 0
+//2.7
+bool intersection(NODE* nodea, NODE* nodeb)
 {
-	for (int i = 31; i >= 0; i--)
-		printf("%d", (a & (1 << i)) >> i);
-	printf("  ");
+	return true;
 }
 
-int countOnes(unsigned int a)
+//2.8
+NODE* loopDetection(NODE* node)
 {
-	int count = 0;
-
-	while (a) {
-		//count += a & 1;
-		//a = a >> 1;
-		a = a & (a - 1);
-		count++;
-	}
-
-	return count;
+	return slow;
 }
 
-//5.1
-unsigned int bitInsert(unsigned int a, unsigned int b, int i, int j)
+//tree struct
+typedef struct _tree {
+}Tree;
+
+typedef struct _treelist
 {
-	// 6 : 100_0000			1<<6+1 - 1 = 111_1111 
-	// 2 :      100			1<<2   - 1 =       11 
-	// ^                                 111_1100
-	// ~								 11111000_0011	
-	int mask = ~(((1 << (j + 1)) - 1) ^ ((1 << i) - 1));
-	a = a& mask;
-	a |= b<<i;
+} TreeList;
 
-	printBin(a);
 
-	return a;
-}
-
-//5.4
-unsigned int bigSmallFromGiven(unsigned int a)
-{
-	int n = countOnes(a);
-
-	int big = 0;
-	int small = 0;
-
-	bool firstOneFound = false;
-
-	//-------------------- biggest -------------------- 
-	// step 1 : set right most non trailing zero
-	int bit = 1;	// 2^0
-	big = a;
-	while (bit < (sizeof(int) * 8)) {
-		// find 1st one
-		if (big & bit) {
-			firstOneFound = true;
-		}
-
-		// find 1st zero after 1s and set
-		if (firstOneFound) {
-			if (!(big & bit)) {
-				big |= bit;
-				break;
-			}
-		}
-
-		bit = bit << 1;
-	}
-
-	// step 2 : clear all 1s after the new 1.
-	int right = big & (bit - 1);
-	big = big ^ right;
-
-	// step 3 : add all cleared 1s except one to the right most
-	int right_n = countOnes(right) - 1;
-	right = 0;
-	for (int i = 0; i < right_n; i++) {
-		right += 1 << i;
-	}
-	big = big + right;
-
-	//-------------------- smallest --------------------
-	for (int i = 0; i < n; i++) {
-		small += 1 << i;
-	}
-	printf("a:%d -> big:%d small:%d ", a, big, small);
-
-	return n;
-}
-
-//5.6
-int conversion(int a, int b)
-{
-	int t, count;
-	t = a ^ b;
-	count = 0;
-
-	while (t)
-	{
-		t = t & (t - 1);	
-		count++;
-	}
-
-	return count;
-}
 
 //8.1
 int triple_step(int n)
 {
-	if (n < 0) return 0;
-	if (n == 0) return 1;
-	return triple_step(n - 1) + triple_step(n - 2) + triple_step(n - 3);
+	return ...
 }
 
 int triple_steps(int n)
 {
-	if (n < 1) return 0;
-	if (n == 1) return 1;
-	if (n == 2) return 2;
-	if (n == 3) return 4;
-	return triple_step(n - 1) + triple_step(n - 2) + triple_step(n - 3);
+	return ...
 }
+
 
 
 //8.2
@@ -786,39 +1313,6 @@ int arr[3][3];
 //-1:block, 0:can move, >1 :visited
 bool robotInGrid(int row, int col, int step)
 {
-	// off limit
-	if (!(row < 3) || !(col < 3)) {
-		printf("%d %d: fail\n", row, col);
-		return false;
-	}
-
-	// obstacle
-	if (arr[row][col] == -1) {
-		printf("%d %d: fail\n", row, col);
-		return false;
-	}
-
-	// already visited
-	if (arr[row][col] > 0)
-	{
-		if (arr[row][col] > step) arr[row][col] = step;
-		printf("%d %d: pass\n", row, col);
-		return true;
-	}
-
-	if (arr[row][col] == 0) arr[row][col] = step;
-
-	//todo : check range whether row, col can be exceed or not
-	if (!robotInGrid(row + 1, col, step + 1)) {
-		printf("%d %d: fail\n", row, col);
-		//return false;
-	}
-
-	if (!robotInGrid(row, col + 1, step + 1)) {
-		printf("%d %d: fail\n", row, col);
-		//return false;
-	}
-
 	return true;
 }
 
@@ -830,297 +1324,44 @@ void printArray(int* data, int r)
 }
 
 //8.4
-//int list[10] = { -1, };
-//int idx = 0;
 #include <math.h>
 void pow_set(int set_size)
 {
-	unsigned int pow_set_size = pow(2, set_size);
-	int counter, j;
-
-	for (counter = 0; counter < pow_set_size; counter++) {
-		printf("{");
-		for (j = 0; j < set_size; j++) {
-			if (counter & (1 << j)) {
-				printf("%d", j+1);
-			}
-		}
-		printf("}\n");
-	}
 }
 
-#if 0
-void pow_set(int n)
-
-{
-	int i, j;
-	printArray(list, 10);
-
-	if (n < 0) return;
-
-	if (n == 0) {
-		list[idx++] = 0;
-		return;
-	}
-
-	pow_set(n - 1);
-
-	i = idx;
-
-	for (j = 0; j < idx; j++, i++)
-	{
-		list[i] = list[j] + n;
-	}
-	idx = j;
-}
-#endif
-/*
-start:0  index:0     						... 0 0 0 0					10 0 0 0
-
-	start:1  index:1 						...10 0 0 0					10 20 0 0
-
-		start:2  index:2     				...10 20 0 0	10 20		10 30 0 0
-		start:3  index:2     				...10 30 0 0	10 30		10 40 0 0
-		start:4  index:2 					...10 40 0 0	10 40		20 40 0 0
-
-	start:2  index:1 						...20 40 0 0				20 30 0 0
-
-		start:3  index:2     				...20 30 0 0	20 30		20 40 0 0
-		start:4  index:2     				...20 40 0 0	20 40		30 40 0 0
-
-	start:3  index:1     					...30 40 0 0				30 40 0 0
-
-		start:4  index:2     				...30 40 0 0	30 40
-*/
 void combinationUtil(int *arr, int *data, int start, int end, int index, int r)
 {
-	//printf("start:%d index:%d     ...", start, index);
-	//printArray(data, 4);
-
-	// base case
-	if (index == r) {
-		printArray(data, r);
-		return;
-	}
-
-	//for (int i = start; i <= end && end - i + 1 >= r - index; i++) {
-	for (int i = start; i <= end; i++) {
-		data[index] = arr[i];
-		//printArray(data, 4);
-		combinationUtil(arr, data, i + 1, end, index + 1, r);
-	}
 }
 
 void printCombination(int* arr, int n, int r)
 {
-	int data[10];	// subarray
-
-	for (int j = 0; j < 10; j++)
-		data[j] = 0;
-
-	combinationUtil(arr, data, 0, n - 1, 0, r);
 }
 
 void swap(char* x, char* y)
 {
-	char temp;
-
-	temp = *x;
-	*x = *y;
-	*y = temp;
 }
 
-/*
-B-l:0 i:0 ABC								0		A
-	B-l:1 i:1 ABC							1,1			AB
-	 -l:2 i:2_________________________ABC					ABC
-	A-l:1 i:1 ABC
-
-	B-l:1 i:2 ACB							1,2			AC
-	 -l:2 i:2_________________________ACB					ACB
-	A-l:1 i:2 ABC
-A-l:0 i:0 ABC
-
-B-l:0 i:1 BAC								1		B
-	B-l:1 i:1 BAC							1,1			BA
-	 -l:2 i:2_________________________BAC					BAC
-	A-l:1 i:1 BAC
-
-	B-l:1 i:2 BCA							1,2			BC
-	 -l:2 i:2_________________________BCA					BCA
-	A-l:1 i:2 BAC
-A-l:0 i:1 ABC
-
-B-l:0 i:2 CBA								2		C
-	B-l:1 i:1 CBA							1,1			CB
-	 -l:2 i:2_________________________CBA					CBA
-	A-l:1 i:1 CBA
-	B-l:1 i:2 CAB							1,2			CA
-	 -l:2 i:2_________________________CAB					CAB
-	A-l:1 i:2 CBA
-A-l:0 i:2 ABC
-*/
 void permute(char* a, int l, int r)
 {
-	int i;
-	if (l == r) {
-		printf(" -l:%d i:%d_________________________%s\n", l, r, a);
-	}
-	else
-	{
-		for (i = l; i <= r; i++)
-		{
-			swap((a + l), (a + i));	printf("B-l:%d i:%d %s\n", l, i, a);
-			permute(a, l + 1, r);
-			swap((a + l), (a + i)); printf("A-l:%d i:%d %s\n", l, i, a);
-		}
-	}
 }
 
 //8.5
 int multiply(int a, int b)
 {
-	/*
-		int product = 0;
-		while (b > 0)
-		{
-			product = product + a;
-			b--;
-		}
-		return product;
-	*/
-	int t;
-	if (a < b)
-	{
-		t = b;
-		b = a;
-		a = t;
-	}
-	while (b)
-	{
-		if (b & 1)
-		{
-			t = a + a;
-			a = t;
-		}
-		b >> 1;
-	}
 	return a;
 }
+#endif
 
-
-//10.1
-/*
-void sorted_merge(int* a, int* b, int la, int lb)
-{
-	int size = la + lb - 1;
-
-	la--;
-	lb--;
-
-	while (lb >= 0) {
-		if (a[la] > b[lb]) {
-			a[size--] = a[la--];
-		} else {
-			a[size--] = b[lb--];
-		}
-	}
-}
-*/
-void sorted_merge(int* a, int* b, int lastA, int lastB)
-{
-	int indexA = lastA - 1;	
-	int indexB = lastB - 1;
-	int indexMerged = lastB + lastA - 1;
-		
-	while (indexB >= 0) {
-		if (indexA >= 0 && (a[indexA] > b[indexB])) {
-			a[indexMerged] = a[indexA];
-			indexA--;
-		}
-		else {
-			a[indexMerged] = b[indexB];
-			indexB--;
-		}
-		indexMerged--;
-	}
-}
-
-//prime
-bool prime(int n)
-{
-	int i;
-	if (n < 2) false;
-	for (i = 2; i < n / 2; i++)
-	{
-		if (n % i == 0) return false;
-	}
-	return true;
-}
-
-bool find_prime(int n)
-{
-	char* list;
-	int i, j;
-
-	if (n < 2) false;
-
-	list = (char*)malloc(sizeof(int) * (n + 1));
-
-	memset(list, 1, sizeof(int) * (n + 1));
-
-	for (i = 2; i * i <= n; i++) {
-
-		if (list[i]) {
-
-			for (j = i; j <= n; j += i) {
-				list[j] = false;
-			}
-		}
-	}
-	//if list[i]==true => i is prime
-	free(list);
-	return true;
-}
-
-//min depth
-int min_depth(Tree* node, int depth)
-{
-	int left, right;
-	if (node == NULL) return depth - 1;
-	left = min_depth(node->left, depth + 1);
-	right = min_depth(node->right, depth + 1);
-	return (left < right) ? left : right;
-}
-
-//memcpy
-char* mymemcpy(char* src, char* desc, int size)
-{
-	char* tmps, * tmpd;
-	if (desc<src || desc>(src + size))
-	{
-		memcpy(src, desc, size);
-	}
-	else
-	{
-		tmps = src + size;
-		tmpd = desc + size;
-		while (tmps >= src && tmpd >= desc)
-		{
-			*tmpd-- = *tmps--;
-		}
-	}
-	return desc;
-}
 
 
 int main()
 {
 	char astr[] = "asdfjkl";
-	char bstr[] = "asefjkk";	// asefjkl
+	char bstr[] = "asefjkl";	// asefjkl
 	char cstr[] = "aaabbbbbcddddeefffk"; // aaabbbbbcddddeefffk
 
-	/*
+/*
+// 1.1
 	if (isUnique(cstr)) {
 		printf("no dup found\n");
 	}
@@ -1128,6 +1369,7 @@ int main()
 		printf("dup found\n");
 	}
 
+// 1.2
 	if (isPermutation(astr, bstr)) {
 		printf("permutation\n");
 	}
@@ -1135,6 +1377,7 @@ int main()
 		printf("not permutation\n");
 	}
 
+// 1.4
 	if (isPalindromePermutation(bstr)) {
 		printf("permutation of palindrome\n");
 	}
@@ -1142,16 +1385,19 @@ int main()
 		printf("not permutation of palindrome\n");
 	}
 
+// 1.5
 	if (isOneEditAway(astr, bstr)) {
-		printf("ok\n");
+		printf("one\n");
 	}
 	else {
-		printf("nok\n");
+		printf("more than one\n");
 	}
 
+// 1.6
 	printf("%s", string_compression(cstr));
 
-	NODE *head = NULL;
+	NODE* head = NULL;
+
 	int a[] = { 1,1,3,2,4 };
 	for (int i = 0; i < 5; i++) {
 		//printList(head);
@@ -1159,9 +1405,21 @@ int main()
 	}
 	printList(head);
 
+// 2.1
 	remove_duplication(head);
 	printList(head);
 
+	NODE* head = NULL;
+	int a[] = { 11,27,32,44,51 };
+	for (int i = 0; i < 5; i++) {
+		addList(&head, a[i]);
+	}
+	printList(head);
+
+// 2.2
+	head = returnKthToLast(head, 2);
+	printf("kth node:%d", head->data);	
+
 
 	NODE* head = NULL;
 	int a[] = { 11,27,32,44,51 };
@@ -1170,16 +1428,8 @@ int main()
 	}
 	printList(head);
 
-	returnKthToLast(head, 2);
-
-	NODE* head = NULL;
-	int a[] = { 11,27,32,44,51 };
-	for (int i = 0; i < 5; i++) {
-		addList(&head, a[i]);
-	}
-	printList(head);
-
-	delete_middle_node(head->next->next->next);
+// 2.3
+	delete_middle_node(head->next->next);
 	printList(head);
 
 	NODE* head = NULL;
@@ -1189,7 +1439,8 @@ int main()
 	}
 	printList(head);
 
-	partition(head, 5);
+// 2.4
+	printList(partition(head, 3));
 
 
 	NODE* nodeA = NULL;
@@ -1200,22 +1451,25 @@ int main()
 
 	NODE* nodeB = NULL;
 	int b[] = { 9,7,6,4 };
+	//int b[] = { 5,2,3 };
 	for (int i = 0; i < 4; i++) {
 		addList(&nodeB, b[i]);
 	}
 
+// 2.5
 	printList(nodeA);
 	printList(nodeB);
 	printList(sumList(nodeA, nodeB));
 
-	NODE* nodeA = NULL;
-	int a[] = { 1,2,3,4,5 };
-	//int a[] = { 1,2,3,2,1 };
+// 2.6
+	NODE* head = NULL;
+	//int c[] = { 1,2,3,4,5 };
+	int c[] = { 1,2,3,2,1 };
 	for (int i = 0; i < 5; i++) {
-		addList(&nodeA, a[i]);
+		addList(&head, c[i]);
 	}
-	printList(nodeA);
-	printf("%d\n", palindrome(nodeA));
+	printList(head);
+	printf("%d\n", palindrome(head));
 
 //TODO  no cycle generated
 	NODE* nodeA = NULL;
@@ -1227,6 +1481,10 @@ int main()
 	}	
 	printList(nodeA);
 
+// 2.7 intersection
+
+
+// 2.8
 	nodeA = (loopDetection(nodeA));
 
 	if (nodeA) {
@@ -1236,30 +1494,45 @@ int main()
 		printf("not detected\n");
 	}
 
-	printf("%d\n", bitInsert(0b10000000000, 0b10011, 2, 6));
-	printf("%d\n", bitInsert(0b10010110001, 0b1000, 3, 6));
 
-	printf("count:%d\n", bigSmallFromGiven(5));	
-	printf("count:%d\n", bigSmallFromGiven(11));	
+// 5.1
+	printBin(bitInsert(0b10000000000, 0b10011, 2, 6));
+	printBin(bitInsert(0b10010110001, 0b1000, 3, 6));
 
-	printf("%d\n", multiply(10, 20));
 
+// 5.4																B		S
+	printf("count:%d\n", bigSmallFromGiven(5));		//  5: 0101		0110	0011		
+	printf("count:%d\n", bigSmallFromGiven(9));		//  9: 1001		1010	0110		
+	printf("count:%d\n", bigSmallFromGiven(11));	// 11: 1011		1101	0111			
+	printf("count:%d\n", bigSmallFromGiven(13948));	
+
+
+// 5.6		29 (or: 11101), 15 (or: 01111) -> 2	
+	printf("%d %d -> %d\n", 29, 15, conversion(29,15));
+	
+
+// 8.2
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
 			arr[i][j] = 0;
 		}
 	}
 	arr[1][1] = -1;
-*/
 
-if (robotInGrid(0, 0, 0)) {
+	if (robotInGrid(0, 0, 0)) {
 		printf("pass\n");
 	}
 	else {
 		printf("fail\n");
 	}
 
-	/*
+// 8.4
+	pow_set(3);
+
+// 8.5
+	printf("%d\n", multiply(10, 20));
+
+
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
 			printf("%d ", arr[i][j]);
@@ -1267,30 +1540,142 @@ if (robotInGrid(0, 0, 0)) {
 		printf("\n");
 	}
 
-	int a[20] = { 1, 3,12,14,25 }; 
-	int b[5]  = { 7,11,13,14,15 };
+// 10.1
+	int b[5] = { 1, 3,12,14,25 };
+	int a[20] = { 7,11,13,14,15 };
 
 	sorted_merge(a, b, 5, 5);
 
 	for (int i = 0; i < 20; i++) {
-		printf("%d ", a[i]);
+		printf("%3d ", a[i]);
 
 		if ((i+1) % 10 == 0) printf("\n");
 	}
 
-	int comb[4] = { 10,20,30,40 };
-	printCombination(comb, 4, 2);	
-
+// permutation
 	char s[] = "ABC";
 	int n = strlen(s);
 	permute(s, 0, n - 1);
 
-	pow_set(3);
+// combination
+	int comb[4] = { 10,20,30,40 };
+	printCombination(comb, 4, 2);	
+
+// prime
+	printf("%d\n", find_prime(7));
+
+// BST 
+	//				4
+	//			  /	  \		
+	//			2	   7
+	//		  /       /  \	
+	//		1        6    8
+	Node* root = NULL;
+
+	int arr[] = { 4, 7, 2, 1, 6, 8 };
+	for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {
+		//root = insertNode(root, arr[i]);
+		insertNode(&root, arr[i]);
+	}
+	InOrder(root);		// 1 2 4 6 7 8
+	printf("\n");
+	levelOrder(root);	// 4 2 7 1 6 8
+	printf("\n");
+
+// minimum depth
+	Node* root = NULL;
+
+	int arr[] = { 4, 7, 2, 1, 6, 8 };
+	//for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {
+	for (int i = 0; i < 5 ; i++) {
+		insertNode(&root, arr[i]);
+	}
+	InOrder(root);		// 1 2 4 6 7 8
+
+	printf("min depth:%d\n", minDepth(root));
+
+
+// 4.2 minimal binary tree
+	int sorted_arr[] = { 1, 2, 4, 6, 7, 8 };
+	Node *root = createMinimalBST(sorted_arr, 0, 5);
+
+	InOrder(root);		// 1 2 4 6 7 8
+	printf("\n");
+
+//4.3
+
+
+
+//4.4
+	Node* root = NULL;
+	
+	//int arr[] = { 4, 7, 2, 1, 6, 8 };
+	int arr[] = { 1, 2, 4, 6, 7, 8 };
+	for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {
+		insertNode(&root, arr[i]);
+	}
+	InOrder(root);		// 1 2 4 6 7 8
+	printf("\n");
+
+	printf("balanced : %d\n", balanced_depth(root));
+
+
+// 4.5 valid BST
+	Node* root = NULL;
+	
+	int arr[] = { 4, 7, 2, 1, 6, 8 };
+	for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {
+		insertNode(&root, arr[i]);
+	}
+	InOrder(root);		// 1 2 4 6 7 8
+	printf("\n");
+
+	//bool result = isValidBST(root, left, right);	// neetcode
+	bool result = isValidBST(root);
+	printf("result:%d\n", result);
+
+//4.6
+	//				4
+	//			  /	  \		
+	//			2	   7
+	//		     \    /  \	
+	//		      3  6    8
+	Node* root = NULL;
+	
+	int arr[] = { 4, 7, 2, 3, 6, 8 };
+	for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {
+		insertNode(&root, arr[i]);
+	}
+	InOrder(root);		// 2 3 4 6 7 8
+	printf("\n");
+
+	levelOrder(root);	// 4 2 7 3 6 8
+	printf("\n");
+
+	printf("%d\n", inOrderSuccessor(root->left));			// 2 -> 3
+	printf("%d\n", inOrderSuccessor(root));					// 4 -> 6
+	printf("%d\n", inOrderSuccessor(root->left->right));	// 3 -> 4
+	printf("%d\n", inOrderSuccessor(root->right->left));	// 6 -> 7
+	printf("%d\n", inOrderSuccessor(root->right->right));	// 8 -> NULL
 */
 
+//~4.7 topology sort
+//4.8 LCA
 
-	//printf("%d\n", find_prime(7));
+
+
+
+//4.9 BST seq
+
+
+//4.10 subtree
+
+
+//4.11 random node
+
+
+//4.12 path sum
+
 
 	return 0;
 }
-
