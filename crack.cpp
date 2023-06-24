@@ -466,320 +466,11 @@ bool palindrome(NODE* node)
 
 
 
-void printBin(unsigned int a)
-{
-	for (int i = 6; i >= 0; i--)
-		printf("%d", (a & (1 << i)) >> i);
-	printf("  ");
-}
-
-
-int countOnes(unsigned int a)
-{
-	int count = 0;
-	/*
-		for (int i = 0;i < 32; i++) {
-			if (a & (1 << i)) {
-				count++;
-			}
-		}*/
-		/*
-			while (a) {
-				if(a & 1) {
-					count++;	// count += a & 1;
-				}
-				a = a >> 1;
-			}
-		*/
-	while (a) {
-		a = a & (a - 1);
-		count++;
-	}
-
-	return count;
-}
-
-//5.1
-unsigned int bitInsert(unsigned int a, unsigned int b, int i, int j)
-{
-	int mask = ((1 << j) - 1) ^ ((1 << i) - 1);
-	return a & (~mask) | (b << i);
-}
-
-//5.4
-/*
-13  12  11  10  9  8  7  6  5  4  3  2  1  0
----------------------------------------------
- 1   1   0   1  1  0  0  1  1  1  1  1  0  0
-					  ^
- 1   1   0   1  1  0  1  1  1  1  1  1  0  0
-
- 1   1   0   1  1  0  1  0  0  0  0  0  0  0
-						 ^  ^  ^  ^  ^  ^  ^
- 1   1   0   1  1  0  1  0  0  0  1  1  1  1
-								  ^  ^  ^  ^
-	int c = a;
-	int c0 = 0;
-	int c1 = 0;
-
-	while (((c & 1) == 0) && (c != 0)) {	// trailing zero
-		c0++;
-		c >>= 1;
-	}
-
-	while ((c & 1) == 1) {					// non trailing ones
-		c1++;
-		c >>= 1;
-	}
-
-	printf("c0:%d c1:%d\n", c0, c1);
-	// If there is no bigger number with the same no. of 1's
-	if (c0 + c1 == 31 || c0 + c1 == 0)
-		return -1;
-
-	// position of rightmost non-trailing zero
-	int p = c0 + c1;
-
-	// Flip rightmost non-trailing zero
-	a |= (1 << p);
-
-	// Clear all bits to the right of p
-	a &= ~((1 << p) - 1);
-
-	// Insert (c1-1) ones on the right.
-	a |= (1 << (c1 - 1)) - 1;
-
-	return a;
-
- 13  12  11  10  9  8  7  6  5  4  3  2  1  0
- ---------------------------------------------
- 1   0   0    1  1  1  1  0  0  0  0  0  1  1
-					   ^
- 1   0   0    1  1  1  0  0  0  0  0  0  0  0
-										^  ^
- 1   0   0    1  1  1  0  1  1  1  0  0  0  0
-						  ^  ^  ^
-
-	int temp = a;
-	int c0 = 0;
-	int c1 = 0;
-
-	// count 1s
-	while ((temp & 1) == 1) {
-		c1++;
-		temp = temp >> 1;
-	}
-
-	if (temp == 0) {
-		return -1;
-	}
-
-	// count 0s except leading 0s
-	while (((temp & 1) == 0) && (temp != 0)) {
-		c0++;
-		temp = temp >> 1;
-	}
-
-	// position of rightmost non-trailing one.
-	int p = c0 + c1;
-
-	// clears from bit p onwards
-	a = a & ((~0) << (p + 1));
-
-	// Sequence of (c1+1) ones
-	int mask = (1 << (c1 + 1)) - 1;
-
-	a = a | mask << (c0 - 1);
-
-	return a;
-*/
-unsigned int bigSmallFromGiven(unsigned int a)
-{
-/* 1  1  0  1  1  0  0  1  1  1  1  1  0  0
-   1  1  0  1  1  0  1  1  1  1  1  1  0  0
-   1  1  0  1  1  0  1  0  0  0  1  1  1  1 */
-	//-- closet bigger number
-	// find the right most non trailing zero and set to it
-	bool oneFound = false;
-	int bit = 0;
-	int temp = a;
-	int count = 0;
-
-	while (bit < 32) {
-		// find 1 first
-		if (temp & (1 << bit)) {
-			oneFound = true;
-		}
-
-		// then find 0 
-		if (oneFound) {
-			if (!(temp & (1 << bit))) {
-				temp |= 1 << bit;
-				break;
-			}
-			count++;
-		}
-		bit++;
-	}
-
-	// clear after the 1st one and then set count - 1
-	temp = temp & ~((1 << bit) - 1);
-	for (int i = 0; i < count - 1; i++) {
-		temp |= 1 << i;
-	}
-
-
-/* 1  0  0  1  1  1  1  0  0  0  0  0  1  1
-   1  0  0  1  1  1  0  0  0  0  0  0  0  0
-   1  0  0  1  1  1  0  1  1  1  0  0  0  0 */
-
-	//-- closet smaller number
-	// find the right most non trailing one and set it
-	int zeroFound = false;
-	bit = 0;
-	temp = a;
-	count = 0;
-
-	printBin(temp);
-
-	while (bit < 32) {
-		// find 0 first
-		if (!(temp & (1 << bit))) {
-			zeroFound = true;
-		}
-
-		// then find 1 and clear the bit
-		if (zeroFound) {
-			if (temp & (1 << bit)) {
-				temp &= ~(1 << bit);
-				break;
-			}
-		}
-		else {
-			count++;
-		}
-		bit++;
-	}
-	printf("..%d..", count);
-	printBin(temp);
-
-	// clear after the flipped bit and then set count + 1
-	temp = temp & ~((1 << bit) - 1);
-	printBin(temp);
-	for (int i = 0; i < count + 1; i++) {
-		temp |= 1 << (bit - i - 1);
-	}
-	printBin(temp);
-
-	return temp;
-}
-
-//5.6
-int conversion(int a, int b)
-{
-	int t;
-	int	count = 0;
-
-	t = a ^ b;
-
-	while (t) {
-		t = t & (t - 1);
-		count++;
-	}
-
-	return count;
-}
-
-//10.1
-/*
-void sorted_merge(int* a, int* b, int la, int lb)
-{
-	int size = la + lb - 1;
-	la--;
-	lb--;
-
-	while (lb >= 0) {
-		if (a[la] > b[lb]) {
-			a[size--] = a[la--];
-		} else {
-			a[size--] = b[lb--];
-		}
-	}
-}
-void sorted_merge(int* a, int* b, int lastA, int lastB)
-{
-	int indexA = lastA - 1;	
-	int indexB = lastB - 1;
-	int indexMerged = lastB + lastA - 1;
-		
-	while (indexB >= 0) {
-		if (indexA >= 0 && (a[indexA] > b[indexB])) {
-			a[indexMerged] = a[indexA];
-			indexA--;
-		}
-		else {
-			a[indexMerged] = b[indexB];
-			indexB--;
-		}
-		indexMerged--;
-	}
-}*/
-
-void sorted_merge(int* a, int* b, int lastA, int lastB)
-{
-
-	int index = lastA + lastB - 1;
-	int indexA = lastA - 1;
-	int indexB = lastB - 1;
-
-	while ((indexA >= 0) && (indexB >= 0)) {
-		if (a[indexA] > b[indexB]) {
-			a[index] = a[indexA];
-			indexA--;
-		}
-		else {
-			a[index] = b[indexB];
-			indexB--;
-		}
-		index--;
-	}
-
-	if (indexB > 0) {
-		for (; indexB >= 0; indexB--) {
-			a[index] = b[indexB];
-			index--;
-		}
-	}
-}
-
-//prime
-bool prime(int n)
-{
-/*
-	for () {
-	
-	
-	}
-*/
-	return true;
-}
-
-bool find_prime(int n)
-{
-	return true;
-}
-
-//memcpy
-char* mymemcpy(char* src, char* desc, int size)
-{
-	return desc;
-}
-
 typedef struct _treeNode {
 	int key;
-	struct _treeNode* parent;
 	struct _treeNode* left;
 	struct _treeNode* right;
+	struct _treeNode* parent;
 } Node;
 
 
@@ -1249,9 +940,55 @@ int inOrderSuccessor(Node *node)
 
 
 //4.8 lowest common ancestor
+bool isNodeFound(Node* root, Node* node)
+{
+	//printf("%p %p->", root, node);
+	if (root == NULL) {
+		//printf("----------------%d not found\n", node->key);
+		return false;
+	}
+	//printf("%d %d\n", root->key, node->key);
 
+	if (root == node) {
+		//printf("----------------%d found\n", node->key);
+		return true;
+	}
 
+	bool result = false;
 
+	result = isNodeFound(root->left, node);
+	result |= isNodeFound(root->right, node);
+
+	return result;
+}
+
+Node* lowestCommonAncestor(Node* root, Node* p, Node* q)
+{
+	bool onLeft = false;
+	bool onRight = false;
+
+	if (!root || root == p || root == q) {	// !!!!!! 
+		return root;
+	}
+
+	onLeft = isNodeFound(root->left, p);
+	onRight = isNodeFound(root->right, q);
+	//printf("L:%d    R:%d\n", onLeft, onRight);
+
+	if (onLeft && onRight) {
+		//printf("LCA %d found\n", root->key);
+		return root;
+	} else if (onLeft && !onRight) {
+		//printf("p & q on left: start from %d\n", root->left->key);
+		lowestCommonAncestor(root->left, p, q);
+	} else if (!onLeft && onRight) {
+		//printf("p & q on right: start from %d\n", root->right->key);
+		lowestCommonAncestor(root->right, p, q);
+	}
+	else {
+		printf("error!\n");
+	}
+}
 
 //4.9 BST sequence
 
@@ -1262,11 +999,330 @@ int inOrderSuccessor(Node *node)
 //2. T1!=T2 then T1.left==T2 or T1.right T2 => one of them matching then goto #1
 
 
+
+
+
+
+
+
 //4.11 rondom node
 
 
 //4.12 path sum
 
+
+
+void printBin(unsigned int a)
+{
+	for (int i = 6; i >= 0; i--)
+		printf("%d", (a & (1 << i)) >> i);
+	printf("  ");
+}
+
+
+int countOnes(unsigned int a)
+{
+	int count = 0;
+	/*
+		for (int i = 0;i < 32; i++) {
+			if (a & (1 << i)) {
+				count++;
+			}
+		}*/
+		/*
+			while (a) {
+				if(a & 1) {
+					count++;	// count += a & 1;
+				}
+				a = a >> 1;
+			}
+		*/
+	while (a) {
+		a = a & (a - 1);
+		count++;
+	}
+
+	return count;
+}
+
+//5.1
+unsigned int bitInsert(unsigned int a, unsigned int b, int i, int j)
+{
+	int mask = ((1 << j) - 1) ^ ((1 << i) - 1);
+	return a & (~mask) | (b << i);
+}
+
+//5.4
+/*
+13  12  11  10  9  8  7  6  5  4  3  2  1  0
+---------------------------------------------
+ 1   1   0   1  1  0  0  1  1  1  1  1  0  0
+					  ^
+ 1   1   0   1  1  0  1  1  1  1  1  1  0  0
+
+ 1   1   0   1  1  0  1  0  0  0  0  0  0  0
+						 ^  ^  ^  ^  ^  ^  ^
+ 1   1   0   1  1  0  1  0  0  0  1  1  1  1
+								  ^  ^  ^  ^
+	int c = a;
+	int c0 = 0;
+	int c1 = 0;
+
+	while (((c & 1) == 0) && (c != 0)) {	// trailing zero
+		c0++;
+		c >>= 1;
+	}
+
+	while ((c & 1) == 1) {					// non trailing ones
+		c1++;
+		c >>= 1;
+	}
+
+	printf("c0:%d c1:%d\n", c0, c1);
+	// If there is no bigger number with the same no. of 1's
+	if (c0 + c1 == 31 || c0 + c1 == 0)
+		return -1;
+
+	// position of rightmost non-trailing zero
+	int p = c0 + c1;
+
+	// Flip rightmost non-trailing zero
+	a |= (1 << p);
+
+	// Clear all bits to the right of p
+	a &= ~((1 << p) - 1);
+
+	// Insert (c1-1) ones on the right.
+	a |= (1 << (c1 - 1)) - 1;
+
+	return a;
+
+ 13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ ---------------------------------------------
+ 1   0   0    1  1  1  1  0  0  0  0  0  1  1
+					   ^
+ 1   0   0    1  1  1  0  0  0  0  0  0  0  0
+										^  ^
+ 1   0   0    1  1  1  0  1  1  1  0  0  0  0
+						  ^  ^  ^
+
+	int temp = a;
+	int c0 = 0;
+	int c1 = 0;
+
+	// count 1s
+	while ((temp & 1) == 1) {
+		c1++;
+		temp = temp >> 1;
+	}
+
+	if (temp == 0) {
+		return -1;
+	}
+
+	// count 0s except leading 0s
+	while (((temp & 1) == 0) && (temp != 0)) {
+		c0++;
+		temp = temp >> 1;
+	}
+
+	// position of rightmost non-trailing one.
+	int p = c0 + c1;
+
+	// clears from bit p onwards
+	a = a & ((~0) << (p + 1));
+
+	// Sequence of (c1+1) ones
+	int mask = (1 << (c1 + 1)) - 1;
+
+	a = a | mask << (c0 - 1);
+
+	return a;
+*/
+unsigned int bigSmallFromGiven(unsigned int a)
+{
+/* 1  1  0  1  1  0  0  1  1  1  1  1  0  0
+   1  1  0  1  1  0  1  1  1  1  1  1  0  0
+   1  1  0  1  1  0  1  0  0  0  1  1  1  1 */
+	//-- closet bigger number
+	// find the right most non trailing zero and set to it
+	bool oneFound = false;
+	int bit = 0;
+	int temp = a;
+	int count = 0;
+
+	while (bit < 32) {
+		// find 1 first
+		if (temp & (1 << bit)) {
+			oneFound = true;
+		}
+
+		// then find 0 
+		if (oneFound) {
+			if (!(temp & (1 << bit))) {
+				temp |= 1 << bit;
+				break;
+			}
+			count++;
+		}
+		bit++;
+	}
+
+	// clear after the 1st one and then set count - 1
+	temp = temp & ~((1 << bit) - 1);
+	for (int i = 0; i < count - 1; i++) {
+		temp |= 1 << i;
+	}
+
+
+/* 1  0  0  1  1  1  1  0  0  0  0  0  1  1
+   1  0  0  1  1  1  0  0  0  0  0  0  0  0
+   1  0  0  1  1  1  0  1  1  1  0  0  0  0 */
+
+	//-- closet smaller number
+	// find the right most non trailing one and set it
+	int zeroFound = false;
+	bit = 0;
+	temp = a;
+	count = 0;
+
+	printBin(temp);
+
+	while (bit < 32) {
+		// find 0 first
+		if (!(temp & (1 << bit))) {
+			zeroFound = true;
+		}
+
+		// then find 1 and clear the bit
+		if (zeroFound) {
+			if (temp & (1 << bit)) {
+				temp &= ~(1 << bit);
+				break;
+			}
+		}
+		else {
+			count++;
+		}
+		bit++;
+	}
+	printf("..%d..", count);
+	printBin(temp);
+
+	// clear after the flipped bit and then set count + 1
+	temp = temp & ~((1 << bit) - 1);
+	printBin(temp);
+	for (int i = 0; i < count + 1; i++) {
+		temp |= 1 << (bit - i - 1);
+	}
+	printBin(temp);
+
+	return temp;
+}
+
+//5.6
+int conversion(int a, int b)
+{
+	int t;
+	int	count = 0;
+
+	t = a ^ b;
+
+	while (t) {
+		t = t & (t - 1);
+		count++;
+	}
+
+	return count;
+}
+
+//prime
+bool prime(int n)
+{
+/*
+	for () {
+	
+	
+	}
+*/
+	return true;
+}
+
+bool find_prime(int n)
+{
+	return true;
+}
+
+//memcpy
+char* mymemcpy(char* src, char* desc, int size)
+{
+	return desc;
+}
+
+
+
+
+//10.1
+/*
+void sorted_merge(int* a, int* b, int la, int lb)
+{
+	int size = la + lb - 1;
+	la--;
+	lb--;
+
+	while (lb >= 0) {
+		if (a[la] > b[lb]) {
+			a[size--] = a[la--];
+		} else {
+			a[size--] = b[lb--];
+		}
+	}
+}
+void sorted_merge(int* a, int* b, int lastA, int lastB)
+{
+	int indexA = lastA - 1;	
+	int indexB = lastB - 1;
+	int indexMerged = lastB + lastA - 1;
+		
+	while (indexB >= 0) {
+		if (indexA >= 0 && (a[indexA] > b[indexB])) {
+			a[indexMerged] = a[indexA];
+			indexA--;
+		}
+		else {
+			a[indexMerged] = b[indexB];
+			indexB--;
+		}
+		indexMerged--;
+	}
+}*/
+
+void sorted_merge(int* a, int* b, int lastA, int lastB)
+{
+
+	int index = lastA + lastB - 1;
+	int indexA = lastA - 1;
+	int indexB = lastB - 1;
+
+	while ((indexA >= 0) && (indexB >= 0)) {
+		if (a[indexA] > b[indexB]) {
+			a[index] = a[indexA];
+			indexA--;
+		}
+		else {
+			a[index] = b[indexB];
+			indexB--;
+		}
+		index--;
+	}
+
+	if (indexB > 0) {
+		for (; indexB >= 0; indexB--) {
+			a[index] = b[indexB];
+			index--;
+		}
+	}
+}
 
 
 
@@ -1351,7 +1407,6 @@ int multiply(int a, int b)
 	return a;
 }
 #endif
-
 
 
 int main()
@@ -1657,13 +1712,35 @@ int main()
 	printf("%d\n", inOrderSuccessor(root->left->right));	// 3 -> 4
 	printf("%d\n", inOrderSuccessor(root->right->left));	// 6 -> 7
 	printf("%d\n", inOrderSuccessor(root->right->right));	// 8 -> NULL
-*/
 
 //~4.7 topology sort
 //4.8 LCA
+	//				4
+	//			  /	  \		
+	//			2	   7
+	//		  /       /  \	
+	//		1        6    8
+	Node* root = NULL;
 
+	int arr[] = { 4, 7, 2, 1, 6, 8 };
+	for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {
+		insertNode(&root, arr[i]);
+	}
+	InOrder(root);		// 1 2 4 6 7 8
+	printf("\n");
 
+	// 2 & 8
+	printf("LCA %d for %d & %d\n\n", lowestCommonAncestor(root, root->left, root->right->right)->key, root->left->key, root->right->right->key);
 
+	// 2 & 1
+	printf("LCA %d for %d & %d\n\n", lowestCommonAncestor(root, root->left, root->left->left)->key, root->left->key, root->left->left->key);
+
+	// 7 & 6
+	printf("LCA %d for %d & %d\n\n", lowestCommonAncestor(root, root->right, root->right->left)->key, root->right->key, root->right->left->key);
+
+	// 6 & 8
+	printf("LCA %d for %d & %d\n\n", lowestCommonAncestor(root, root->right->left, root->right->right)->key, root->right->left->key, root->right->right->key);
+*/
 
 //4.9 BST seq
 
