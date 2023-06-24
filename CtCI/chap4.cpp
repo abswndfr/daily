@@ -178,10 +178,12 @@ int minDepth(Node* node)
 //4.1 graph
 
 //4.2
-// need to be sorted !!!!!
+// input array needs to be sorted !!!!!
 Node* createMinimalBST(int* arr, int start, int end)
 {
+	printf("s:%d e:%d -> ", start, end);
 	if (end < start) {
+		printf("end\n");
 		return NULL;
 	}
 
@@ -190,8 +192,18 @@ Node* createMinimalBST(int* arr, int start, int end)
 	Node* node = (Node*)malloc(sizeof(Node));
 
 	node->key = arr[mid];
+	node->parent = NULL;
+	printf("%d[%d]\n", arr[mid], mid);
+
 	node->left = createMinimalBST(arr, start, mid - 1);
+	if (node->left) {
+		node->left->parent = node;
+	}
+	
 	node->right = createMinimalBST(arr, mid + 1, end);
+	if (node->right) {
+		node->right->parent = node;
+	}
 
 	return node;
 }
@@ -521,10 +533,12 @@ Node* lowestCommonAncestor(Node* root, Node* p, Node* q)
 	if (onLeft && onRight) {
 		//printf("LCA %d found\n", root->key);
 		return root;
-	} else if (onLeft && !onRight) {
+	}
+	else if (onLeft && !onRight) {
 		//printf("p & q on left: start from %d\n", root->left->key);
 		lowestCommonAncestor(root->left, p, q);
-	} else if (!onLeft && onRight) {
+	}
+	else if (!onLeft && onRight) {
 		//printf("p & q on right: start from %d\n", root->right->key);
 		lowestCommonAncestor(root->right, p, q);
 	}
@@ -602,78 +616,78 @@ bool isSubTree(Node* t1, Node* t2)
 
 
 int main()
-{
+{/*
 	// BST
 		//				4
 		//			  /	  \
 		//			2	   7
 		//		  /       /  \
 		//		1        6    8
-		Node* rootA = NULL;
+	Node* rootA = NULL;
 
-		int arrA[] = { 4, 7, 2, 1, 6, 8 };
-		for (int i = 0; i < sizeof(arrA) / sizeof(int); i++) {
-			//root = insertNode(root, arr[i]);
-			insertNode(&rootA, arrA[i]);
-		}
-		printf("inorder  ");
-		InOrder(rootA);		// 1 2 4 6 7 8
-		printf("\nlevel order  ");
-		levelOrder(rootA);	// 4 2 7 1 6 8
-		printf("\n");
+	int arrA[] = { 4, 7, 2, 1, 6, 8 };
+	for (int i = 0; i < sizeof(arrA) / sizeof(int); i++) {
+		//root = insertNode(root, arr[i]);
+		insertNode(&rootA, arrA[i]);
+	}
+	printf("inorder  ");
+	InOrder(rootA);		// 1 2 4 6 7 8
+	printf("\nlevel order  ");
+	levelOrder(rootA);	// 4 2 7 1 6 8
+	printf("\n");
 
 	// minimum depth
-		Node* rootB = NULL;
+	Node* rootB = NULL;
 
-		int arrB[] = { 4, 7, 2, 1, 6, 8 };
-		//for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {
-		for (int i = 0; i < 5 ; i++) {
-			insertNode(&rootB, arrB[i]);
-		}
-		InOrder(rootB);		// 1 2 4 6 7 8
+	int arrB[] = { 4, 7, 2, 1, 6, 8 };
+	//for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {
+	for (int i = 0; i < 5; i++) {
+		insertNode(&rootB, arrB[i]);
+	}
+	InOrder(rootB);		// 1 2 4 6 7 8
 
-		printf("min depth:%d\n", minDepth(rootB));
-
-#if 0
+	printf("min depth:%d\n", minDepth(rootB));
+*/
+#if 1
 	// 4.2 minimal binary tree
-		int sorted_arrA[] = { 1, 2, 4, 6, 7, 8 };
-		Node *rootC = createMinimalBST(sorted_arrA, 0, 5);
+	int sorted_arrA[] = { 1, 2, 4, 6, 7, 8 };
+	Node* rootC = createMinimalBST(sorted_arrA, 0, 5);
 
-		InOrder(rootC);		// 1 2 4 6 7 8
-		printf("\n");
+	InOrder(rootC);		// 1 2 4 6 7 8
+	printf("\n");
 #endif
 
 	//4.3 list of depths
 
 
-
+/*
 	//4.4
-		Node* rootD = NULL;
+	Node* rootD = NULL;
 
-		int arrD[] = { 4, 7, 2, 1, 6, 8 };
-		//int arrD[] = { 1, 2, 4, 6, 7, 8 };
-		for (int i = 0; i < sizeof(arrD) / sizeof(int); i++) {
-			insertNode(&rootD, arrD[i]);
-		}
-		InOrder(rootD);		// 1 2 4 6 7 8
-		printf("\n\n");
+	int arrD[] = { 4, 7, 2, 1, 6, 8 };
+	//int arrD[] = { 1, 2, 4, 6, 7, 8 };
+	for (int i = 0; i < sizeof(arrD) / sizeof(int); i++) {
+		insertNode(&rootD, arrD[i]);
+	}
+	InOrder(rootD);		// 1 2 4 6 7 8
+	printf("\n\n");
 
-		printf("4.4 balanced : %d\n", balanced_depth(rootD));
+	printf("4.4 balanced : %d\n", balanced_depth(rootD));
 
 
 	// 4.5 valid BST
-		Node* rootE = NULL;
+	Node* rootE = NULL;
 
-		int arrE[] = { 4, 7, 2, 1, 6, 8 };
-		for (int i = 0; i < sizeof(arrE) / sizeof(int); i++) {
-			insertNode(&rootE, arrE[i]);
-		}
-		InOrder(rootE);		// 1 2 4 6 7 8
-		printf("\n");
+	int arrE[] = { 4, 7, 2, 1, 6, 8 };
+	for (int i = 0; i < sizeof(arrE) / sizeof(int); i++) {
+		insertNode(&rootE, arrE[i]);
+	}
+	InOrder(rootE);		// 1 2 4 6 7 8
+	printf("\n");
 
-		//bool result = isValidBST(root, left, right);	// neetcode
-		bool result = isValidBST(rootE);
-		printf("\n4.5 valid BST:%d\n", result);
+	//bool result = isValidBST(root, left, right);	// neetcode
+	bool result = isValidBST(rootE);
+	printf("\n4.5 valid BST:%d\n", result);
 
 	//4.6
 		//				4
@@ -681,24 +695,24 @@ int main()
 		//			2	   7
 		//		     \    /  \
 		//		      3  6    8
-		printf("\n4.6\n");
-		Node* rootF = NULL;
+	printf("\n4.6\n");
+	Node* rootF = NULL;
 
-		int arrF[] = { 4, 7, 2, 3, 6, 8 };
-		for (int i = 0; i < sizeof(arrF) / sizeof(int); i++) {
-			insertNode(&rootF, arrF[i]);
-		}
-		printf("in order : ");
-		InOrder(rootF);		// 2 3 4 6 7 8
-		printf("\nlevel order : ");									
-		levelOrder(rootF);	// 4 2 7 3 6 8						// ????
-		printf("\n");
+	int arrF[] = { 4, 7, 2, 3, 6, 8 };
+	for (int i = 0; i < sizeof(arrF) / sizeof(int); i++) {
+		insertNode(&rootF, arrF[i]);
+	}
+	printf("in order : ");
+	InOrder(rootF);		// 2 3 4 6 7 8
+	printf("\nlevel order : ");
+	levelOrder(rootF);	// 4 2 7 3 6 8						// ????
+	printf("\n");
 
-		printf("%d\n", inOrderSuccessor(rootF->left));			// 2 -> 3
-		printf("%d\n", inOrderSuccessor(rootF));				// 4 -> 6
-		printf("%d\n", inOrderSuccessor(rootF->left->right));	// 3 -> 4
-		printf("%d\n", inOrderSuccessor(rootF->right->left));	// 6 -> 7
-		printf("%d\n", inOrderSuccessor(rootF->right->right));	// 8 -> NULL
+	printf("%d\n", inOrderSuccessor(rootF->left));			// 2 -> 3
+	printf("%d\n", inOrderSuccessor(rootF));				// 4 -> 6
+	printf("%d\n", inOrderSuccessor(rootF->left->right));	// 3 -> 4
+	printf("%d\n", inOrderSuccessor(rootF->right->left));	// 6 -> 7
+	printf("%d\n", inOrderSuccessor(rootF->right->right));	// 8 -> NULL
 
 	//~4.7 topology sort
 	//4.8 LCA
@@ -707,26 +721,26 @@ int main()
 		//			2	   7
 		//		  /       /  \
 		//		1        6    8
-		Node* rootG = NULL;
+	Node* rootG = NULL;
 
-		int arr[] = { 4, 7, 2, 1, 6, 8 };
-		for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {
-			insertNode(&rootG, arr[i]);
-		}
-		InOrder(rootG);		// 1 2 4 6 7 8
-		printf("\n\n");
+	int arr[] = { 4, 7, 2, 1, 6, 8 };
+	for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {
+		insertNode(&rootG, arr[i]);
+	}
+	InOrder(rootG);		// 1 2 4 6 7 8
+	printf("\n\n");
 
-		// 2 & 8
-		printf("4.8 LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->left, rootG->right->right)->key, rootG->left->key, rootG->right->right->key);
+	// 2 & 8
+	printf("4.8 LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->left, rootG->right->right)->key, rootG->left->key, rootG->right->right->key);
 
-		// 2 & 1
-		printf("4.8 LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->left, rootG->left->left)->key, rootG->left->key, rootG->left->left->key);
+	// 2 & 1
+	printf("4.8 LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->left, rootG->left->left)->key, rootG->left->key, rootG->left->left->key);
 
-		// 7 & 6
-		printf("4.8 LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->right, rootG->right->left)->key, rootG->right->key, rootG->right->left->key);
+	// 7 & 6
+	printf("4.8 LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->right, rootG->right->left)->key, rootG->right->key, rootG->right->left->key);
 
-		// 6 & 8
-		printf("4.8 LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->right->left, rootG->right->right)->key, rootG->right->left->key, rootG->right->right->key);
+	// 6 & 8
+	printf("4.8 LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->right->left, rootG->right->right)->key, rootG->right->left->key, rootG->right->right->key);
 
 
 	//4.9 BST seq
@@ -738,29 +752,29 @@ int main()
 		//			2	   7
 		//		  /       /  \
 		//		1        6    8
-		Node* t1 = NULL;
-		Node* t2 = NULL;
+	Node* t1 = NULL;
+	Node* t2 = NULL;
 
-		int arr1[] = { 4, 7, 2, 1, 6, 8 };
-		for (int i = 0; i < sizeof(arr1) / sizeof(int); i++) {
-			insertNode(&t1, arr1[i]);
-		}
-		InOrder(t1);		// 1 2 4 6 7 8
-		printf("\n");
+	int arr1[] = { 4, 7, 2, 1, 6, 8 };
+	for (int i = 0; i < sizeof(arr1) / sizeof(int); i++) {
+		insertNode(&t1, arr1[i]);
+	}
+	InOrder(t1);		// 1 2 4 6 7 8
+	printf("\n");
 
-		int arr2[] = { 7, 6, 8 };
-		for (int i = 0; i < sizeof(arr2) / sizeof(int); i++) {
-			insertNode(&t2, arr2[i]);
-		}
-		InOrder(t2);		// 6 7 8
-		printf("\n\n");
+	int arr2[] = { 7, 6, 8 };
+	for (int i = 0; i < sizeof(arr2) / sizeof(int); i++) {
+		insertNode(&t2, arr2[i]);
+	}
+	InOrder(t2);		// 6 7 8
+	printf("\n\n");
 
-		printf("4.10 t2 is t1's subtree:%d\n", isSubTree(t1, t2));
+	printf("4.10 t2 is t1's subtree:%d\n", isSubTree(t1, t2));
 
 	//4.11 random node
 
 
 	//4.12 path sum
-
+*/
 	return 0;
 }
