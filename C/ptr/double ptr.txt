@@ -1,0 +1,35 @@
+https://www.youtube.com/watch?v=P2B1FT8okyc
+
+
+#include <stdio.h>
+
+void test(int **p1, int *p2, int p3, int v)
+{
+    printf("%p, %p, %d\n", p1, *p1, **p1);
+    p2 = malloc(sizeof(int));
+    *p2 = p3;
+    *p1 = p2;    
+    
+    *p2 = v;
+    
+    printf("%p, %p, %d\n", p1, *p1, **p1);
+    printf("%p, %d\n", p2, *p2);        
+}
+
+int main() {
+    int *ptr;
+    int val = 7;
+    
+    ptr = &val;
+    *ptr = 4;
+
+    printf("&ptr: %p, ptr: %p, *ptr: %d\n\n", &ptr, ptr, *ptr);    
+
+    test(&ptr, ptr, *ptr, val);
+    
+    printf("\n&ptr: %p, ptr: %p, *ptr: %d\n\n", &ptr, ptr, *ptr);    
+
+    free(ptr);
+    
+    return 0;
+}

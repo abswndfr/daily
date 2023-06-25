@@ -1,0 +1,79 @@
+  - bitfield < type size
+
+
+
+  - pointer to struct
+
+	typedef struct {
+		int member;
+	} bitmap_t;
+	
+		bitmap_t bmp;
+		bitmap_t *pB = &bmp;
+		
+		pB->member = 7;
+	
+		int *pData;
+		pData = pB->data;
+		
+		printf("%p %p\n", &bmp, &bmp.member);     	// 0x7ffd232915d0 0x7ffd232915d0
+		printf("%p %p\n",   pB, pB->data);			// 0x7ffd232915d0 0x559af90fd2a0
+
+  - typecast		   
+      bmp.pixels = (uint32_t*)malloc(bmp.width * bmp.height * sizeof(uint32_t));   
+
+  - flexible field members	
+    : "How to create an array without declaring the size in C?" in stackoverflow
+
+	  You can declare an array without a size specifier for the leftmost dimension in multiples cases:
+	    as a global variable with extern class storage (the array is defined elsewhere),
+	    as a function parameter: int main(int argc, char *argv[]). 
+		   In this case the size specified for the leftmost dimension is ignored anyway.
+	    as the last member of a struct with more than one named member. This is a C99 extension called a flexible array.
+
+   	  struct student
+   	  {
+   	  	int stud_id;			// 4
+   	  	int name_len;			// 4
+   	  	int struct_size;		// 4
+   	  	char stud_name[];		// 0
+   	  }; //  The size of structure is = 4 + 4 + 4 + 0 = 12:  
+   
+      struct student *s = malloc(sizeof(*s) + sizeof(char[strlen(stud_name)]));	
+
+
+	  >> from chatGPT for bitmap test example in C
+
+		#include <stdio.h>
+		#include <stdlib.h>
+		#include <stdint.h>
+		
+		typedef struct {
+			uint32_t width;
+			uint32_t height;
+			uint32_t *pixels; // Each pixel is a 32-bit integer
+		} Bitmap;
+		
+		int get_pixel(Bitmap *bmp, uint32_t x, uint32_t y) {
+			if (x >= bmp->width || y >= bmp->height) {
+				return -1; // Out of bounds
+			}
+			return bmp->pixels[y * bmp->width + x];
+		}
+		
+		void set_pixel(Bitmap *bmp, uint32_t x, uint32_t y, uint32_t val) {
+			if (x >= bmp->width || y >= bmp->height) {
+				return; // Out of bounds
+			}
+			bmp->pixels[y * bmp->width + x] = val;
+		}
+		
+		int main() {
+			// Initialize bitmap
+			Bitmap bmp;
+			bmp.width = 8;
+			bmp.height = 8;
+			bmp.pixels = (uint32_t*)malloc(bmp.width * bmp.height * sizeof(uint32_t));
+			if (!bmp.pixels) {
+				return -1;
+		}

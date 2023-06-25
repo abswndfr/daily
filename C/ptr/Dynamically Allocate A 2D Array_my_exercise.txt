@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+char a[3][3];
+char *ca[3];
+char **c = NULL;
+
+/*  Dynamically Allocate A 2D Array | C Programming Tutorial   -   Portfolio Courses    https://www.youtube.com/watch?v=ZLc_OpzND2c
+
+    int **array = malloc(sizeof(int *) * rows);
+
+	int *array0 = malloc(sizeof(int) * 3);
+	int *array1 = malloc(sizeof(int) * 3);
+	int *array2 = malloc(sizeof(int) * 3);
+	
+	array[0] = array0;
+	array[1] = array1;
+	array[2] = array2;
+*/
+/*
+	array[0] = malloc(sizeof(int) * 3);
+	array[1] = malloc(sizeof(int) * 3);
+	array[2] = malloc(sizeof(int) * 3);
+*/
+/*	for (int i=0; i<rows; i++) {
+		array[i] = malloc(sizeof(int) * cols);
+	}*/
+
+int main() 
+{
+    ca[0] = "Hello";
+    ca[1] = "Darkness";
+    ca[2] = "MyOldFriend";
+
+    printf("%p\n", &c);     // 0x404078
+    printf("%p\n", c);      // nil
+    printf("%p\n", *c);     // segment fault
+
+#if 1                                                               // 1  as a double pointer
+    // c = (char **)malloc(sizeof(char));       // OK
+    // c = (char *)malloc(sizeof(char) * 12);   // OK
+    // c = malloc(sizeof(char));                // OK
+    *c = malloc(sizeof(char));                  // segment fault 
+#elif 0                                                             // 2  as an array of pointer
+    // array of pointer
+    c = malloc(sizeof(char *) * 3);    
+    // each pointer as an 1D array
+	for (int i=0; i<3; i++) {
+		c[i] = malloc(sizeof(char));
+	}
+#else                                                               // 3 as 2D array
+#endif
+
+#if 0
+    *c     = ca[0];
+    *(c+1) = ca[1];
+    *(c+2) = ca[2];
+
+    printf("%s\n", *c);         // *c = c[0]
+    printf("%s\n", *(c+1));     // *(c+1) = c[1]
+    printf("%s\n", *(c+2));     // *(c+2) = c[2]
+#else
+    c[0] = ca[0];
+    c[1] = ca[1];
+    c[2] = ca[2];
+
+    printf("%s\n", c[0]);         // *c = c[0]
+    printf("%s\n", c[1]);     // *(c+1) = c[1]
+    printf("%s\n", c[2]);     // *(c+2) = c[2]
+#endif    
+    return 0;
+}

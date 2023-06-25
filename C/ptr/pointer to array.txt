@@ -1,0 +1,233 @@
+#include <stdio.h>
+
+int main() 
+{
+    int data[2][3] = {{3,4,1},{2,5,4}};
+
+    for(int i = 0; i<2; i++) {
+        printf("*data[%d] = %d\n", i, *data[i]);						// data[2][3] == *data[2], not *data[3]
+    }	
+    printf("\n");
+    
+    for(int i = 0; i<2; i++) {		
+        for(int j = 0; j<3; j++) {		
+            printf("*data[%d]+%d = %d\n", i, j, *data[i]+j);			// *data[i] is the pointer to each 1D array
+        }
+    }
+    printf("\n");
+    
+    for(int i = 0; i<2; i++) {
+        for(int j = 0; j<3; j++) {
+            printf("&data[%d][%d] = %p[%d]\n", i, j, &data[i][j], data[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+
+    printf(" &data[0][0] -> &data[1][0]: %p -> %p\n", &data[0][0], &data[1][0]);
+    printf(" &data[0]    -> &data[1]   : %p -> %p\n", &data[0], &data[1]);
+    printf("  data       ->  data+1    : %p -> %p\n", data, data+1);            // data = &data[0]
+    printf("\n");
+    
+    printf(" &data[0][0] -> &data[0][1]: %p -> %p\n", &data[0][0], &data[0][1]);
+    printf(" *data       -> *data + 1  : %p -> %p[%d]\n", *data, *data + 1, *(*data+1)); // *data = &data[0][0]
+    printf("\n");
+
+    for(int i = 0; i<2; i++) {
+        for(int j = 0; j<3; j++) {
+            printf("*(*(data+%d)+%d) = %X\n", i, j, *(*(data+i)+j));
+        }
+    }
+
+	return 3;
+}	
+
+*data[0] = 3
+*data[1] = 2
+
+*data[0]+0 = 3
+*data[0]+1 = 4
+*data[0]+2 = 5
+*data[1]+0 = 2
+*data[1]+1 = 3
+*data[1]+2 = 4
+
+&data[0][0] = 0x7ffd296d5d60[3]											!
+&data[0][1] = 0x7ffd296d5d64[4]											!!
+&data[0][2] = 0x7ffd296d5d68[1]
+
+&data[1][0] = 0x7ffd296d5d6c[2]											!
+&data[1][1] = 0x7ffd296d5d70[5]
+&data[1][2] = 0x7ffd296d5d74[4]
+
+
+&data[0][0] -> &data[1][0]: 0x7ffd296d5d60 -> 0x7ffd296d5d6c			!
+&data[0]    -> &data[1]   : 0x7ffd296d5d60 -> 0x7ffd296d5d6c
+ data       ->  data+1    : 0x7ffd296d5d60 -> 0x7ffd296d5d6c
+
+&data[0][0] -> &data[0][1]: 0x7ffd296d5d60 -> 0x7ffd296d5d64			!!
+*data       -> *data + 1  : 0x7ffd296d5d60 -> 0x7ffd296d5d64[4]
+
+*(*(data+0)+0) = 3
+*(*(data+0)+1) = 4
+*(*(data+0)+2) = 1
+*(*(data+1)+0) = 2
+*(*(data+1)+1) = 5
+*(*(data+1)+2) = 4
+
+
+
+>> https://www.scaler.com/topics/c/array-of-pointers-in-c/
+
+		#include <stdio.h>
+		
+		int main()
+		{
+		    int a[5] = {5, 6, 7, 8, 9}, i;												// array declaration and initialization
+		    int *ptr = a;																// Valid in case of arrays but not valid in case of single integer values.
+		    
+		    printf("ptr : %u, &a[0] : %u, a : %u, &a : %u\n", ptr, &a[0], a, &a);		// All representations prints the base address of the array
+		    for(i = 0; i < 5; i++)
+		    {
+		    	printf("[index %d] Address : %u\n", i, (ptr + i));						// printing address values
+		    }
+		    printf("\n");
+		    
+		    for (i = 0; i < 5; i++)
+		    {
+		    	// a[i] = *(a + i) = *(ptr + i) = *(i + a) = a[i]
+		    	printf("[index %d] Value : %d %d %d %d\n", i, *(a + i), *(ptr + i), *(i + a), a[i]);	// Accessing array values through pointer 
+		    }
+		    printf("\n");
+		    
+		    printf("&a : %u, &a + 1 : %u\n", &a, &a + 1);  								// Gives address of next byte after array's last element
+		    printf("a : %u, a + 1 : %u\n", a, a + 1);									// Gives the address of the next element
+		    printf("*(a + 1) : %d\n", *(a + 1)); 										// Gives value at index 1
+		    printf("*a + 1 : %d\n", *a + 1);   											// Gives (value at index 0) + 1
+		    printf("(*ptr / 2) : %d\n", (*ptr / 2)); 									// Gives (value at index 0) / 2, we can't perform *(p / 2) or *(p * 2)
+		    
+		    return 0;
+		}
+
+		=>		ptr : 1709381984, 		&a[0] : 1709381984, 		a : 1709381984, 		&a : 1709381984
+				[index 0] Address : 1709381984 ... [index 4] Address : 1709382000
+					
+				[index 0] Value : 5 5 5 5	   ...			// *(a + i), *(ptr + i), *(i + a), a[i])
+				
+				&a : 1709381984, &a + 1 : 1709382004		// Gives address of next byte after array's last element 	
+				 a : 1709381984,  a + 1 : 1709381988		// Gives the address of the next element
+				*(a + 1)   : 6								// value at index 1
+				* a + 1    : 6								// value at index 0 + 1		
+				(*ptr / 2) : 2								//(value at index 0) / 2
+
+
+
+	Syntax for representing 2-D array elements :	*(*(arr + i) + j)
+
+
+	Syntax for Representing 3-D array elements :	*(*(*(arr + i) + j) + k)
+
+
+
+
+
+
+>> https://stackoverflow.com/questions/859634/c-pointer-to-array-array-of-pointers-disambiguation
+
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    
+    #define NUM_ELEM(ar) (sizeof(ar) / sizeof((ar)[0]))     // 24 / 8 = 3
+    
+    int *put_off(const int newrow[2])
+    {
+        static int mymatrix[3][2];
+        static int (*rowp)[2] = mymatrix;								// row pointer
+        int (* const border)[] = mymatrix + NUM_ELEM(mymatrix);			// array pointer
+   
+        memcpy(rowp, newrow, sizeof(*rowp));
+        
+        rowp += 1;    
+        if (rowp == border) {
+            rowp = mymatrix;
+        }
+    
+        return *rowp;
+    }
+    
+    int main(int argc, char *argv[])
+    {
+        int i = 0;
+        int row[2] = {0, 1};
+        int *rout;
+    
+        for (i = 0; i < 6; i++) {
+            row[0] = i;
+            row[1] += i;
+            rout = put_off(row);
+			printf("%d (%p): [%d, %d]\n", i, (void *)rout, rout[0], rout[1]);
+        }
+        return 0;
+    }
+
+	=>	0 : [0, 1]   : 0 1 0 0 0 0   ... (0x560e0e64b038):  [0, 0]
+		1 : [1, 2]   : 0 1 1 2 0 0   ... (0x560e0e64b040):  [0, 0]
+		2 : [2, 4]  B: 0 1 1 2 2 4   ... (0x560e0e64b030):  [0, 1]
+		3 : [3, 7]   : 3 7 1 2 2 4   ... (0x560e0e64b038):  [1, 2]
+		4 : [4, 11]  : 3 7 4 11 2 4  ... (0x560e0e64b040):  [2, 4]
+		5 : [5, 16] B: 3 7 4 11 5 16 ... (0x560e0e64b030):  [3, 7]
+
+
+
+
+>> C programming Language 2e
+
+  If a two-dimensional array is to be passed to a function, the parameter declaration in the function must include the number of columns; 
+  the number of rows is irrelevant, since what is passed is, as before, a pointer to an array of rows, where each row is an array of 13 ints. 
+
+  In this particular case, it is a pointer to objects that are arrays of 13 ints. Thus if the array daytab is to be passed to a function f, the declaration of f would be:
+  
+      f(int daytab[2][13]) { ... }
+  
+  It could also be
+  
+      f(int daytab[][13]) { ... }
+  
+  since the number of rows is irrelevant, or it could be 
+  
+
+   int (*daytab)[13]		 pointer to array of 13 integers. 		The parentheses are necessary since brackets [] have higher precedence than *. 
+   int  *daytab [13]		 array of 13 pointers to integers. 		More generally, only the first dimension (subscript) of an array is free; all the others have to be specified.
+  
+  
+  int *f(); 			  /*  f: function returning pointer to int */
+  int (*pf)(); 			  /* pf: pointer to function returning int */ 
+  
+  char **argv		 	   argv: pointer to char
+  int (*daytab)[13]	 	 daytab: pointer to array[13] of int
+  int *daytab[13]	   	 daytab: array[13] of pointer to int
+  
+  void  *comp ()           comp: function returning pointer to void
+  void (*comp)()           comp: pointer to function returning void
+  
+  char (*(*x[3])())[5]      x: array[3] of pointer to function returning pointer to array[5] of char 
+  
+  char (*(*x())[])()        x: function returning pointer to array   of pointer to function returning char
+
+
+	() [] -> . 							left to right		()
+	! ~ ++ -- + - * (type) sizeof 		right to left		*
+	* / % 								left to right
+	+ - 								left to right
+	<< >> 								left to right
+	< <= > >= 							left to right
+	== != 								left to right
+	& 									left to right
+	^ 									left to right
+	| 									left to right
+	&& 									left to right
+	|| 									left to right
+	?: 									right to left
+	= += -= *= /= %= &= ^= |= <<= >>= 	right to left
+	, 									left to right	

@@ -1,0 +1,1165 @@
+https://jlmedina123.wordpress.com/2014/05/29/multhreading-and-pthreads-api-cheatsheet/
+https://jlmedina123.wordpress.com/2015/04/02/semaphores/																				2 threads ping pong using semaphore
+https://jlmedina123.wordpress.com/2015/05/11/semaphores-2/																				semaphore to take turns with 3 threads
+https://jlmedina123.wordpress.com/2013/05/03/pthreads-with-mutex-and-semaphores/														mutex to protext a resource and semaphre to sequence threads (1st half & 2nd half)
+https://jlmedina123.wordpress.com/2014/09/27/synchronize-two-threads-one-prints-even-numbers-and-the-other-prints-odd-numbers/			2 threads ping pong using semaphore or mutex
+https://jlmedina123.wordpress.com/2014/04/08/255/																						producer/consumer by semaphre : 2 threads ping pong using semaphore with mutex protecting a resource	
+https://jlmedina123.wordpress.com/2014/04/07/producer-consumer-problem-with-cond-variables/												producer/consumer by cond variable
+
+
+
+spinlock : lock/unlock, busy waiting	
+mutex    : lock/unlock, sleep	
+semaphore: wait/signal, block
+
+
+
+https://jlmedina123.wordpress.com/2014/05/29/multhreading-and-pthreads-api-cheatsheet/
+
+Multhreading and pthreads API cheatsheet
+Pthread creation:
+  pthread_t threads[N]
+  
+  pthread_create(&threads[i], NULL, start_routine, void *args)
+  pthread_join(threads[i])
+
+
+Mutex:
+  pthread_mutex_t mutex;
+  
+  pthread_mutex_init(&mutex);
+  pthread_mutex_lock(&mutex);
+  pthread_mutex_unlock(&mutex);
+  pthread_mutex_destroy(&mutex);
+
+Semaphore:
+  sem_t sem;
+  
+  sem_init(&sem, 0, initial) 	-> initial = 0: lock, initial > 0: unlocked
+  sem_wait(&sem) 				-> sem = 0: wait, sem > 0 decrement and go
+  sem_post(&sem) 				-> increment value
+  sem_destroy(&sem)
+
+Condition variable:
+  pthread_cond_t cond
+  
+  pthread_cond_init(&cond)
+  pthread_cond_wait(&cond, &mutex) 	-> unlock mutex and wait on cond
+  pthread_cond_signal(&cond) 		-> wake up threads waiting on cond
+  pthread_cond_destroy(&cond)
+
+
+
+Common condition variable usage:
+  pthread_mutex_lock(&mutex);
+  while(isnotready()) pthread_cond_wait(&cond, &mutex);
+  critical section
+  pthread_mutex_unlock(&mutex);
+  pthread_cond_signal(&cond2);
+
+Process virtual address space in Linux:
+  Text : image of program (instructions), read-only
+  Data : static and global variables initialized by programmer
+  BSS  : static variables uninitialized (initialized to zero)
+  Stack: local variables, function calls, and function metadata
+  Heap : memory dynamically allocated
+  
+  
+  
+https://www.cs.swarthmore.edu/~bryce/cs31/resources/proc_thread.pdf
+
+	pthread_barrier_t barrier;
+	pthread_barrier_init(pthread_barrier_t *barrier, NULL, unsigned count);
+	pthread_barrier_wait(pthread_barrier_t *barrier);
+
+
+
+https://jlmedina123.wordpress.com/2015/04/02/semaphores/
+
+Semaphores
+
+The problem below synchronizes two threads, one prints odd numbers, and the other prints even numbers. 
+In this solution each thread posts a semaphore to wake up the other thread when a number is printed. 
+Since the same lock is acquire by a thread (wait), and released (post) by a different thread that did not own it, mutex cannot be used, since for a mutex the same thread must acquire it and release i
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+ 
+/* two threads, one prints odd numbers,
+the other even numbers, up to 10
+*/
+ 
+sem_t odd_lock;
+sem_t even_lock;
+ 
+void * even(void *arg) {
+	int a = 1;
+	while (a < 10) {
+		sem_wait(&even_lock);
+		printf("number: %d\n", a);
+		sem_post(&odd_lock);
+		a+=2;
+		}
+	pthread_exit(0);
+}
+ 
+void * odd(void *arg) {
+	int a = 2;
+	while (a < 10) {
+		sem_wait(&odd_lock);
+		printf("number: %d\n", a);
+		sem_post(&even_lock);
+		a+=2;
+}
+pthread_exit(0);
+}
+ 
+int main() {
+	pthread_t threads[2];
+	sem_init(&odd_lock, 0, 0);
+	sem_init(&even_lock, 0, 1);
+	pthread_create(&threads[0], NULL, even, NULL);
+	pthread_create(&threads[1], NULL, odd, NULL);
+	pthread_join(threads[0], NULL);
+	pthread_join(threads[1], NULL);
+	sem_destroy(&odd_lock);
+	sem_destroy(&even_lock);
+	return 0;
+}
+ 
+ 
+gcc -pthread sem.c
+ 
+./a.out
+number: 1
+number: 2
+number: 3
+number: 4
+number: 5
+number: 6
+number: 7
+number: 8
+number: 9
+
+
+https://jlmedina123.wordpress.com/2015/05/11/semaphores-2/
+
+This is a problem from an interview I found online. 
+There are three lists (implemented as array in my solution), and three threads. 
+Each thread access one list, and prints one number from the list. 
+The threads must sync to print in this order: T1 -> T2 -> T3 -> T1 -> T2, …
+
+The synchronization method used is semaphores. 
+Semaphores are usually used to sync multiple threads. 
+One thread can let another run by posting a semaphore for the other thread.
+
+This is a solution with pthreads:  
+  
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+ 
+#define N 10
+sem_t sem1, sem2, sem3;
+int a1[N], a2[N], a3[N];
+ 
+void * thread1(void *arg) {
+    int i;
+    for (i = 0; i< N; i++) {
+        sem_wait(&sem1);
+        printf("%d, ", a1[i]);
+        sem_post(&sem2);
+    }
+    pthread_exit(0);
+}
+ 
+void * thread2(void *arg) {
+    int i;
+    for (i = 0; i< N; i++) {
+        sem_wait(&sem2);
+        printf("%d, ", a2[i]);
+        sem_post(&sem3);
+    }
+    pthread_exit(0);
+}
+ 
+void * thread3(void *arg) {
+    int i;
+    for (i = 0; i< N; i++) {
+        sem_wait(&sem3);
+        printf("%d, ", a3[i]);
+        sem_post(&sem1);
+    }
+    pthread_exit(0);
+}
+ 
+int main() {
+    pthread_t threads[3];
+    int i;
+ 
+   int no = 0;
+    for (i = 0; i < N; i++) {
+        a1[i] = no++;
+        a2[i] = no++;
+        a3[i] = no++;
+    }
+ 
+    sem_init(&sem1, 0, 1);
+    sem_init(&sem2, 0, 0);
+    sem_init(&sem3, 0, 0);
+ 
+    pthread_create(&threads[0], NULL, thread1, NULL);
+    pthread_create(&threads[1], NULL, thread2, NULL);
+    pthread_create(&threads[2], NULL, thread3, NULL);
+ 
+    for (i = 0; i < 3; i++)
+        pthread_join(threads[i], NULL);
+    printf("\n");
+ 
+    sem_destroy(&sem1);
+    sem_destroy(&sem2);
+    sem_destroy(&sem3);
+ 
+    return 0;
+}
+ 
+ 
+gcc -pthread -g threelists.c
+./a.out
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+ 
+      
+	  
+	  
+https://jlmedina123.wordpress.com/2013/05/03/pthreads-with-mutex-and-semaphores/
+	  
+Pthreads with mutex and semaphores
+
+I wrote a simple program that uses pthreads, mutex, and semaphores. 
+The program creates a linked list, and creates 5 threads that each insert one number in the list. To protect the list, the program uses a mutex. 
+The program also creates 5 threads that remove one number from the list each. These 5 threads start after the previous 5 threads have completed inserting numbers into list. 
+
+To synchronize the threads, two semaphores are used. Another way to synchronize threads is by using conditional variables. I will write another program that uses that. 
+
+Mutexes are very useful to protect data (critical section) from race conditions. Semaphores are usually used to synchronize threads more than to protect critical section. 
+The reason for that is that semaphores do not have any ownership. 
+
+A mutex can be released only by the thread that acquired it (a thread gets ownership of a mutex when waking from a mutex wait). 
+However, for semaphores, any thread (or main) can initialize them to locked (0), and any thread can wait on them (blocks on 0 and decrements its value after) or post to them (increments its value).
+
+From the man page for pthread_ununlock_mutex:
+    The pthread_mutex_lock function returns the following error code on error:  EPERM the calling thread does not own the mutex (‘‘error checking’’ mutexes only).
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include "linkedlist.h";	// https://jlmedina123.wordpress.com/2013/04/20/ordered-single-linked-list/
+
+/* prototypes for functions executed by threads */
+void fill_list(int *);
+void empty_list(int *);
+void show_list();
+ 
+/* list */
+NODE * headptr;
+NODE head;
+ 
+/* mutex to protect access to list */
+pthread_mutex_t list_mutex;
+ 
+/* semaphores for synchronizing fill_list and empty_list threads */
+unsigned int threads_fill_done; /* count threads done filling list */
+sem_t done_filling_list;        /* barrier to sync fill_list threads and empty_list threads */
+sem_t filling_list;             /* to protect threads_fill_done */
+ 
+ 
+int main()
+{
+    int i;
+ 
+    /* initialize list */
+    headptr = &head;
+    headptr->next = NULL;
+ 
+    /* initialize mutex */
+    pthread_mutex_init(&list_mutex, NULL);
+ 
+    /* initialize semaphores */
+    int res = sem_init(&done_filling_list,  /* pointer to semaphore */
+                       0 ,                  /* 0 if shared between threads, 1 if shared between processes */
+                       0);                  /* initial value for semaphore (0 is locked) */
+    if (res < 0)
+    {
+        perror("Semaphore initialization failed");
+        exit(0);
+    }
+    if (sem_init(&filling_list, 0, 1)) /* initially unlocked */
+    {
+        perror("Semaphore initialization failed");
+        exit(0);
+    }
+    threads_fill_done = 0;
+ 
+ 
+    pthread_t threads[11]; /* used by pthread_create to return thread id */
+    int param[5] = {0, 1, 2, 3, 4}; /* array used to pass parameter to thread functions */
+ 
+    for (i = 0; i < 5; i++)
+    {
+        /* creating 5 threads. Each thread enters one number (0-4) in the list */
+        pthread_create(&threads[i],    /* pointer to buffer used by pthread_create to return thread id */
+                       NULL,           /* pointer to thread attribute object */
+                       (void *)fill_list,      /* pointer to function to execute */
+                       (void *)&param[i]);    /* pointer to parameter to pass to function */
+    }
+ 
+    for (i = 5; i < 10; i++)
+    {
+        /* creating 5 threads. Each thread removes one number (0-4) from the list */
+        pthread_create(&threads[i],
+                       NULL,
+                       (void *)empty_list,
+                       (void *)&param[i-5]);
+    }
+ 
+    for (i = 0; i < 10; i++)
+        pthread_join(threads[i], NULL);
+ 
+ 
+    pthread_mutex_destroy(&list_mutex);
+    sem_destroy(&filling_list);
+    sem_destroy(&done_filling_list);
+ 
+    printf("All threads completed. List:\n");
+    Traverse(headptr);
+    return 0;
+}
+ 
+void fill_list(int *value)
+{
+    int i;
+ 
+    /* using mutex before entering critical section */
+    pthread_mutex_lock(&list_mutex);
+    printf("Thread is inserting number %d in list\n", *value);
+    InsertOrdered(headptr,*value);// i); /* critical section */
+    pthread_mutex_unlock(&list_mutex);
+ 
+    /* entering critical section with semaphore (could use mutex too) */
+    sem_wait(&filling_list); // blocks is semaphore 0. If semaphore nonzero,
+                             // it decrements semaphore and proceeds
+    if (threads_fill_done == 4)
+    {
+        printf("Done filling list. Lifting barrier for 5 empty_list threads.\n");
+ for (i = 0; i < 5; i++)
+            sem_post(&done_filling_list); // sem_post increments semaphore. Incrementing it to 5
+    }
+    else
+    {
+        threads_fill_done++;
+        sem_post(&filling_list);
+    }
+}
+ 
+void empty_list(int *value)
+{
+    /* waiting for list to be filled up */
+    printf("Thread is waiting for semaphore to be released to remove %d from list.\n",*value);
+    sem_wait(&done_filling_list);
+ 
+    /* list filled. Removing elements */
+    pthread_mutex_lock(&list_mutex);
+    printf("Thread is removing number %d from list\n", *value);
+    Delete(headptr,*value);
+    pthread_mutex_unlock(&list_mutex);
+}
+ 
+ 
+void show_list(int *thread_num)
+{
+    pthread_mutex_lock(&list_mutex);
+    printf("Current list from thread %i:\n",*thread_num);
+    Traverse(headptr);
+    pthread_mutex_unlock(&list_mutex);
+}
+
+>> linkedlist.h
+
+#include <stdio.h>
+#include <stdlib.h>
+ 
+struct node {
+    int data;
+    struct node *next;
+};
+typedef struct node NODE;
+ 
+ 
+/* linked list functions */
+void InsertOrdered(NODE *, int );
+int Delete(NODE *, int );
+void Traverse(NODE *);
+ 
+void InsertOrdered(NODE *head, int data)
+{
+    NODE * newnode;
+    newnode = (NODE *)malloc(sizeof(NODE));
+    newnode->data = data;
+ 
+    NODE * previous = head;
+    NODE * current = head->next;
+    while (current != NULL && data < current->data)
+    {
+        previous = current;
+        current = current->next;
+    }
+    previous->next = newnode;
+ newnode->next = current;
+}
+ 
+ 
+int Delete(NODE *head, int data)
+{
+    NODE * previous = head;
+    NODE * current = head->next;
+    while (current != NULL && current->data != data)
+    {
+        previous = current;
+        current = current->next;
+    }
+    if (current != head && current != NULL) /* if list empty or data not found */
+    {
+        previous->next = current->next;
+        free(current);
+        return 0;
+    }
+    else
+        return 1;
+}
+ 
+void Traverse(NODE * head)
+{
+    NODE * current = head->next;
+    while (current != NULL)
+    {
+        printf("%d ", current->data);
+        current = current->next;
+    }
+    printf("\n");
+}
+
+The result is this:
+
+home~> cc -pthread threading.c
+home~> ./a.out
+
+Thread is inserting number 0 in list
+Thread is inserting number 1 in list
+Thread is inserting number 2 in list
+Thread is inserting number 3 in list
+Thread is inserting number 4 in list
+Done filling list. Lifting barrier for 5 empty_list threads.
+Thread is waiting for semaphore to be released to remove 0 from list.
+Thread is removing number 0 from list
+Thread is waiting for semaphore to be released to remove 2 from list.
+Thread is removing number 2 from list
+Thread is waiting for semaphore to be released to remove 3 from list.
+Thread is removing number 3 from list
+Thread is waiting for semaphore to be released to remove 4 from list.
+Thread is waiting for semaphore to be released to remove 1 from list.
+Thread is removing number 1 from list
+Thread is removing number 4 from list
+All threads completed. List:	  
+
+
+
+https://jlmedina123.wordpress.com/2014/09/27/synchronize-two-threads-one-prints-even-numbers-and-the-other-prints-odd-numbers/
+
+
+Synchronize two threads, one prints even numbers and the other prints odd numbers
+Two solutions, with mutex and semaphores:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+ 
+sem_t even_lock, odd_lock;
+pthread_mutex_t even_mutex, odd_mutex;
+ 
+void * even_thread(void *args) {
+   int i = 0;
+   while (i < 10) {
+      sem_wait(&even_lock);
+      sleep(random()%3);
+      printf("%d\n", i);
+      i+=2;
+      sem_post(&odd_lock);
+    }
+    pthread_exit(0);
+}
+ 
+void * odd_thread(void *args) {
+    int i = 1;
+    while (i < 10) {
+        sem_wait(&odd_lock);
+        sleep(random()%4);
+        printf("%d\n", i);
+        i+=2;
+        sem_post(&even_lock);
+    }
+    pthread_exit(0);
+}
+ 
+ 
+void * even_thread2(void *args) {
+   int i = 0;
+   while (i < 10) {
+      pthread_mutex_lock(&even_mutex);
+      sleep(random()%3);
+      printf("%d\n", i);
+      i+=2;
+      pthread_mutex_unlock(&odd_mutex);
+    }
+    pthread_exit(0);
+}
+ 
+void * odd_thread2(void *args) {
+    int i = 1;
+    while (i < 10) {
+        pthread_mutex_lock(&odd_mutex);
+        sleep(random()%4);
+        printf("%d\n", i);
+        i+=2;
+        pthread_mutex_unlock(&even_mutex);
+    }
+    pthread_exit(0);
+}
+ 
+int main() {
+     pthread_t thread[2];
+     sem_init(&even_lock, 0, 1);
+     sem_init(&odd_lock, 0, 0);
+ 
+     printf("Solution semaphores:\n");
+     pthread_create(&thread[0], NULL, even_thread, NULL);
+     pthread_create(&thread[1], NULL, odd_thread, NULL);
+     pthread_join(thread[0], NULL);
+     pthread_join(thread[1], NULL);
+ 
+ 
+     pthread_mutex_init(&even_mutex, NULL);
+     pthread_mutex_init(&odd_mutex, NULL);
+ 
+     printf("Solution mutexes:\n");
+     pthread_create(&thread[0], NULL, even_thread2, NULL);
+     pthread_create(&thread[1], NULL, odd_thread2, NULL);
+     pthread_join(thread[0], NULL);
+     pthread_join(thread[1], NULL);
+ 
+ 
+     sem_destroy(&even_lock);
+     sem_destroy(&odd_lock);
+     pthread_mutex_destroy(&even_mutex);
+     pthread_mutex_destroy(&odd_mutex);
+     return 0;
+}
+ 
+ 
+ 
+ gcc evenodd.c -l pthread
+./a.out
+Solution semaphores:
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+Solution mutexes:
+0
+1
+2
+3
+4
+5
+7
+6
+9
+8
+
+
+
+
+https://jlmedina123.wordpress.com/2014/04/08/255/
+
+
+Producer-consumer problem with semaphores
+
+The producer and consumer problem is easier and more reliable to solve and with condition variables than with semaphores. However here I wanted to use semaphores so we can see how they work.
+
+Parallel to the other program I wrote with condition variables, here I used two semaphores, one for buffer full, and one for buffer empty. 
+
+The cool thing about Unix (counting) semaphores they have a value (as opposed to binary semaphores which don’t), so I basically used them as a buffer index. 
+Each time a producer queues an element into buffer, the producer posts to the empty buffer semaphore. 
+This will increment its value, and if it were 0 it would wake up consumer threads waiting on that semaphore. 
+
+The consumer thread that waits on that semaphore, upon waking up it will decrement the value of the semaphore. So empty buffer semaphore basically follows up with the buffer index.
+
+The full buffer semaphore does the opposite. Consumer threads post to it when they dequeue from the buffer, which increments the semaphore value. 
+And producer threads wait in them, which means they sleep if buffer is full, and decrement the semaphore value each time they add element to buffer.
+
+A mutex is used to protect access to buffer.
+
+This is not an ideal good producer-consumer implementation, and I believe there is possibility for race condition (explained in code).
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+ 
+#define SIZE 5
+#define NUMB_THREADS 6
+#define PRODUCER_LOOPS 2
+ 
+typedef int buffer_t;
+buffer_t buffer[SIZE];
+int buffer_index;
+ 
+pthread_mutex_t buffer_mutex; 
+/* initially buffer will be empty.  full_sem will be initialized to buffer SIZE, which means SIZE number of producer threads can write to it.
+   And empty_sem will be initialized to 0, so no consumer can read from buffer until a producer thread posts to empty_sem */
+
+sem_t full_sem;  /* when 0, buffer is full */
+sem_t empty_sem; /* when 0, buffer is empty. Kind of like an index for the buffer */
+ 
+/* sem_post algorithm:
+
+      mutex_lock  sem_t->mutex
+      sem_t->value++
+      mutex_unlock sem_t->mutex
+ 
+   sem_wait algorithn:
+   
+      mutex_lock sem_t->mutex
+      while (sem_t->value > 0) {
+          mutex_unlock sem_t->mutex
+          sleep... wake up
+          mutex_lock sem_t->mutex
+      }
+      sem_t->value--
+      mutex_unlock sem_t->mutex
+*/
+ 
+ 
+void insertbuffer(buffer_t value) {
+    if (buffer_index < SIZE) {
+        buffer[buffer_index++] = value;
+    } else {
+        printf("Buffer overflow\n");
+    }
+}
+ 
+buffer_t dequeuebuffer() {
+    if (buffer_index > 0) {
+        return buffer[--buffer_index]; // buffer_index-- would be error!
+    } else {
+        printf("Buffer underflow\n");
+    }
+    return 0;
+}
+ 
+ 
+void *producer(void *thread_n) {
+    int thread_numb = *(int *)thread_n;
+    buffer_t value;
+    int i=0;
+    while (i++ < PRODUCER_LOOPS) {
+        sleep(rand() % 10);
+        value = rand() % 100;
+
+        sem_wait(&full_sem); // sem=0: wait. sem>0: go and decrement it
+
+        /* possible race condition here. After this thread wakes up, another thread could aqcuire mutex before this one, and add to list.
+           Then the list would be full again and when this thread tried to insert to buffer there would be a buffer overflow error */
+
+        pthread_mutex_lock(&buffer_mutex); 	/* protecting critical section */
+        insertbuffer(value);
+        pthread_mutex_unlock(&buffer_mutex);
+
+        sem_post(&empty_sem); 				// post (increment) emptybuffer semaphore
+        printf("Producer %d added %d to buffer\n", thread_numb, value);
+    }
+    pthread_exit(0);
+}
+ 
+void *consumer(void *thread_n) {
+    int thread_numb = *(int *)thread_n;
+    buffer_t value;
+    int i=0;
+    while (i++ < PRODUCER_LOOPS) {
+        sem_wait(&empty_sem);	        	/* there could be race condition here, that could cause buffer underflow error */
+        pthread_mutex_lock(&buffer_mutex);
+        value = dequeuebuffer(value);
+        pthread_mutex_unlock(&buffer_mutex);
+        sem_post(&full_sem); 				// post (increment) fullbuffer semaphore
+        printf("Consumer %d dequeue %d from buffer\n", thread_numb, value);
+   }
+    pthread_exit(0);
+}
+ 
+int main(int argc, int **argv) {
+    buffer_index = 0;
+ 
+    pthread_mutex_init(&buffer_mutex, NULL);
+    sem_init(&full_sem, 					// sem_t *sem
+             0, 							// int pshared. 0 = shared between threads of process,  1 = shared between processes
+             SIZE); 						// unsigned int value. Initial value
+    sem_init(&empty_sem,
+             0,
+             0);
+
+			/* full_sem is initialized to buffer size because SIZE number of producers can add one element to buffer each. 
+			   They will wait semaphore each time, which will decrement semaphore value. 
+			   empty_sem is initialized to 0, because buffer starts empty and consumer cannot take any element from it. 
+			   They will have to wait until producer posts to that semaphore (increments semaphore value) */
+	   
+    pthread_t thread[NUMB_THREADS];
+    int thread_numb[NUMB_THREADS];
+    int i;
+    for (i = 0; i < NUMB_THREADS; ) {
+        thread_numb[i] = i;
+        pthread_create(thread + i, 			// pthread_t *t
+                       NULL, 				// const pthread_attr_t *attr
+                       producer, 			// void *(*start_routine) (void *)
+                       thread_numb + i);  	// void *arg
+        i++;
+        thread_numb[i] = i;
+		
+        // playing a bit with thread and thread_numb pointers...
+        pthread_create(&thread[i], 			// pthread_t *t
+                       NULL, 				// const pthread_attr_t *attr
+                       consumer, 			// void *(*start_routine) (void *)
+                       &thread_numb[i]);  	// void *arg
+        i++;
+    }
+ 
+    for (i = 0; i < NUMB_THREADS; i++)
+        pthread_join(thread[i], NULL);
+ 
+    pthread_mutex_destroy(&buffer_mutex);
+    sem_destroy(&full_sem);
+    sem_destroy(&empty_sem);
+ 
+    return 0;
+}
+
+gcc producer_consumer_sem.c -lpthread
+./a.out
+ 
+Producer 0 added 15 to buffer
+Consumer 1 dequeue 15 from buffer
+Producer 2 added 35 to buffer
+Consumer 3 dequeue 35 from buffer
+Producer 0 added 92 to buffer
+Consumer 5 dequeue 92 from buffer
+Producer 4 added 49 to buffer
+Consumer 1 dequeue 49 from buffer
+Producer 4 added 62 to buffer
+Consumer 3 dequeue 62 from buffer
+Producer 2 added 27 to buffer
+Consumer 5 dequeue 27 from buffer
+
+
+Producer 0 added 15 to buffer
+										Consumer 1 dequeue 15 from buffer
+Producer 2 added 35 to buffer
+Producer 0 added 92 to buffer
+										Consumer 5 dequeue 92 from buffer
+										Consumer 3 dequeue 35 from buffer
+Producer 4 added 49 to buffer
+										Consumer 1 dequeue 49 from buffer
+Producer 4 added 62 to buffer
+										Consumer 5 dequeue 62 from buffer
+Producer 2 added 27 to buffer
+										Consumer 3 dequeue 27 from buffer
+
+Producer 0 added 83 to buffer
+Producer 0 added 15 to buffer
+Producer 2 added 86 to buffer
+Producer 2 added 93 to buffer
+										Consumer 3 dequeue 86 from buffer
+										Consumer 3 dequeue 15 from buffer
+										Consumer 1 dequeue 83 from buffer
+										Consumer 1 dequeue 77 from buffer
+										Consumer 5 dequeue 93 from buffer
+Producer 4 added 77 to buffer
+Producer 4 added 35 to buffer
+
+
+										Consumer 5 dequeue 35 from buffer
+
+
+There is a better way to solve this problem, checking for spurios wakeups for full and empty conditions. 
+The following solution is similar to how this problem would be approached with conditional variables, 
+except that conditional variables are able to release lock and sleep on condition atomically, while here it’s done in two steps.
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+  
+ 
+#define SIZE 10
+#define NUMB_THREADS 10
+#define PRODUCER_LOOPS 2
+#define CONSUMER_LOOPS 2
+  
+#define TRUE 1
+#define FALSE 0
+ 
+typedef int buffer_t;
+buffer_t buffer[SIZE];
+int buffer_index;
+  
+pthread_mutex_t buffer_mutex;
+/* initially buffer will be empty.  full_sem will be initialized to buffer SIZE, which means SIZE number of producer threads can write to it.
+   And empty_sem will be initialized to 0, so no consumer can read from buffer until a producer thread posts to empty_sem */
+
+sem_t full_sem;  /* when 0, buffer is full */
+sem_t empty_sem; /* when 0, buffer is empty. Kind of
+                    like an index for the buffer */
+  
+/* sem_post algorithm:
+    mutex_lock  sem_t->mutex
+    sem_t->value++
+    mutex_unlock sem_t->mutex
+  
+   sem_wait algorithn:
+    mutex_lock sem_t->mutex
+    while (sem_t->value > 0) {
+        mutex_unlock sem_t->mutex
+        sleep... wake up
+        mutex_lock sem_t->mutex
+    }
+    sem_t->value--
+    mutex_unlock sem_t->mutex
+*/
+  
+  
+void insertbuffer(buffer_t value) {
+    if (buffer_index < SIZE) {
+        buffer[buffer_index++] = value;
+    } else {
+        printf("Buffer overflow\n");
+    }
+}
+  
+buffer_t dequeuebuffer() {
+    if (buffer_index > 0) {
+        return buffer[--buffer_index]; // buffer_index-- would be error!
+    } else {
+        printf("Buffer underflow\n");
+    }
+    return 0;
+}
+  
+  
+int isempty() {
+    if (buffer_index == 0)
+        return TRUE;
+    return FALSE;
+}
+  
+int isfull() {
+    if (buffer_index == SIZE)
+        return TRUE;
+    return FALSE;
+}
+ 
+void *producer2(void *thread_n) {
+    int thread_numb = *(int *)thread_n;
+    buffer_t value;
+    int i=0;
+    while (i++ < PRODUCER_LOOPS) {
+        sleep(rand() % 10);
+        value = rand() % 100;
+
+		// cond variables do the unlock/wait and wakeup/lock atomically, which avoids possible race conditions 
+        pthread_mutex_lock(&buffer_mutex);
+
+        do {
+            pthread_mutex_unlock(&buffer_mutex);		// cannot go to sleep holding lock            
+            sem_wait(&full_sem); 						// sem=0: wait. sem>0: go and decrement it
+														// there could still be race condition here. another thread could wake up and aqcuire lock and fill up buffer. that's why we need to check for spurious wakeups
+            pthread_mutex_lock(&buffer_mutex);
+        } while (isfull()); 							// check for spurios wake-ups
+
+        insertbuffer(value);
+        pthread_mutex_unlock(&buffer_mutex);
+
+        sem_post(&empty_sem); 							// post (increment) emptybuffer semaphore
+
+        printf("Producer %d added %d to buffer\n", thread_numb, value);
+    }
+    pthread_exit(0);
+}
+  
+void *consumer2(void *thread_n) {
+    int thread_numb = *(int *)thread_n;
+    buffer_t value;
+    int i=0;
+    while (i++ < PRODUCER_LOOPS) {
+
+        pthread_mutex_lock(&buffer_mutex);
+
+        do {
+            pthread_mutex_unlock(&buffer_mutex);
+            sem_wait(&empty_sem);
+            pthread_mutex_lock(&buffer_mutex);
+        } while (isempty()); 							//check for spurios wakeups
+
+        value = dequeuebuffer(value);
+        pthread_mutex_unlock(&buffer_mutex);
+
+        sem_post(&full_sem); 							// post (increment) fullbuffer semaphore
+
+        printf("Consumer %d dequeue %d from buffer\n", thread_numb, value);
+   }
+    pthread_exit(0);
+}
+  
+int main(int argc, int **argv) {
+    buffer_index = 0;
+  
+    pthread_mutex_init(&buffer_mutex, NULL);
+    sem_init(&full_sem, 								// sem_t *sem
+             0, 										// int pshared. 0 = shared between threads of process,  1 = shared between processes
+             SIZE); 									// unsigned int value. Initial value
+    sem_init(&empty_sem,
+             0,
+             0);
+				/* full_sem is initialized to buffer size because SIZE number of producers can add one element to buffer each. They will wait semaphore each time, which will decrement semaphore value.
+				   empty_sem is initialized to 0, because buffer starts empty and consumer cannot take any element from it. They will have to wait until producer posts to that semaphore (increments semaphore value) */
+
+    pthread_t thread[NUMB_THREADS];
+    int thread_numb[NUMB_THREADS];
+    int i;
+    for (i = 0; i < NUMB_THREADS; ) {
+        thread_numb[i] = i;
+        pthread_create(thread + i, 			// pthread_t *t
+                       NULL, 				// const pthread_attr_t *attr
+                       producer2, 			// void *(*start_routine) (void *)
+                       thread_numb + i);  	// void *arg
+        i++;
+
+        thread_numb[i] = i;					// playing a bit with thread and thread_numb pointers...
+        pthread_create(&thread[i], 			// pthread_t *t
+                       NULL, 				// const pthread_attr_t *attr
+                       consumer2, 			// void *(*start_routine) (void *)
+                       &thread_numb[i]);  	// void *arg
+        i++;
+    }
+  
+    for (i = 0; i < NUMB_THREADS; i++)
+        pthread_join(thread[i], NULL);
+  
+    pthread_mutex_destroy(&buffer_mutex);
+    sem_destroy(&full_sem);
+    sem_destroy(&empty_sem);
+  
+    return 0;
+}
+
+
+
+
+https://jlmedina123.wordpress.com/2014/04/07/producer-consumer-problem-with-cond-variables/
+
+Producer-consumer problem with cond variables
+
+The producer and consumer problem is a very typical problem to solve in multithreading programming. 
+Here I am implementing this problem in C with mutexes and condition variables.
+
+Mutexes are very useful to protect critical sections and serialize access to shared data. 
+Condition variables are useful to synchronize different threads, and put threads to sleep when they are waiting for something.
+
+In this implementation, several producer threads will insert random numbers into a simple queue buffer. 
+If the buffer gets full, the producers will go to sleep, and wait on a conditional signal poster by the consumers signaling that buffer is no longer empty The consumers will check the buffer, and go to sleep if it is empty.
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+ 
+#define SIZE 10
+#define NUMB_THREADS 10
+#define PRODUCER_LOOPS 2
+#define CONSUMER_LOOPS 2
+ 
+#define TRUE 1
+#define FALSE 0
+ 
+typedef int buffer_t;
+buffer_t buffer[SIZE];
+int buffer_index; 						/* index to first free position in array buffer */
+ 
+pthread_mutex_t buffer_lock;
+pthread_cond_t full_cond, empty_cond;
+ 
+void insertbuffer(buffer_t value) {
+    if (buffer_index < SIZE) {
+        buffer[buffer_index++] = value;
+    } else {
+        printf("Buffer overflow\n");
+    }
+}
+ 
+buffer_t dequeuebuffer() {
+    if (buffer_index > 0) {
+        return buffer[--buffer_index]; // buffer_index-- would be error!
+    } else {
+        printf("Buffer underflow\n");
+    }
+    return 0;
+}
+ 
+int isempty() {
+    if (buffer_index == 0)
+        return TRUE;
+    return FALSE;
+}
+ 
+int isfull() {
+    if (buffer_index == SIZE)
+        return TRUE;
+    return FALSE;
+}
+ 
+void *producer(void *thread_n) {
+    int i = 0;
+    int value;
+    int thread_numb = *(int *)thread_n; 					// casting to void, then deferencing
+
+	while (i++ < PRODUCER_LOOPS) {
+        sleep(rand() % 10);
+        value = rand() % 100;
+        pthread_mutex_lock(&buffer_lock);					/* while is for spurious wake-ups. After waking up, some other producer that also woke up may have already inserted element in queue */
+
+        while (isfull()) {
+            pthread_cond_wait(&full_cond, &buffer_lock);	/* cond variables work together with mutex. wait will atomically release the lock (to avoid deadlock) when going to sleep */
+        }
+
+        if (isempty()) {
+            insertbuffer(value);
+            pthread_cond_signal(&empty_cond);				/* buffer no longer empty, so wake up consumers */
+        } else {
+            insertbuffer(value);
+        }
+
+        printf("Producer thread %d inserted %d\n", thread_numb, value);
+        pthread_mutex_unlock(&buffer_lock);
+    }
+
+    pthread_exit(0);
+}
+ 
+void *consumer(void *thread_n) {
+    int i = 0;
+    buffer_t value;
+    int thread_numb = *(int *)thread_n;
+ 
+    while (i++ < CONSUMER_LOOPS) {
+        pthread_mutex_lock(&buffer_lock);
+
+        while(isempty()) {
+            pthread_cond_wait(&empty_cond, &buffer_lock);
+        }
+
+        if (isfull()) {
+            value = dequeuebuffer();
+            pthread_cond_signal(&full_cond);			/* queue no longer full. wake up producers */
+        } else {
+            value = dequeuebuffer();
+        }
+
+        printf("Consumer thread %d processed %d\n", thread_numb, value);
+        pthread_mutex_unlock(&buffer_lock);
+    }
+
+    pthread_exit(0);
+}
+ 
+int main(int argc, int *argv[]) {
+ 
+    buffer_index = 0;
+    pthread_t thread[NUMB_THREADS];
+    int thread_num[NUMB_THREADS];
+    pthread_mutex_init(&buffer_lock, NULL);
+    pthread_cond_init(&empty_cond, NULL);
+    pthread_cond_init(&full_cond, NULL);
+ 
+    int i = 0;
+	
+    for (i = 0; i < NUMB_THREADS; ) {
+        thread_num[i] = i;
+        pthread_create(&thread[i],   			// pthread_t *thread
+                       NULL,         			// const pthread_attr_t *attr
+                       producer,     			// void *(*start_routine) (void *)
+                       &thread_num[i]);         // void *arg
+        i++;									/* watch for mistake of passing &i in last argument. you'd be passing ptr to integer that will change */
+ 
+        thread_num[i] = i;
+        pthread_create(&thread[i],
+                       NULL,
+                       consumer,
+                       &thread_num[i]);
+        i++;
+    }
+	
+    for (i = 0; i < NUMB_THREADS; i++)
+        pthread_join(thread[i], NULL);
+ 
+    pthread_mutex_destroy(&buffer_lock);
+    pthread_cond_destroy(&full_cond);
+    pthread_cond_destroy(&empty_cond);
+ 
+    return 0;
+}
+
+
+gcc producer_consumer_cond.c -lpthread
+ 
+Producer thread 0 inserted 35
+Producer thread 8 inserted 92
+Consumer thread 1 processed 92
+Consumer thread 1 processed 35
+Producer thread 6 inserted 21
+Consumer thread 3 processed 21
+Producer thread 2 inserted 27
+Producer thread 2 inserted 59
+Consumer thread 5 processed 59
+Consumer thread 5 processed 27
+Producer thread 4 inserted 63
+Consumer thread 7 processed 63
+Producer thread 6 inserted 40
+Consumer thread 9 processed 40
+Producer thread 0 inserted 26
+Consumer thread 3 processed 26
+Producer thread 8 inserted 72
+Consumer thread 7 processed 72
+Producer thread 4 inserted 36
+Consumer thread 9 processed 36

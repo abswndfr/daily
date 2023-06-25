@@ -1,0 +1,618 @@
+CS170 Lecture notes -- Putting the P in Pthreads							   https://sites.cs.ucsb.edu/~rich/class/old.cs170/notes/Threads/index.html
+Rich Wolski
+
+Directory: /cs/faculty/rich/public_html/class/cs170/notes/Threads
+Lecture notes: http://www.cs.ucsb.edu/~rich/class/cs170/notes/Threads/index.html
+
+			   
+makefile for the code examples.
+
+In this lecture, we cover the preemption and the distinction between user and system threads in Solaris, plus race conditions and mutexes.
+
+Preemption
+
+Pthreads support preemption which means that the operating system interrupts each thread after it has run for some unspecified amount of time and allows other runnable threads to execute.
+
+Consider the code in preempt1.c. The current CSIL systems have 4 processors and the code creates 10 threads. 
+Each thread performs a simple calculation in a long loop and prints out its intermediate results. 
+Notice what happens when you run it. It starts out with only a few threads running
+
+rich@csil:~/class/cs170/notes/Threads$ ./preempt1
+thread 1.  i =          0
+thread 0.  i =          0
+thread 6.  i =          0
+thread 9.  i =          0
+thread 1.  i =          1
+thread 6.  i =          1
+thread 0.  i =          1
+thread 9.  i =          1
+thread 1.  i =          2
+thread 6.  i =          2
+thread 0.  i =          2
+thread 7.  i =          0
+
+but after a while, all 10 threads are executing as if there are 10 separate processors:
+
+thread 0.  i =       2035
+thread 1.  i =       2050
+thread 5.  i =       2026
+thread 2.  i =       2189
+thread 1.  i =       2051
+thread 0.  i =       2036
+thread 7.  i =       2093
+thread 1.  i =       2052
+thread 3.  i =       2001
+thread 7.  i =       2094
+thread 0.  i =       2037
+thread 3.  i =       2002
+thread 7.  i =       2095
+thread 0.  i =       2038
+thread 3.  i =       2003
+thread 7.  i =       2096
+thread 9.  i =       1982
+thread 2.  i =       2190
+thread 4.  i =       2139
+thread 6.  i =       2059
+thread 3.  i =       2004
+thread 6.  i =       2060
+thread 4.  i =       2140
+thread 3.  i =       2005
+thread 6.  i =       2061
+thread 3.  i =       2006
+thread 4.  i =       2141
+thread 1.  i =       2053
+thread 3.  i =       2007
+thread 1.  i =       2054
+thread 3.  i =       2008
+thread 1.  i =       2055
+thread 3.  i =       2009
+thread 1.  i =       2056
+thread 9.  i =       1983
+thread 2.  i =       2191
+thread 1.  i =       2057
+thread 9.  i =       1984
+thread 2.  i =       2192
+thread 9.  i =       1985
+thread 1.  i =       2058
+thread 2.  i =       2193
+thread 9.  i =       1986
+thread 1.  i =       2059
+thread 2.  i =       2194
+thread 9.  i =       1987
+thread 1.  i =       2060
+thread 2.  i =       2195
+thread 9.  i =       1988
+thread 1.  i =       2061
+thread 2.  i =       2196
+thread 9.  i =       1989
+thread 1.  i =       2062
+thread 9.  i =       1990
+thread 2.  i =       2197
+thread 1.  i =       2063
+thread 9.  i =       1991
+thread 2.  i =       2198
+thread 1.  i =       2064
+thread 9.  i =       1992
+thread 2.  i =       2199
+thread 9.  i =       1993
+thread 1.  i =       2065
+thread 2.  i =       2200
+thread 9.  i =       1994
+thread 1.  i =       2066
+thread 2.  i =       2201
+thread 9.  i =       1995
+thread 1.  i =       2067
+thread 2.  i =       2202
+thread 9.  i =       1996
+thread 8.  i =       1990
+
+If you stare at this for a while you'll see that Linux is giving each thread some time on some CPU. 
+
+The counter values are all similar which means that the threads are getting scheduled fairly (more or less). 
+However, you should also see "runs" where a subset of the 10 threads get CPU time while others don't appear for a while and then vice versa.
+Linux is implementing thread preemption. Each thread is given a period of time to use the CPU. When that time expires, Linux pauses the thread and selects another that is waiting for CPU time and allows it to run.
+
+Pthreads supports preemption on all of the versions of Linux and Unix you are likely to encounter. Originally, some vendors chose to implement non-preemptive pthreads (we'll use non-preemptive threads in your labs) as well as the preemptive version but today you should expect pthreads to be preemptive.
+
+You are probably familiar with running multiple Unix processes at the same time on the same machine, using an "&". The processes (while they are running) will interleave as the machine timeshares the CPU. Try it. In proc1.c is a very simple program that iterates 10,000 times printing its process ID and the iteration number. Try compiling and running 5 copies (one more than the number of processors) from the same shell in the background. You should see output from one for a while followed by output from the other.
+
+In both of these examples of preemption, the number of threads or processes exceeds the number of physical processors in the machine. Why?
+
+The purpose of preemption is to provide the illusion that each thread or process has its own "virtual" CPU. In the case there there are fewer threads than CPUs or an equal number of threads and CPUs, Linux will dutifully assign one CPU per thread or process. When each thread gets its own CPU, they execute in parallel (i.e. at the same time) without preemption. That is, because there are enough CPUs to go around, there are no threads ready and waiting.
+
+Take a look at the code in preempt2.c. It is the same as in preempt1.c but THREADS is set to 3. Look at the output
+
+thread 0.  i =       4612
+thread 1.  i =       4630
+thread 2.  i =       4369
+thread 0.  i =       4613
+thread 1.  i =       4631
+thread 2.  i =       4370
+thread 0.  i =       4614
+thread 1.  i =       4632
+thread 2.  i =       4371
+thread 1.  i =       4633
+thread 0.  i =       4615
+thread 1.  i =       4634
+thread 2.  i =       4372
+thread 0.  i =       4616
+thread 1.  i =       4635
+thread 2.  i =       4373
+thread 0.  i =       4617
+thread 1.  i =       4636
+thread 2.  i =       4374
+The threads are not scheduled in "runs" as before indicating that each thread is getting its own CPU. Interestingly, thread 2 seems a little behind thread 0 and thread 1. Can you guess why?
+difference between a Unix process and a pthread You are probably wondering why it is we are spending all of this time talking about threads, with the example described above generates more or less the same results using Unix processes. "What are the differences?" you might ask. If you have made this observation and asked this question, consider yourself astute as it is an important question. Unix processes and pre-emptable Posix threads are similar in thay they both have individual program counters and local state, and they are both context switched by Unix. They are different in that Unix processes do not share variables or memory locations between themselves. That is, there is no shared state between Unix processes.
+
+Race conditions and mutexes
+Okay -- we are ready for our first operating systems concept. Operating systems must be able to protect shared state from race conditions. Rather than giving you a formal definition for a race condition (which I will provide later), we will start with a very simple example.
+Consider the use of an ATM at a bank. Somewhere, in bowels of your bank's computer system, is a variable called "account balance" that stores your current balance. When you withdraw $200, there is a piece of assembly language code that runs on some machine that does the following calculation:
+
+
+	ld 	r1,@richs_balance
+	sub	r1,$200
+	st 	r1,@richs_balance
+
+which says (in a fictitious assembly language) "load the contents of rich's account_balance" into register r1, subtract 200 from it and leave the result in r1, and store the contents of r1 back to the variable rich's account_balance." The code is executed sequentially, in the order shown.
+So far, so good.
+
+Your bank is a busy place, though, and there are potentially millions of ATM transactions all at the same time, but each to a different account variable. So when Bob withdraws money, the machine executes
+
+
+		ld      r2,@bobs_balance
+        sub     r2,$200
+        st      r2,@bobs_balance
+
+and Fred's transactions look like
+
+        ld      r3,@freds_balance
+        sub     r3,$200
+        st      r3,@freds_balance
+
+In each case, the register and the variable are different.
+Now, let's assume that the bank wants to use threads as a programming convenience, and that the programmer has chosen peremptive threads as we have been discussing. Each set of instructions goes in its own thread
+
+
+thread_0					thread_1					thread_2
+-------						--------					--------
+ld r1,@richs_balance		ld r2,@bobs_balance			ld r3,@freds_balance
+sub r1,$200					sub r2,$200					sub r3,$200
+st r1,@richs_balance		st r2,@bobs_balance			st r3,@freds_balance
+
+
+The thing about preemptive threads is you don't know when pre-emption will take place. For example, thread_0 could start, execute two instructions, and suddenly be preempted for thread_1 which could be preempted for thread_2, and so on
+
+	ld      r1,@richs_balance		;; thread_0
+    sub     r1,$200					;; thread_0
+
+	**** pre-empt! ****
+	ld      r2,@bobs_balance		;; thread_1
+    sub     r2,$200					;; thread_1
+
+	**** pre-empt! ****
+    ld      r3,@freds_balance		;; thread_2
+    sub     r3,$200					;; thread_2
+
+	**** pre-empt! ****
+	st 		r1,@richs_balance		;; thread_0
+
+	**** pre-empt! ****
+    st      r2,@bobs_balance		;; thread_1
+
+	**** pre-empt! ****
+    st      r3,@freds_balance		;; thread_2
+	
+	
+In fact (and this is the part to get) any interleaving of instructions that preserves the sequential order of each individual thread is legal and may occur.
+
+The system cannot choose to rearrange the instructions within a thread but because threads can be preempted at any time all interleavings of the instructions are possible.
+
+Again, in this example, there is no real problem (yet). It doesn't matter where you put the preempts or whether you leave them out -- the ATM system will function properly.
+
+Now let's say you've thought about this for a good long while and you come up with a scheme. You get a good friend, you give them your ATM PIN number and a GPS synchronized watch, and you say "at exactly 12:00, withdraw $200." 12:00 rolls around and you and your friend both go to separate ATMs and simultaneously withdraw $200. Let's say, further, that you are lucky, your account contains $1000 to begin with, and that the bank's computers makes two threads:
+
+
+thread_0					thread_1
+-------						--------
+ld r1,@richs_balance		ld r2,@richs_balance
+sub r1,$200					sub r2,$200
+st r1,@richs_balance		st r2,@richs_balance
+
+Because you are lucky and you've gotten the bank to launch both threads at the same time, the following interleaving takes place
+
+ld r1,@richs_balance		;; thread_0
+
+*** pre-empt ***
+ld r2,@richs_balance		;; thread_1
+
+*** pre-empt ***
+sub r1,$200					;; thread_0
+
+*** pre-empt ***		
+sub r2,$200					;; thread_1
+
+*** pre-empt ***
+st r1,@richs_balance		;; thread_0
+
+*** pre-empt ***
+st r2,@richs_balance		;; thread_1
+
+
+
+What is the contents of richs_balance when both threads finish?
+
+It should be $600, right? Both you and your friend withdrew $200 each from your $1000 balance. If this were the way things worked at your bank, however, richs_balance would be $800.
+
+Why?
+
+Look at what happens step by step. The first ld loads 1000 into r1. thread_0 gets preempted and thread_1 starts. It loads 1000 into r2. Then it gets preempted and thread_0 runs again. r1 (which contains 1000) is decremented by 200 so it now contains 800. Then thread_1 pre-empts thread_0 again, and r2 (which contains 1000 from the last load of r2) gets decremented by 200 leaving 800. Then thread_0 runs again and stores 800 into richs_balance. Then thread_1 runs again and stores 800 into richs_balance and the final value is 800.
+
+This problem is called a race condition. It occurs when there is a legal ordering of instructions within threads that can make the desired outcome incorrect. Notice that there are lots of ways thread_0 and thread_1 could have interleaved in which the final value of richs_balance would have been $600 (the correct value). It is just that you are lucky (or you tried this trick enough so that the law of averages eventually worked out for you) to cause one of the $200 withdrawals to disappear.
+
+Note also that the problem is worse if the bank has a machine with at least 2 CPUs. In this case, thread_0 and thread_1 run at the same time which means that they both execute the fist subtraction at the same time. How does a race condition occur in this case? Turns out that the memory system for multi-processors implements memory write operations one-at-a-time (multiple simultaneous reads are possible from cache). Thus when they both go to store the balance of $800, one will write its value first and the other will over write that value with the same $800. The outcome is the same as the profitable interleaving shown above with preemption.
+
+A Code Example
+Look at race1.c. Its usage is race1 nthreads stringsize iterations
+
+This is a pretty simple program. The command line arguments call for the user to specify the number of threads, a string size and a number of iterations. Then the program does the following. It allocates an array of stringsize+1 characters (the +1 accounts for the null terminator). Then it forks off nthreads threads, passing each thread its id, the number of iterations, and the character array. Here is the output if we call it with the arguments 4, 4, 1.
+
+./race1 4 4 1
+Thread 0: CCCC
+Thread 1: DDDD
+Thread 2: DDDD
+Thread 3: DDDD
+
+How did this happen?
+
+Notice that all 4 threads share the same buffer s in the program. Thread 0 ran, filled in the buffer with "AAAA" but before it got a chance to run its print statement it got preempted. Then Thread 1 ran and filled in the same buffer with "BBBB" but it too got preempted before it could print. Then Thread 2 ran, filled in the buffer with "CCCC" and was preempted before it could print. At this point, Linux chose to go back in allow Thread 0 to continue. Because the last thread to fill in the buffer was Thread 2, Thread 0 when it resumes prints "CCCC". Then Thread 3 runs and fills in the buffer with "DDDD" only to be preempted before it can print. Linux chooses Thread 1 to resume which prints the current contents of the buffer as "DDDD". Then Linux resumes Thread 2 and it prints "DDDD." Finally, Linux resumes Thread 3 which also prints the contents of the buffer and the program exits.
+
+These kinds of bugs or race conditions are extremely difficult to debug. Consider the output from race2.c
+
+./race2 4 40 2
+Thread 1: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDCCAAAAA
+Thread 0: BDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDCAAAA
+Thread 2: AAAAAAADDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+Thread 3: CBAAAAAAADDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+Thread 0: DDDDDDDDDDDDDDDDDDDDDDDDDDDBBBBBBAAAAAAA
+Thread 1: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDBBBBCCCC
+Thread 2: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDBBCCCC
+Thread 3: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+
+The code is the same as race1.c but with a delay loop scheduled in the main write loop to allow a greater chance for preemption. Figuring out the exact interleaving that caused this output is a chore which is why race conditions are some of the most difficult bugs to find and fix.
+
+In our race program, we can fix the race condition by enforcing that no thread can be interrupted by another thread when it is modifying and printing s. This can be done with a mutex, sometimes called a ``lock.'' There are three procedures for dealing with mutexes in pthreads:
+
+pthread_mutex_init(pthread_mutex_t *mutex, NULL);
+
+pthread_mutex_lock(pthread_mutex_t *mutex);
+
+pthread_mutex_unlock(pthread_mutex_t *mutex);
+
+You create a mutex with pthread_mutex_init(). Then any thread may lock or unlock the mutex. When a thread locks the mutex, no other thread may lock it. If they call pthread_mutex_lock() while the thread is locked, then they will block until the thread is unlocked. Only one thread may lock the mutex at a time.
+
+So, we fix the race program with race3.c. You'll notice that a thread locks the mutex just before modifying s and it unlocks the mutex just after printing s. This fixes the program so that the output makes sense:
+
+UNIX> race3 4 4 1
+Thread 0: AAA
+Thread 1: BBB
+Thread 2: CCC
+Thread 3: DDD
+
+UNIX> race3 4 4 2
+Thread 0: AAA
+Thread 0: AAA
+Thread 2: CCC
+Thread 2: CCC
+Thread 1: BBB
+Thread 1: BBB
+Thread 3: DDD
+Thread 3: DDD
+
+UNIX> race3 4 70 1
+Thread 0: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+Thread 1: BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+Thread 2: CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+Thread 3: DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+
+Are these outputs correct? Yes. Each thread prints a full buffer full if its specific letter. Notice that the order in which the threads is not controlled. That is, Linux is still free to schedule Thread 2 before Thread 1 even though the code called pthread_create() for Thread 1 before Thread 2. However, the lock ensures that each thread completely fills the buffer and prints it without being preempted by another thread.
+Formal Definition of Race Conditions
+Now we'll try for a formal definition.
+Race condition: the possibility in a program consisting of potentially concurrent threads that all legal instruction orderings do not result in exactly the same output.
+
+About the only things that should be ambiguous to you here is the term "potentially concurrent." In our examples, we have been thinking about threads running on a single processor with pre-emption. Notice, though that you can think of these threads as running on separate processors simultaneously. Think about it. If there were multiple processors and only one memory, all of the race conditions we have discussed so far would still exist.
+
+virtual concurrencyFor this reason, preemptive threads (and timesharing, for that matter) are sometimes referred to as implementing "virtual concurrency." Even though there is only one processor, because of pre-emption it appears to you, the programmer, that there are multiple processors or vice versa.
+
+Notice that under this definition of race condition the program race3.c still has a race condition -- just a different one than the one we fixed with a mutex lock. Technically, because the threads can run in any order, different outputs from the same execution are possible. The question of whether a race condition is a bug or not has to do with what the programmer intended. If any thread ordering is fine but we want each thread to fill and print its buffer, than this version of the code is correct even though it has a race condition.
+
+Terse advice on mutexes
+Race conditions exist, and mutexes and condition variables (see next lecture) are needed when ever preemptive threads update a shared data structure. There is no problem is the threads only read what is there. If updates take place, however, thread access must be synchronized. That is the key. In all of these examples, some shared variable is being updates. If you are using pre-emption, and you see updates to shared state, think "race condition."
+Condition Variables
+Locks, implemented as "mutexes" in pthreads, ensure regions of mutual exclusion, but it is frequently true that more complicated forms of synchronization are desirable. For example, consider how you might modify race3.c so that the threads must execute round robin, starting with thread 0. You can do this with mutexes, but it is cumbersome, as is evidenced by rr_mutex.c. Here is the code:
+
+
+
+
+/*
+ * CS170: rr_mutex.c
+ * this code is a modification of race3.c to use mutexes to ensure
+ * round robin scheduling
+ */
+
+#include < unistd.h >
+#include < stdlib.h >
+#include < stdio.h >
+#include < pthread.h >
+
+int MyTurn = 0;
+
+typedef struct 
+{
+	pthread_mutex_t *lock;
+	int id; 
+	int size;
+	int iterations;
+	char *s;
+	int nthreads;
+} Thread_struct;
+
+void *infloop(void *x)
+{
+	int i, j, k;
+	Thread_struct *t;
+ 
+	t = (Thread_struct *) x;
+
+	for (i = 0; i < t->iterations; i++) 
+	{
+		/* 
+		 * don't try this at home
+     	 	 */
+
+		pthread_mutex_lock(t->lock);
+		while((MyTurn % t->nthreads) != t->id)
+		{
+			pthread_mutex_unlock(t->lock);	/* give it up */
+			pthread_mutex_lock(t->lock);	/* get it again */
+		}
+
+		for (j = 0; j < t->size-1; j++) 
+		{
+			t->s[j] = 'A'+t->id;
+			for(k=0; k < 50000; k++);	/* delay loop */
+		}
+		t->s[j] = '\0';
+		printf("Thread %d: %s\n", t->id, t->s);
+		MyTurn++;
+
+		pthread_mutex_unlock(t->lock);
+
+  	}
+
+	return(NULL);
+}
+
+int
+main(int argc, char **argv)
+{
+	pthread_mutex_t lock;
+	pthread_t *tid;
+	pthread_attr_t *attr;
+	Thread_struct *t;
+	void *retval;
+	int nthreads, size, iterations, i;
+	char *s;
+
+	if (argc != 4) 
+	{
+		fprintf(stderr, "usage: race nthreads stringsize iterations\n");
+		exit(1);
+	}
+
+	pthread_mutex_init(&lock, NULL);
+	nthreads = atoi(argv[1]);
+	size = atoi(argv[2]);
+	iterations = atoi(argv[3]);
+
+	tid = (pthread_t *) malloc(sizeof(pthread_t) * nthreads);
+	attr = (pthread_attr_t *) malloc(sizeof(pthread_attr_t) * nthreads);
+	t = (Thread_struct *) malloc(sizeof(Thread_struct) * nthreads);
+	s = (char *) malloc(sizeof(char *) * size);
+
+	for (i = 0; i < nthreads; i++) 
+	{
+		t[i].nthreads = nthreads;
+		t[i].id = i;
+		t[i].size = size;
+		t[i].iterations = iterations;
+		t[i].s = s;
+		t[i].lock = &lock;
+		pthread_attr_init(&(attr[i]));
+		pthread_attr_setscope(&(attr[i]), PTHREAD_SCOPE_SYSTEM);
+		pthread_create(&tid[i], &(attr[i]), infloop, (void *)&(t[i]));
+	}
+	
+	for (i = 0; i < nthreads; i++) 
+	{
+		pthread_join(tid[i], &retval);
+	}
+
+	return(0);
+}
+Note that both the increment and test of MyTurn take place while one thread is in the mutual exclusion region, so there is no race condition for the counter. Does MyTurn need to be updated in a critical section? We'll get to that.
+relies on fairness -- The boldfaced while loop directs each thread to wait its turn assuming that the implementation schedules threads fairly. If it does not, this code will deadlock if a thread, constantly grabbing and releasing the lock, starves the other threads out.
+
+efficiency -- Even if the implementation is fair, the threads that are waiting to fill the s buffer "burn" their timeslice by executing nothing but the lock-test-unlock sequence. A more efficient synchronization primitive would allow a thread to block without consuming time slices until it is released by another thread.
+
+Okay -- so let's consider the question of whether the variable MyTurn needs to be updated in a critical section for the output to be deterministic. Turns out that when the processor reads and writes memory (say when determining the value of a variable) the memory operations are atomic. Thus, as long as only one thread at a time writes a value into MyTurn and the others are reading it, there is no simultaneous update and no race condition.
+
+Thus the following code (from rr_nolock.c is also race-free:
+
+
+void *infloop(void *x)
+{
+	int i, j, k;
+	Thread_struct *t;
+ 
+	t = (Thread_struct *) x;
+
+	for (i = 0; i < t->iterations; i++) 
+	{
+		/* 
+		 * no mutex lock here
+     	 	 */
+		while((MyTurn % t->nthreads) != t->id);
+		for (j = 0; j < t->size-1; j++) 
+		{
+			t->s[j] = 'A'+t->id;
+			for(k=0; k < 50000; k++);	/* delay loop */
+		}
+		t->s[j] = '\0';
+		printf("Thread %d: %s\n", t->id, t->s);
+		MyTurn++;
+  	}
+
+	return(NULL);
+}
+
+This version is like the previous one in that threads that cannot proceed simply spin for their timeslice waiting for the value of MyTurn to change. Because only one thread at a time is allow to update MyTurn the system does not suffer a race condition.
+
+Pthreads solves the fairness and efficiency problems using a synchronization abstraction known as a condition variable. A condition variable allows a thread to
+
+take a mutex lock
+test to see if the condition that allows it to proceed is satisfied
+go to sleep if it is not, implicitly releasing the lock, and
+re-awake holding the lock when signalled by another thread.
+Here are the relevant calls:
+int  pthread_cond_init(pthread_cond_t  *cond, pthread_cond_attr_t *cond_attr);
+int  pthread_cond_wait(pthread_cond_t  *cond, pthread_mutex_t *mutex);
+int  pthread_cond_signal(pthread_cond_t *cond);
+int  pthread_cond_broadcast(pthread_cond_t *cond);
+The first call initializes a condition variable (the attribute field, I will let you read about). The second takes the condition variable and a mutex lock as arguments. It is expected that the caller will have successfully acquired the specified lock. When pthread_cond_wait() is called, the calling thread is put to sleep and the lock specified as the second argument is released. When a different thread calls pthread_cond_signal() one of the threads waiting on the condition variable is selected and reawakened. It then re-acquires the lock so when it returns from pthread_cond_wait() it, once again holds the lock.
+The utility of these semantics can be a little obscure until you've used them a bit. Consider the code in rr_condvar.c:
+
+In particular, note the use of pthread_cond_broadcast() in the following example.
+
+
+/*
+ * CS170: rr_condvar.c
+ * this code is a modification of race3.c to use condition variables to ensure
+ * round robin scheduling using condition variables
+ */
+
+#include < unistd.h >
+#include < stdlib.h >
+#include < stdio.h >
+#include < pthread.h >
+
+int MyTurn = 0;
+
+typedef struct 
+{
+	pthread_mutex_t *lock;
+	pthread_cond_t *wait;
+	int id; 
+	int size;
+	int iterations;
+	char *s;
+	int nthreads;
+} Thread_struct;
+
+void *infloop(void *x)
+{
+	int i, j, k;
+	Thread_struct *t;
+ 
+	t = (Thread_struct *) x;
+
+	for (i = 0; i < t->iterations; i++) 
+	{
+		/*
+		 * do try this at home
+		 */
+
+		pthread_mutex_lock(t->lock);
+		while((MyTurn % t->nthreads) != t->id)
+    		{
+	    		pthread_cond_wait(t->wait,t->lock);
+    		}
+
+		for (j = 0; j < t->size-1; j++) 
+		{
+			t->s[j] = 'A'+t->id;
+			for(k=0; k < 50000; k++);	/* delay loop */
+    		}
+		t->s[j] = '\0';
+		printf("Thread %d: %s\n", t->id, t->s);
+		MyTurn++;
+
+		pthread_cond_broadcast(t->wait);
+		pthread_mutex_unlock(t->lock);
+
+	}
+
+	return(NULL);
+}
+
+int
+main(int argc, char **argv)
+{
+	pthread_mutex_t lock;
+	pthread_cond_t wait;
+	pthread_t *tid;
+	pthread_attr_t *attr;
+	Thread_struct *t;
+	void *retval;
+	int nthreads, size, iterations, i;
+	char *s;
+
+	if (argc != 4) 
+	{
+		fprintf(stderr, "usage: race nthreads stringsize iterations\n");
+		exit(1);
+	}
+
+	pthread_mutex_init(&lock, NULL);
+	pthread_cond_init(&wait, NULL);
+	nthreads = atoi(argv[1]);
+	size = atoi(argv[2]);
+	iterations = atoi(argv[3]);
+
+	tid = (pthread_t *) malloc(sizeof(pthread_t) * nthreads);
+	attr = (pthread_attr_t *) malloc(sizeof(pthread_attr_t) * nthreads);
+	t = (Thread_struct *) malloc(sizeof(Thread_struct) * nthreads);
+	s = (char *) malloc(sizeof(char *) * size);
+
+	for (i = 0; i < nthreads; i++) 
+	{
+		t[i].nthreads = nthreads;
+		t[i].id = i;
+		t[i].size = size;
+		t[i].iterations = iterations;
+		t[i].s = s;
+		t[i].lock = &lock;
+		t[i].wait = &wait;
+		pthread_attr_init(&(attr[i]));
+		pthread_attr_setscope(&(attr[i]), PTHREAD_SCOPE_SYSTEM);
+		pthread_create(&(tid[i]), &(attr[i]), infloop, (void *)&(t[i]));
+  	}
+	for (i = 0; i < nthreads; i++) 
+	{
+		pthread_join(tid[i], &retval);
+	}
+
+	return(0);
+}
+
+
+Here, each thread blocks on the same condition variable until it is signalled by another thread to continue. Notice that each thread waits while holding the lock. If pthread_cond_wait() did not release the lock, the code would deadlock as soon as a thread tried to acquire the critical section out of order.
+However, pthread_cond_signal() only signals a single thread and there is no guarantee it will signal the next one in line. There are three ways to fix this problem. The first is to use a broadcast which wakes up all threads blocked on the condition variable. That's the solution I used in the cose shown above.
+
+The second way is to put a call to pthread_cond_signal() in just before the wait to make sure there is no deadlock. The file rr_condvar2.c contains this solution.
+
+The third way is to give each thread its own condition variable and to have the threads signal the specific condition variable of the thread that needs to be awoken next. This solution matches calls to pthread_cond_wait() and pthread_cond_signal() thereby avoiding the broadcast. The file rr_condvar3.c contains this solution.
+
+how much more efficient? -- Here is an example of the performance difference: rr_mutex 100 30 3 ran in 3.187 seconds on a CSIL machine while rr_condvar 100 30 3 took only 1.112 seconds. I'm not exactly sure why the difference is that big, but there you have it. Condition variables are your friend.
+
+Race Condition Thought Question
+Consider the code in race_ABC.c What does it do? Does it contain a race condition?
