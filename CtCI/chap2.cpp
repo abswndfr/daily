@@ -38,7 +38,9 @@ void printList(NODE* pNode)
 }
 
 //2.1
-// NODE **pHead; -> *pHead->next (X) but (*pHead)->next (O)
+// NODE **pHead; -> *pHead->next (X) but (*pHead)->next (O)    
+//                  () [] -> . 
+//                  ! ~ ++ -- + - * (type) sizeof)
 // add list : newNode->next = *pHead, not *pHead->next unless pHead is a dummy
 void remove_duplication(NODE* node)
 {
