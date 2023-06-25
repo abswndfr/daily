@@ -1,0 +1,430 @@
+1.1 Is Unique: Implement an algorithm to determine if a string has all unique characters. What if you cannot use additional data structures?	=> sizeof(ASCII) = 128
+1.2 Check Permutation: Given two strings, write a method to decide if one is a permutation of the other
+1.4 Palindrome Permutation: Given a string, write a function to check if it is a permutation of a palindrome. A palindrome is a word or phrase that is the same forwards and backwards. A permutation is a rearrangement of letters. The palindrome does not need to be limited to just dictionary words
+1.5 One Away: There are three types of edits that can be performed on strings: insert a character, remove a character, or replace a character. Given two strings, write a function to check if they are one edit (or zero edits) away
+1.6 String Compression: Implement a method to perform basic string compression using the counts of repeated characters. For example, the string aabcccccaaa would become a2blc5a3. If the "compressed" string would not become smaller than the original string, your method should return the original string. You can assume the string has only uppercase and lowercase letters (a - z).
+1.7 		cw : transpose -> swap col (reverse row), ccw : tranpose -> swap row (reverse col) // https://leetcode.com/problems/rotate-image/description/
+1.8 		1st sol : 2 pass, 1st to mark zero and 2nd to nullify; 2nd sol : use 1st row, col to mark rows & cols with zero. 
+1.9 		(s1 + s1).find(s2)
+
+	
+2.1 Remove Dups! Write code to remove duplicates from an unsorted linked list
+2.2 Return Kth to Last: Implement an algorithm to find the kth to last element of a singly linked list.
+2.3 Delete Middle Node: Implement an algorithm to delete a node in the middle (i.e., any node but the first and last node, not necessarily the exact middle) of a singly linked list, given only access to that node
+2.4 Partition: Write code to partition a linked list around a value x, such that all nodes less than x come before all nodes greater than or equal to x. If x is contained within the list, the values of x only need to be after the elements less than x (see below). The partition element x can appear anywhere in the "right partition"; it does not need to appear between the left and right partitions. 
+2.5 Sum Lists: You have two numbers represented by a linked list, where each node contains a single digit. The digits are stored in reverse order, such that the 1 's digit is at the head of the list. Write a function that adds the two numbers and returns the sum as a linked list.
+2.6 Palindrome: Implement a function to check if a linked list is a palindrome
+2.7 Intersection: Given two (singly) linked lists, determine if the two lists intersect. Return the intersecting node. Note that the intersection is defined based on reference, not value. That is, if the kth node of the first linked list is the exact same node (by reference) as the jth node of the second linked list, then they are intersecting. 	
+2.8 Loop Detection: Given a circular linked list, implement an algorithm that returns the node at the beginning of the loop.	
+
+
+3.1 Three in One: Describe how you could use a single array to implement three stacks.
+3.2 Stack Min: How would you design a stack which, in addition to push and pop, has a function min which returns the minimum element? Push, pop and min should all operate in 0(1) time
+3.3 Stack of Plates: Imagine a (literal) stack of plates. If the stack gets too high, it might topple. Therefore, in real life, we would likely start a new stack when the previous stack exceeds some threshold. Implement a data structure SetOfStacks that mimics this. SetO-fStacks should be composed of several stacks and should create a new stack once the previous one exceeds capacity. SetOfStacks. push() and SetOfStacks. pop() should behave identically to a single stack (that is, pop () should return the same values as it would if there were just a single stack). 
+	  FOLLOW UP : Implement a function popAt ( int index) which performs a pop operation on a specific sub-stack.
+3.4 Queue via Stacks: Implement a MyQueue class which implements a queue using two stacks. 
+3.5 Sort Stack: Write a program to sort a stack such that the smallest items are on the top. You can use an additional temporary stack, but you may not copy the elements into any other data structure (such as an array). The stack supports the following operations: push, pop, peek, and is Empty.
+3.6 Animal Shelter: An animal shelter, which holds only dogs and cats, operates on a strictly"first in, first out" basis. People must adopt either the "oldest" (based on arrival time) of all animals at the shelter, or they can select whether they would prefer a dog or a cat (and will receive the oldest animal of that type). They cannot select which specific animal they would like. Create the data structures to maintain this system and implement operations such as enqueue, dequeueAny, dequeueDog, and dequeueCat. You may use the built-in Linked list data structure. 
+
+
+	'BST deletion
+	~DFS : inorder traversal  
+	~BFS : while(root != NULL) { push(root->left); push(root->right); root = pop(); }
+	~min depth	int min_depth(Tree* node, int depth)							
+
+4.2 Minimal Tree: Given a sorted (increasing order) array with unique integer elements, write an algorithm to create a binary search tree with minimal height.
+		1. Insert into the tree the middle element of the array.
+		2. Insert (into the left subtree) the left subarray elements.
+		3. Insert (into the right subtree) the right subarray elements.
+		4. Recurse
+
+4.3 List of Depths: Given a binary tree, design an algorithm which creates a linked list of all the nodes at each depth (e.g., if you have a tree with depth D, you'll have D linked lists). 
+	   *s1. pre-order traversal algorithm, where we [pass in level + 1 to the next recursive call].
+		s2. breadth-first search. With this implementation, we want to iterate through the root first, then level 2, then level 3, and so on
+		    With each level i, we will have already fully visited all nodes on level i. - 1
+
+4.4 Check Balanced: Implement a function to check if a binary tree is balanced. For the purposes of this question, a balanced tree is defined to be a tree such that the heights of the two subtrees of any node never differ by more than one.
+		s1. Recurse through the entire tree, and for each node, compute the heights of each subtree. 
+		s2. Check the height of each subtree as we recurse down from the root
+
+4.5 Validate BST: Implement a function to check if a binary tree is a binary search tree. 
+		s1. n in-order traversal   :  do an in-order traversal, copy the elements to an array, and then check to see if the array is sorted (no duplication !!)
+		s2. The Min / Max Solution :  all left nodes must be less than or equal to the current node, which must be less than all the right nodes
+
+4.6 Successor: Write an algorithm to find the "next" node (i.e., in-order successor) of a given node in a binary search tree. You may assume that each node has a link to its parent.
+		    if right subtree exists, first node we'd visit if we were doing an in-order traversal of right subtree.
+            if right subtree doesn't exists, 
+		
+	s1.		20 			case #1. 8 -> 10  : 8 has right subtree and the minumum of right subtree is 10.
+		  /    \		case #2. 10-> 12  : 10 doesn't have a right subtree, but the left child of its parent node, 12. 
+		 8      22		case #3. 14-> 20  : 14 doesn't have a right subtree, and it's right child of its parent node, 12.	(8 is first left child to 20 while going up)
+		/ \				case #4. 22-> NULL: no untraversed parent -> just return NULL
+	   4   12	        
+		  / \	        Node inorderSucc(Node n) {	
+		 10  14 	      if (n has a right subtree) { 
+                            return leftmost child of right subtree		// case #1
+					      } else {
+					        while (n is a right child of n.parent) {
+					          n = n.parent; 	// Go up				// case #3 : We know that we have not fully traversed a node x when we move from a left node to its parent. The left node is fully traversed, but its parent is not.
+					        }
+					        return n.parent; 	// Parent has not been traversed	// case #2 & #3
+					      }
+						} 
+						
+	s2.					TreeNode inorderSucc(TreeNode n) {				// https://www.geeksforgeeks.org/inorder-successor-in-binary-search-tree/
+							if (n == null) return null;
+						
+							if (n.right != null) {
+								return leftMostChild(n.right);		// case #1
+							} else {
+								TreeNode q = n;				// current node
+								TreeNode x = q.parent;		// parent node
+
+								while (x != null && x.left != q) {	// Go up until we're on left instead of right
+									q = x;
+									x = x.parent;
+								}
+								return x;
+							}
+						}
+						
+						TreeNode leftMostChild(TreeNode n) {
+							if (n == null) {
+								return null;
+							}
+							while (n.left != null) {
+								n = n.left;
+							}
+							return n;
+						}
+
+	s3.	w/o parent link : https://github.com/careercup/CtCI-6th-Edition-cpp/blob/master/Chapter-4-tree-and-graph/4.6_successor.cpp
+						  https://www.geeksforgeeks.org/inorder-successor-in-binary-search-tree/ 		Method #2	
+
+	
+4.8 First Common Ancestor: Design an algorithm and write code to find the first common ancestor of two nodes in a binary tree. Avoid storing additional nodes in a data structure. 
+                            NOTE: This is not necessarily a binary search tree !!!!  -> for BST, find a node with the key less than the right node and bigger than the left node.
+
+	s1. With Links to Parents : If each node has a link to its parent, we could trace p and q's paths up until they intersect. (same with 2.7)
+	
+			TreeNode commonAncestor(TreeNode p, TreeNode q) {
+				int delta= depth(p) - depth(q); 			// get difference in depths
+				TreeNode first = delta > 0? q : p; 			// get shallower node
+				TreeNode second= delta > 0? p : q; 			// get deeper node
+
+				second= goUpBy(second, Math.abs(delta)); 	// move deeper node up
+				while (first != second && first != null && second != null) { // Find where paths intersect.
+					first= first.parent;
+					second= second.parent;
+				}
+				return first == null ||  second ==  null ? null : first;
+			}
+
+			TreeNode goUpBy(TreeNode node, int delta) { 
+				while (delta> 0 && node != null) {
+					node= node.parent;
+					delta--;
+				}
+				return node;
+			}
+			
+			int depth(TreeNode node) {
+				int depth= 0;
+				while (node != null) {
+					node = node.parent;
+					depth++;
+				}
+				return depth;
+			}
+			
+	s3. if p and q are both on the left of the node, branch left to look for the common ancestor. If they are both on the right, branch right to look for the common ancestor. When p and q are no longer on the same side, you must have found the first common ancestor
+
+			TreeNode commonAncestor(TreeNode root, TreeNode p, TreeNode q) { 			/* Error check - one node is not in the tree. */
+				if (!covers(root, p) || ! covers(root, q)) {
+					return null;
+				}
+				return ancestorHelper(root, p, q);
+			}
+			
+			TreeNode ancestorHelper(TreeNode root, TreeNode p, TreeNode q) {
+				if (root== null || root== p || root== q) {
+					return root;
+				}
+			
+				boolean plsOnleft = covers(root.left, p);
+				boolean qlsOnLeft = covers(root.left, q);
+				
+				if (plsOnLeft != qlsOnLeft) {	// Nodes are on different side
+					return root;
+				}
+				TreeNode childSide = pisOnLeft? root.left root.right;
+				return ancestorHelper(childSide, p, q);
+			}
+				
+			boolean covers(TreeNode root, TreeNode p) {
+				if (root== null) return false;
+				if (root== p) return true;
+				return covers(root.left, p) || covers(root.right, p);
+			}
+
+4.1O Check Subtree: Tl and T2 are two very large binary trees, with Tl much bigger than T2. Create an algorithm to determine if T2 is a subtree of Tl. A tree T2 is a subtree of Tl if there exists a node n in Tl such that the subtree of n is identical to T2. That is, if you cut off the tree at node n, the two trees would be identical.
+		s1. A binary search tree's in-order traversal always prints out the values in sorted order. Therefore, two binary search trees with the same values will always have the same in-order traversals, even if their structure is different.
+			like the first element in the pre-order traversal is the root node. The left and right elements will follow. We can store NULL nodes in the pre-order traversal string as a special character, like an 'X' 
+			lf T2's pre-order traversal is a substring of Tl's pre-order traversal, then T2's root element must be found in Tl. If we do a pre-order traversal from this element in Tl, we will follow an identical path to T2's traversal. Therefore, T2 is a subtree of Tl.
+
+			boolean containsTree(TreeNode t1, TreeNode t2) {
+				StringBuilder string1 = new StringBuilder();
+				StringBuilder string2 = new StringBuilder();
+			
+				// convert tree into string
+				getOrderString(t1, string1);
+				getOrderString(t2, string2);
+				
+				return string1.indexOf(string2.toString()) != -1;
+			}
+			
+			void getOrderString(TreeNode node, StringBuilder sb) {
+				if (node == null) {
+					sb. append ( "X"); 				// Add null indicator : X if null !!!
+					return;
+				}
+				
+				// preorder 
+				sb. append (node. data + " "); 		// Add root
+				getOrderString(node.left, sb); 		// Add left
+				getOrderString(node.right, sb); 	// Add right
+			}
+			
+		s2.  search through the larger tree, T1. 1. Each time a node in Tl matches the root ofT2, call match Tree. 2. The match Tree method will compare the two subtrees to see if they are identical
+
+			boolean containsTree(TreeNode t1, TreeNode t2) {
+				if (t2 == null) return true; 		// The empty tree is always a subtree
+				return subTree(t1, t2);
+			}
+			
+			boolean subTree(TreeNode r1, TreeNode r2) {
+				if (r1 == null) {
+					return false; 					// big tree empty & subtree still not found.
+				} else if (r1.data == r2.data && matchTree(r1, r2)) {
+					return true;
+				}
+				return subTree(rl.left, r2) || subTree(rl.right, r2);
+			}
+			
+			boolean matchTree(TreeNode rl, TreeNode r2) {
+				if (rl == null && r2 == null) {
+					return true; 					// nothing left in the subtree
+				} else if (rl == null || r2 == null) {
+					return false; 					// exactly tree is empty, therefore trees don't match
+				} else if (rl.data != r2.data) {
+					return false; 					// data doesn't match
+				} else {
+					return matchTree(rl.left, r2.left) && matchTree(rl.right, r2.right);
+				}
+			}
+
+
+
+		
+		//1. T1==T2 then T1.left==T2.left && T1.right==T2.right
+		//2. T1!=T2 then T1.left==T2 or T1.right T2 => one of them matching then goto #1
+
+
+4.1 Route Between Nodes: Given a directed graph, design an algorithm to find out whether there is a route between two nodes.
+4.7 Build Order(topology sort): You are given a list of projects and a list of dependencies (which is a list of pairs of projects, where the second project is dependent on the first project). All of a project's dependencies must be built before the project is. Find a build order that will allow the projects to be built. If there is no valid build order, return an error.
+	 Input: projects: a, b, c, d, e, f  -  dependencies: (a, d), (f, b), (b, d), (f, a), (d, c)
+	 Output: f, e, a, b, d, c
+	 
+
+4.9 BST Sequences: A binary search tree was created by traversing through an array from left to right and inserting each element. Given a binary search tree with distinct elements, print all possible arrays that could have led to this tree.
+	 Input: 			 Output: {2, 1, 3}, {2, 3, 1}
+
+4.11 Random Node: You are implementing a binary tree class from scratch which, in addition to insert, find, and delete, has a method getRandomNode() which returns a random node from the tree. All nodes should be equally likely to be chosen. Design and implement an algorithm for getRandomNode, and explain how you would implement the rest of the methods.
+
+		Option #1 [Slow & Working]	One solution is to copy all the nodes to an array and return a random element in the array
+		Option #2 [Slow & Working)	Copy the nodes to an array. Remove nodes from this array as we delete them from the tree that will take O (N) time.
+		Option #3 [Slow & Working]  We could label all the nodes with an index from 1 to N and label them in binary search tree order (that is, according to its inorder traversal). Then, when we call getRandomNode, we generate a random index between 1 and N. If we apply the label correctly, we can use a binary search tree search to find this index. When we insert a node or a delete a node, all of the indices might need to be updated.this can take O(N) time 
+		Option #4 [Fast & Not Working] If we knew the depth of the tree, we could pick a random depth, and then traverse left/right randomly until we go to that depth. This wouldn't actually ensure that all nodes are equally likely to be chosen though.
+									   First, the tree doesn't necessarily have an equal number of nodes at each level. This means that nodes on levels with fewer nodes might be more likely to be chosen than nodes on a level with more nodes. 
+									   Second, the random path we take might end up terminating before we get to the desired level. Then what? We could just return the last node we find, but that would mean unequal probabilities at each node.
+
+		Option #5 [Fast & Not Working] We could try just a simple approach: traverse randomly down the tree. At each node: 
+										, With 1/3 odds, we return the current node. 
+										• With 1/3 odds, we traverse left. 
+										• With 1/3 odds, we traverse right. 
+									   This solution, like some of the others, does not distribute the probabilities evenly across the nodes. 
+									   The root has a X probability of being selected-the same as all the nodes in the left put together.
+		Option #6 [Fast & Working] From option #5. It fails because the probabilities aren't evenly distributed across the options. 
+
+								   We can start with the root. Since we have N nodes, we must return the root node with 1/n probability. 								   								   
+
+								   With what probability should we traverse left versus right? It's not 50/50. Even in a balanced tree, the number of nodes on each side might not be equal. 
+								   If we have more nodes on the left than the right, then we need to go left more often.
+								   
+								   One way to think about it is that the odds of picking something-anything-from the left must be the sum of each individual probability. 
+								   
+								   Since each node must have probability X, the odds of picking something from the left must have probability LEFT _SIZE * 1/N. This should therefore be the odds of going left. Likewise, the odds of going right should be RIGHT_SIZE * 1/N. 
+								   This means that each node must know the size of the nodes on the left and the size of the nodes on the right. Fortunately, our interviewer has told us that we're building this tree class from scratch. 
+								   It's easy to keep track of this size information on inserts and deletes. We can just store a size variable in each node. Increment size on inserts and decrement it on deletes.
+
+
+										class TreeNode {
+											private int data;
+											public TreeNode left;
+											public TreeNode right;
+											private int size = 0;			// !
+										
+											public TreeNode(int d) {
+												data = d;
+												size = 1;						// !	
+											}
+										
+											public TreeNode getRandomNode() {
+												int leftSize = left == null? 0 : left.size();
+												Random random = new Random();
+												int index = random.nextint(size);
+
+												if (index < leftSize) {
+													return left.getRandomNode();
+												} else if (index == leftSize) {
+													return this;
+												} else {
+													return right.getRandomNode();
+												}
+											}
+											
+											public void insertinOrder(int d) {
+												if (d <= data) {
+													if (left == null) {
+														left = new TreeNode(d);
+													} else {
+														left. insertlnOrder( d);
+													}
+												} else {
+													if (right == null) {
+														right = new TreeNode(d);
+													} else {
+														right.insertinOrder(d);
+													}
+												}
+												size++;
+											}
+												
+											public int size() { return size;}
+											public int data() { return data;}
+												
+											public TreeNode find(int d) {
+												if (d == data) {
+													return this;
+												} else if (d <= data) {
+													return left != null? left.find(d) : null;
+												} else if (d > data) {
+													return right != null ? right.find(d) : null;
+												}
+												return null;
+											}
+										}
+
+4.12 Paths with Sum: You are given a binary tree in which each node contains an integer value (which might be positive or negative). Design an algorithm to count the number of paths that sum to a given value. The path does not need to start or end at the root or a leaf, but it must go downwards (traveling only from parent nodes to child nodes).
+
+
+
+	 int countOnes(unsigned int a)
+5.1 Insertion: You are given two 32-bit numbers, N and M, and two bit positions, i and j. Write a method to insert M into N such that M starts at bit j and ends at bit i. You can assume that the bits j through i have enough space to fit all of M. That is, if M = 10011, you can assume that there are at least 5 bits between j and i. You would not, for example, have j = 3 and i = 2, because M could not fully fit between bit 3 and bit 2.
+5.4 Next Number: Given a positive integer, print the next smallest and the next largest number that have the same number of 1 bits in their binary representation.
+5.5 Debugger: Explain what the following code does: ( ( n & ( n-1)) == 0)
+5.6 Conversion: Write a function to determine the number of bits you would need to flip to convert integer A to integer B : 	29 (or: 11101), 15 (or: 01111) -> 2	
+
+5.2 Binary to String: Given a real number between O and 1 (e.g., 0.72) that is passed in as a double, print the binary representation. If the number cannot be represented accurately in binary with at most 32 characters, print "ERROR:' 		
+5.3 Flip Bit to Win: You have an integer and you can flip exactly one bit from a 0 to a 1. Write code to find the length of the longest sequence of ls you could create. : Input: 1775 -> Output: 8 
+5.7 Pairwise Swap: Write a program to swap odd and even bits in an integer with as few instructions as possible (e.g., bit 0 and bit 1 are swapped, bit 2 and bit 3 are swapped, and so on).
+	'memcpy	char *mymemcpy(char *src, char* desc, int size)							
+	'prime	bool prime(int n), 		
+	'permutation
+	'combination
+	/bool find_prime(int n)							
+
+
+8.1 Triple Step: A child is running up a staircase with n steps and can hop either 1 step, 2 steps, or 3 steps at a time. Implement a method to count how many possible ways the child can run up the stairs
+8.2 Robot in a Grid: Imagine a robot sitting on the upper left corner of grid with r rows and c columns. The robot can only move in two directions, right and down, but certain cells are "off limits" such that the robot cannot step on them. Design an algorithm to find a path for the robot from the top left to the bottom right. 
+8.4 Power Set: Write a method to return all subsets of a set.
+8.5 Recursive Multiply: Write a recursive function to multiply two positive integers without using the  *operator.You can use addition, subtraction, and bit shifting, but you should minimize the number  of those operations.
+
+8.3 Magic Index: A magic index in an array A [ 0 ••• n -1] is defined to be an index such that A[ i] = i. Given a sorted array of distinct integers, write a method to find a magic index, if one exists, in array A.
+	FOLLOW UP : What if the values are not distinct?
+8.6 Towers of Hanoi: In the classic problem of the Towers of Hanoi, you have 3 towers and N disks of  different sizes which can slide onto any tower. The puzzle starts with disks sorted in ascending order  of size from top to bottom (i.e., each disk sits on top of an even larger one). You have the following  constraints:
+	(1) Only one disk can be moved at a time.
+	(2) A disk is slid off the top of one tower onto another tower.
+	(3) A disk cannot be placed on top of a smaller disk.
+   Write a program to move the disks from the first tower to the last using stacks.
+8.7 Permutations without Dups: Write a method to compute all permutations of a string of unique characters.
+8.8 Permutations with Dups: Write a method to compute all permutations of a string whose characters are not necessarily unique. The list of permutations should not have duplicates.
+8.9 Parens: Implement an algorithm to print all valid (e.g., properly opened and closed) combinations of n pairs of parentheses. 
+		Input: 3
+		Output: ( ( () ) ) , ( () () ) , ( () ) () , () ( () ) , () () ()
+8.1O Paint Fill: Implement the "paint fill" function that one might see on many image editing programs. That is, given a screen (represented by a two-dimensional array of colors), a point, and a new color, fill in the surrounding area until the color changes from the original color.
+8.11 Coins: Given an infinite number of quarters (25 cents), dimes (10 cents), nickels (5 cents), and pennies (1 cent), write code to calculate the number of ways of representing n cents. 
+8.12 Eight Queens: Write an algorithm to print all ways of arranging eight queens on an 8x8 chess board so that none of them share the same row, column, or diagonal. In this case, "diagonal" means all diagonals, not just the two that bisect the board.
+8.13 Stack of Boxes: You have a stack of n boxes, with widths wi, heights hi , and depths di. The boxes cannot be rotated and can only be stacked on top of one another if each box in the stack is strictly larger than the box above it in width, height, and depth. Implement a method to compute the height of the tallest possible stack. The height of a stack is the sum of the heights of each box.
+8.14 Boolean Evaluation: Given a boolean expression consisting of the symbols 0 (false), 1 (true), & (AND), I (OR), and /\ (XOR), and a desired boolean result value result, implement a function to count the number of ways of parenthesizing the expression such that it evaluates to result.
+		  countEval("l /\01011", false) -> 2
+		  countEval("0&0&0&1/\ll0", true) -> 10
+
+
+10.1 Sorted Merge: You are given two sorted arrays, A and B, where A has a large enough buffer at the end to hold B. Write a method to merge B into A in sorted order. 
+
+10.2 Group Anagrams: Write a method to sort an array of strings so that all the anagrams are next to each other.
+10.3 Search in Rotated Array: Given a sorted array of n integers that has been rotated an unknown number of times, write code to find an element in the array. You may assume that the array was originally sorted in increasing order.
+	 lnput:findSin{lS, 16, 19, 20, 25, 1, 3, 4, 5, 7, 10, 14}
+	 Output: 8 (the index of 5 in the array)
+10.4 Sorted Search, No Size: You are given an array like data structure Listy which lacks a size method. It does, however, have an elementAt ( i) method that returns the element at index i in 0( 1) time. If i is beyond the bounds of the data structure, it returns -1. (For this reason, the data structure only supports positive integers.) Given a Li sty which contains sorted, positive integers, find the index at which an element x occurs. If x occurs multiple times, you may return any index.
+10.5 Sparse Search: Given a sorted array of strings that is interspersed with empty strings, write a method to find the location of a given string. 
+	 Input: ball,{"at","",'"',"", "ball","","", "car", "",'"', "dad",'"',""}
+	 Output:4
+10.6 Sort Big File: Imagine you have a 20 GB file with one string per line. Explain how you would sort the file.
+10.7 Missing Int: Given an input file with four billion non-negative integers, provide an algorithm to generate an integer that is not contained in the file. Assume you have 1 GB of memory available for this task.
+	FOLLOW UP : What if you have only 10 MB of memory? Assume that all the values are distinct and we now have no more than one billion non-negative integers.
+10.8 Find Duplicates: You have an array with all the numbers from 1 to N, where N is at most 32,000. The array may have duplicate entries and you do not know what N is. With only 4 kilobytes of memory available, how would you print all duplicate elements in the array?
+10.9 Sorted Matrix Search: Given an M x N matrix in which each row and each column is sorted in ascending order, write a method to find an element. 
+10.10 Rank from Stream: Imagine you are reading in a stream of integers. Periodically, you wish to be able to look up the rank of a numberx (the number of values less than or equal to x). lmplementthe data structures and algorithms to support these operations. That is, implement the method track ( int x), which is called when each number is generated, and the method getRankOfNumber(int x), which returns the number of values less than or equal to x (not including x itself).
+	 Stream (in order of appearance): 5, 1, 4, 4, 5, 9, 7, 13, 3
+	 getRankOfNumber(l) 0
+	 getRankOfNumber(3) = 1
+	 getRankOfNumber(4) 3
+10.11 Peaks and Valleys: In an array of integers, a "peak" is an element which is greater than or equal to the adjacent integers and a "valley" is an element which is less than or equal to the adjacent integers. For example, in the array {5, 8, 6, 2, 3, 4, 6}, {8, 6} are peaks and {5, 2} are valleys. Given an array of integers, sort the array into an alternating sequence of peaks and valleys.
+	 Input: {5, 3, 1, 2, 3}
+	 Output: {5, 1, 3, 2, 3}
+
+
+12.1 Last K Lines: Write a method to printthe last Klines of an input file using C++.
+12.2 Reverse String: Implement a function void reverse( char* str) in C or C++ which reverses a null-terminated string.
+12.3 Hash Table vs. STL Map: Compare and contrast a hash table and an STL map. How is a hash table implemented? If the number of inputs is small, which data structure options can be used instead of a hash table?
+12.4 Virtual Functions: How do virtual functions work in C++?
+12.5 Shallow vs. Deep Copy: What is the difference between deep copy and shallow copy? Explain how you would use each.
+12.6 Volatile: What is the significance of the keyword "volatile" in C?
+12.7 Virtual Base Class: Why does a destructor in base class need to be declared virtual?
+12.8 Copy Node: Write a method that takes a pointer to a Node structure as a parameter and returns a complete copy of the passed in data structure. The Node data structure contains two pointers to other Nodes.
+12.9 Smart Pointer: Write a smart pointer class. A smart pointer is a data type, usually implemented with templates, that simulates a pointer while also providing automatic garbage collection. It automatically counts the number of references to a SmartPointer<T*> object and frees the object of type T when the reference count hits zero.
+12.10 Malloc: Write an aligned malloc and free function that supports allocating memory such that the memory address returned is divisible by a specific power of two.
+	  align_malloc (1000, 128) will return a memory address that is a multiple of 128 and that points to memory of size 1000 bytes. 
+	  aligned_ free () will free memory allocated by align_malloc. 
+12.11 20 Alloc: Write a function in C called my2DA1loc which allocates a two-dimensional array. Minimize the number of calls to malloc and make sure that the memory is accessible by the notation arr[i][j ]. 
+
+
+15.1 Thread vs. Process: What's the difference between a thread and a process?
+15.2 Context Switch: How would you measure the time spent in a context switch?
+15.3 Dining Philosophers: In the famous dining philosophers problem, a bunch of philosophers are sitting around a circular table with one chopstick between each of them. A philosopher needs both chopsticks to eat, and always picks up the left chopstick before the right one. A deadlock could potentially occur if all the philosophers reached for the left chopstick atthe same time. Using threads and locks, implement a simulation of the dining philosophers problem that prevents deadlocks.   
+15.4 Deadlock-Free Class: Design a class which provides a lock only if there are no possible deadlocks
+15.5 Call In Order: Suppose we have the following code:
+		public class Foo {
+			public Foo() { ... }
+			public void first() { ... }
+			public void second() { ... }
+			public void third() { ... }
+		}
+		The same instance of Foo will be passed to three different threads. ThreadA will call first,
+		threads will call second, and thread( will call third. Design a mechanism to ensure that
+		first is called before second and second is called before third.
+15.6 Synchronized Methods: You are given a class with synchronized method A and a normal method B. If you have two threads in one instance of a program, can they both execute A at the same time? Can they execute A and B at the same time?
+15.7 FizzBuzz: In the classic problem FizzBuzz, you are told to print the numbers from 1 to n. However, when the number is divisible by 3, print "Fizz''. When it is divisible by 5, print "Buzz''. When it is divisible by 3 and 5, print "FizzBuzz''. In this problem, you are asked to do this in a multithreaded way. Implement a multithreaded version of FizzBuzz with four threads. One thread checks for divisibility of 3 and prints "Fizz''. Another thread is responsible for divisibility of 5 and prints"Buzz''. A third thread is responsible for divisibility of 3 and 5 and prints "FizzBuzz''. A fourth thread does the numbers.
+
