@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <math.h>
 
 
 #define MAX(A, B)		((A) > (B) ? (A) : (B))
@@ -13,8 +13,14 @@ typedef struct _treeNode {
 	struct _treeNode* left;
 	struct _treeNode* right;
 	struct _treeNode* parent;
+	struct _treeNode* next;
 } Node;
 
+#define QUE_MAX	10
+Node* queue[QUE_MAX];
+int head;
+int tail;
+//int count = 0;
 
 // passing by value of a pointer never gets newly allocated address. Pass it by reference, ie, **p, or "RETURN IT".
 #if 1
@@ -96,11 +102,6 @@ void InOrder(Node* node)
 }
 
 
-#define QUE_MAX	10
-Node* queue[QUE_MAX];
-int head = 0;
-int tail = 0;
-//int count = 0;
 
 void levelOrder(Node* node)
 {
@@ -181,9 +182,9 @@ int minDepth(Node* node)
 // input array needs to be sorted !!!!!
 Node* createMinimalBST(int* arr, int start, int end)
 {
-	printf("s:%d e:%d -> ", start, end);
+	//printf("s:%d e:%d -> ", start, end);
 	if (end < start) {
-		printf("end\n");
+		//printf("end\n");
 		return NULL;
 	}
 
@@ -193,7 +194,7 @@ Node* createMinimalBST(int* arr, int start, int end)
 
 	node->key = arr[mid];
 	node->parent = NULL;
-	printf("%d[%d]\n", arr[mid], mid);
+	//printf("%d[%d]\n", arr[mid], mid);
 
 	node->left = createMinimalBST(arr, start, mid - 1);
 	if (node->left) {
@@ -266,14 +267,93 @@ TreeList* setlink(Tree* t)
 	return link_of_depth(t, tl, tl->dep);
 }*/
 
-#if 0
-Node* link_of_depth(Tree* t, TreeList* tl, int depth)
-{
-	cur;
 
-	return
+// Node	   : tree node  
+// sllNode : list node  (=NODE)
+typedef struct _sllNode {
+	Node* treeNode;
+	struct _sllNode* next;
+} sllNode;
+
+void addList(sllNode** pHead, Node* tNode)
+{
+	sllNode* lNode = (sllNode*)malloc(sizeof(sllNode));
+
+	if (lNode) {
+		lNode->treeNode= tNode;
+		lNode->next = *pHead;
+		*pHead = lNode;
+	}
+	else {
+		//
+	}
 }
-#endif
+
+void printList(sllNode* pNode)
+{
+	while (pNode) {
+		printf("%d->", pNode->treeNode->key);
+		pNode = pNode->next;
+	}
+	printf("NULL\n");
+}
+
+sllNode *listOfDepth[10];
+
+void preOrderPerDepth(Node* node, int depth)
+{
+	if (node == NULL) {
+		return;
+	}
+
+	if (listOfDepth[depth] == NULL) {
+		listOfDepth[depth] = (sllNode *)malloc(sizeof(sllNode) * pow(2, depth));
+		listOfDepth[depth]->treeNode = node;	// head node
+		listOfDepth[depth]->next = NULL;
+		printf("%d[%d]_\n", node->key, depth);
+	}
+	else {
+		addList(&(listOfDepth[depth]), node);
+		printf("%d[%d]+\n", node->key, depth);
+	}
+
+	//printf("%d[%d]->", node->key, depth);
+	preOrderPerDepth(node->left, depth + 1);
+	preOrderPerDepth(node->right, depth + 1);		
+}
+
+sllNode** listOfDepths(Node* root)
+{
+	Node *node = root;
+
+	for (int i=0; i < 10; i++) {
+		listOfDepth[i] = NULL;
+	}
+
+	//listOfDepth[0] = (sllNode*)malloc(sizeof(sllNode*));
+	//listOfDepth[0]->treeNode = root;
+	//printf("list created for depth %d with key %d\n", 0, root->key);
+
+	preOrderPerDepth(root, 0);
+	printf("NULL\n");
+	return listOfDepth;
+}
+
+/*	depth first
+	while (node) {
+		printf("%d ", node->key);
+		if (node->left) {
+			queue[head++] = node->left;
+		}
+		if (node->right) {
+			queue[head++] = node->right;
+		}
+		node = queue[tail++];
+	}
+	printf("\n\n\n\n\n\n");
+	//addList(&head, data);
+*/
+
 
 //4.4
 int maxDepth(Node* node)
@@ -616,7 +696,7 @@ bool isSubTree(Node* t1, Node* t2)
 
 
 int main()
-{/*
+{
 	// BST
 		//				4
 		//			  /	  \
@@ -647,20 +727,36 @@ int main()
 	InOrder(rootB);		// 1 2 4 6 7 8
 
 	printf("min depth:%d\n", minDepth(rootB));
-*/
-#if 1
+
 	// 4.2 minimal binary tree
 	int sorted_arrA[] = { 1, 2, 4, 6, 7, 8 };
 	Node* rootC = createMinimalBST(sorted_arrA, 0, 5);
 
 	InOrder(rootC);		// 1 2 4 6 7 8
-	printf("\n");
-#endif
+	printf("\n4.3\n");
+
+
 
 	//4.3 list of depths
+	Node* node3 = NULL;
+
+	int arr3[] = { 4, 7, 2, 1, 6, 8 };
+	for (int i = 0; i < sizeof(arr3) / sizeof(int); i++) {
+		insertNode(&node3, arr3[i]);
+	}
+	InOrder(node3);		// 1 2 4 6 7 8
+	printf("\n");
+
+	sllNode** pHead = NULL;
+	pHead = listOfDepths(node3);
+
+	for (int i = 0; i < 4; i++) {
+		printList(pHead[i]);
+	}
+	
+	printf("\n\n");
 
 
-/*
 	//4.4
 	Node* rootD = NULL;
 
@@ -673,6 +769,7 @@ int main()
 	printf("\n\n");
 
 	printf("4.4 balanced : %d\n", balanced_depth(rootD));
+
 
 
 	// 4.5 valid BST
@@ -775,6 +872,6 @@ int main()
 
 
 	//4.12 path sum
-*/
+
 	return 0;
 }
