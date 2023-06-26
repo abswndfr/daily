@@ -298,7 +298,7 @@ int main()
 
 
 	printf("2.4 partition   ");
-	printList(partition(head, 3));
+	printList(partition(headC, 3));
 
 
 // 2.5
