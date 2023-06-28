@@ -4,6 +4,7 @@
 #include <math.h>
 
 
+#define MIN(A, B)		((A) < (B) ? (A) : (B))
 #define MAX(A, B)		((A) > (B) ? (A) : (B))
 #define ABS(A)			((A) > 0 ? (A) : (A) * (-1))
 
@@ -12,8 +13,7 @@ typedef struct _treeNode {
 	int key;
 	struct _treeNode* left;
 	struct _treeNode* right;
-	struct _treeNode* parent;
-	struct _treeNode* next;
+	struct _treeNode* parent;		// for 4.6
 } Node;
 
 #define QUE_MAX	10
@@ -50,28 +50,28 @@ int tail;
 	return root;
 }*/
 // call by reference
+// malloc(sizeof(Node*)); (X)   malloc(sizeof(Node)); (O)
 void insertNode(Node** root, int data)
 {
 	Node* node = *root;
 
 	if (node == NULL) {
+		//node = (Node*)malloc(sizeof(Node*));
 		node = (Node*)malloc(sizeof(Node));
-		if (node) {
-			node->key = data;
-			node->left = NULL;
-			node->right = NULL;
-			node->parent = NULL;
-			*root = node;
-		}
+		node->key = data;
+		node->left = NULL;
+		node->right = NULL;
+		node->parent = NULL;
+		*root = node;
 	}
 	else {
-		if (data > node->key) {
-			insertNode(&node->right, data);
-			node->right->parent = *root;
+		if (node->key > data) {
+			insertNode(&node->left, data);
+			node->left->parent = node; // *root; 
 		}
 		else {
-			insertNode(&node->left, data);
-			node->left->parent = *root;
+			insertNode(&node->right, data);
+			node->right->parent = node; // *root;
 		}
 	}
 }
@@ -97,6 +97,7 @@ void InOrder(Node* node)
 	if (node) {
 		InOrder(node->left);
 		printf("%d[%d] ", node->key, node->parent != NULL ? node->parent->key : NULL);
+		//printf("%d ", node->key);
 		InOrder(node->right);
 	}
 }
@@ -105,33 +106,28 @@ void InOrder(Node* node)
 
 void levelOrder(Node* node)
 {
-	//Node* node = NULL;
-	//queue[head++] = root;				// push(root);
-	//node = queue[tail++];				// node = pop();
 	head = 0;
 	tail = 0;
 	while (node) {
-		printf("%d ", node->key);
-
+		printf("%d->", node->key);
 		if (node->left) {
-			queue[head++] = node->left;		// push(node->left);
+			queue[head++] = node->left;
 		}
-
 		if (node->right) {
-			queue[head++] = node->right;	// push(node->right);
+			queue[head++] = node->right;
 		}
 
-		node = queue[tail++];			// node = pop();
+		node = queue[tail++];
 	}
+
+	printf("\n");
 }
 
 //min depth
-#define MIN(A, B)	(A < B ? A : B)
-
 int minDepth(Node* node)
 {
-	int left = 100000;
-	int right = 100000;
+	int left = 10000000;	// 10000000
+	int right = 10000000; 	// 10000000
 
 	if (node == NULL) {
 		return 0;
@@ -141,8 +137,13 @@ int minDepth(Node* node)
 		return 1;
 	}
 
-	if (node->left) left = minDepth(node->left);
-	if (node->right) right = minDepth(node->right);
+	if (node->left) {
+		left = minDepth(node->left);
+	}
+
+	if (node->right) {
+		right = minDepth(node->right);
+	}
 
 	return MIN(left, right) + 1;
 }
@@ -182,9 +183,8 @@ int minDepth(Node* node)
 // input array needs to be sorted !!!!!
 Node* createMinimalBST(int* arr, int start, int end)
 {
-	//printf("s:%d e:%d -> ", start, end);
+	// TODO
 	if (end < start) {
-		//printf("end\n");
 		return NULL;
 	}
 
@@ -194,13 +194,11 @@ Node* createMinimalBST(int* arr, int start, int end)
 
 	node->key = arr[mid];
 	node->parent = NULL;
-	//printf("%d[%d]\n", arr[mid], mid);
 
 	node->left = createMinimalBST(arr, start, mid - 1);
 	if (node->left) {
 		node->left->parent = node;
 	}
-	
 	node->right = createMinimalBST(arr, mid + 1, end);
 	if (node->right) {
 		node->right->parent = node;
@@ -211,62 +209,6 @@ Node* createMinimalBST(int* arr, int start, int end)
 
 
 //4.3
-//#define MAX 128
-typedef struct _tree {
-	int data;
-	struct _tree* left;
-	struct _tree* right;
-	struct _tree* next;
-}Tree;
-
-typedef struct _treelist
-{
-	Tree* t;
-	int dep;
-	struct _treelist* next;
-} TreeList;
-/*
-TreeList* link_of_depth(Tree* t, TreeList* tl, int depth)
-{
-	TreeList* cur, * tmp;
-	if (t == NULL) return NULL;
-	cur = tl;
-	while (cur)
-	{
-		if (cur->dep == depth) break;
-		cur = cur->next;
-	}
-	if (cur == NULL)
-	{
-		cur = (TreeList*)malloc(sizeof(TreeList));
-		cur->t = t;
-		cur->dep = depth;
-		cur->next = NULL;
-		tmp = tl;
-		while (tmp->next) tmp = tmp->next;
-		tmp->next = cur;
-	}
-	else
-	{
-		t->next = cur->t->next;
-		cur->t = t;
-	}
-	link_of_depth(t->right, tl->next, depth + 1);
-	link_of_depth(t->left, tl->next, depth + 1);
-	return cur;
-}
-
-TreeList* setlink(Tree* t)
-{
-	TreeList* tl;
-	if (t == NULL) return NULL;
-	tl = (TreeList*)malloc(sizeof(TreeList));
-	tl->t = NULL;
-	tl->dep = 1;
-	tl->next = NULL;
-	return link_of_depth(t, tl, tl->dep);
-}*/
-
 
 // Node	   : tree node  
 // sllNode : list node  (=NODE)
@@ -298,7 +240,7 @@ void printList(sllNode* pNode)
 	printf("NULL\n");
 }
 
-sllNode *listOfDepth[10];
+sllNode* listOfDepth[10];
 
 void preOrderPerDepth(Node* node, int depth)
 {
@@ -354,72 +296,62 @@ sllNode** listOfDepths(Node* root)
 	//addList(&head, data);
 */
 
-
 //4.4
 int maxDepth(Node* node)
 {
-	int left = 0;
-	int right = 0;
-
 	if (node == NULL) {
 		return 0;
 	}
 
-	/*if ((node->left == NULL) && (node->right == NULL)) {
-		return 1;
-	}*/
+	return MAX(maxDepth(node->left), maxDepth(node->right)) + 1;
+}
+
+bool balancedDepth(Node* node)
+{
+	int left;
+	int right;
+
+	if (node == NULL) {
+		return true;
+	}
 
 	left = maxDepth(node->left);
 	right = maxDepth(node->right);
 
-	return MAX(left, right) + 1;
-}
+	printf("l:%d r:%d\n", left, right);
 
-bool balanced_depth(Node* node)
-{
-	int left = maxDepth(node->left);
-	int right = maxDepth(node->right);
-
-	//printf("l:%d r:%d abs(l-r):%d\n", left, right, ABS(left - right));
-
-	return (ABS(left - right) <= 1);
+	return ABS(left - right) < 2;
 }
 
 
-//4.5 - leecode #98
-int left = -100;
-int right = 100;
-int count = 0;
 
+
+//4.5   - leecode #98
 #if 1
 bool isValidBST(Node* root)
 {
-	bool result = true;
-
 	if (root == NULL) {
 		return true;
 	}
 
-	if ((root->left) && (root->key <= root->left->key)) {
+	printf("%d->", root->key);
+
+	if ((root->left) && !(root->left->key < root->key)) {
 		return false;
 	}
 
-	if ((root->right) && (root->key >= root->right->key)) {
+	if ((root->right) && !(root->right->key > root->key)) {
 		return false;
 	}
 
-	if (!(isValidBST(root->left))) {
-		return false;
-	}
-
-	if (!(isValidBST(root->right))) {
-		return false;
-	}
-
-	return true;
+	return isValidBST(root->left) && isValidBST(root->right);
 }
 #else
-// neetcode
+int left = -1000000;
+int right = 1000000;
+int count = 0;
+
+// neetcode 
 bool isValidBST(Node* root, int left, int right)
 {
 	bool result = true;
@@ -442,6 +374,7 @@ bool isValidBST(Node* root, int left, int right)
 }
 #endif
 
+//4.6
 /*
 	#1  check arr[i] < arr[i+1]	after inorder traversal
 	#2	def valid(node, left, right):
@@ -529,46 +462,40 @@ bool isValidBST(Node* root, int left, int right)
 		   //			  /	  \			// 4 -> 6
 		   //			2	   7		// 3 -> 4 *
 		   //		     \    /  \		// 6 -> 7
-		   //		      3* 6	  8		// 8 -> NULL *
+		   //		      3* 6	  8*	// 8 -> NULL *
 
 
-#if 1 // with parent link
-int inOrderSuccessor(Node* node)
+
+Node* inOrderSuccessor(Node* node)
 {
-	int prevKey;
-	Node* temp;
+	Node* prev = NULL;
 
 	if (node == NULL) {
-		return NULL;
+		return node;
 	}
 	printf("%d->", node->key);
 
-	// case #1 : 
-	if (node->right) { // find min on the right subtree
-		temp = node->right;
-		while (temp) {
-			prevKey = temp->key;
-			temp = temp->left;
+	// has right child 
+	if (node->right) {
+		// find min node on the right subtree
+		node = node->right;
+		while (node) {
+			prev = node;
+			node = node->left;
 		}
-		return prevKey;
+		return prev;
 	}
 	else {
-		// is the node left child of its parent ?
-		temp = node->parent;
-		while (temp && (node == temp->right)) {
-			node = temp;
-			temp = temp->parent;
+		while (node->parent && node->parent->right == node) {
+			node = node->parent;
 		}
-		if (temp) {
-			return temp->key;
-		}
+		return node->parent;
 	}
+
 	return NULL;
 }
-#else // without parent link
 
 
-#endif
 
 
 //4.7 topology sort
@@ -577,90 +504,50 @@ int inOrderSuccessor(Node* node)
 //4.8 lowest common ancestor
 bool isNodeFound(Node* root, Node* node)
 {
-	//printf("%p %p->", root, node);
 	if (root == NULL) {
-		//printf("----------------%d not found\n", node->key);
 		return false;
 	}
-	//printf("%d %d\n", root->key, node->key);
 
 	if (root == node) {
-		//printf("----------------%d found\n", node->key);
 		return true;
 	}
-
-	bool result = false;
-
-	result = isNodeFound(root->left, node);
-	result |= isNodeFound(root->right, node);
-
-	return result;
+	else {
+		return isNodeFound(root->left, node) || isNodeFound(root->right, node);
+	}
 }
 
 Node* lowestCommonAncestor(Node* root, Node* p, Node* q)
 {
-	bool onLeft = false;
-	bool onRight = false;
+	bool left = false;
+	bool right = false;
 
-	if (!root || root == p || root == q) {	// !!!!!! 
+	if ((root == NULL) || (root == p) || (root == q)) {
 		return root;
 	}
 
-	onLeft = isNodeFound(root->left, p);
-	onRight = isNodeFound(root->right, q);
-	//printf("L:%d    R:%d\n", onLeft, onRight);
+	left = isNodeFound(root->left, p);
+	right = isNodeFound(root->right, q);
 
-	if (onLeft && onRight) {
-		//printf("LCA %d found\n", root->key);
+	// p & q are on both sides
+	if (left && right) {
 		return root;
 	}
-	else if (onLeft && !onRight) {
-		//printf("p & q on left: start from %d\n", root->left->key);
-		lowestCommonAncestor(root->left, p, q);
-	}
-	else if (!onLeft && onRight) {
-		//printf("p & q on right: start from %d\n", root->right->key);
-		lowestCommonAncestor(root->right, p, q);
+
+	// p & q are on either side
+	if (left) {
+		return lowestCommonAncestor(root->left, p, q);
 	}
 	else {
-		printf("error!\n");
+		return lowestCommonAncestor(root->right, p, q);
 	}
+
+	return NULL;
 }
+
 
 //4.9 BST sequence
 
 
-//4.10 subtree
-/*
-boolean containsTree(TreeNode t1, TreeNode t2) {
-	if (t2 == null) return true; 		// The empty tree is always a subtree
-	return subTree(t1, t2);
-}
-
-boolean subTree(TreeNode r1, TreeNode r2) {
-	if (r1 == null) {
-		return false; 					// big tree empty & subtree still not found.
-	}
-	else if (r1.data == r2.data && matchTree(r1, r2)) {
-		return true;
-	}
-	return subTree(rl.left, r2) || subTree(rl.right, r2);
-}
-
-boolean matchTree(TreeNode rl, TreeNode r2) {
-	if (rl == null && r2 == null) {
-		return true; 					// nothing left in the subtree
-	}
-	else if (rl == null || r2 == null) {
-		return false; 					// exactly tree is empty, therefore trees don't match
-	}
-	else if (rl.data != r2.data) {
-		return false; 					// data doesn't match
-	}
-	else {
-		return matchTree(rl.left, r2.left) && matchTree(rl.right, r2.right);
-	}
-}*/
 
 /*
 	t1	t2
@@ -668,22 +555,28 @@ boolean matchTree(TreeNode rl, TreeNode r2) {
 	-	n		T
 	n	-		F
 	-	-		continue
-*/
 
+	1. T1==T2 then T1.left==T2.left && T1.right==T2.right
+	2. T1!=T2 then T1.left==T2 or T1.right T2 => one of them matching then goto #1
+*/
+//4.10
 bool isSubTree(Node* t1, Node* t2)
 {
+	bool result = false;
+
 	if (t2 == NULL) {
 		return true;
 	}
-	else if (t1 == NULL) {
+
+	if (t1 == NULL) {	// t2 != NULL 
 		return false;
 	}
 
-	if (t1->key == t2->key && isSubTree(t1->left, t2->left) && isSubTree(t1->right, t2->right)) {
+	if ((t1->key == t2->key) && isSubTree(t1->right, t2->right) && isSubTree(t1->left, t2->left)) {
 		return true;
 	}
 
-	return isSubTree(t1->left, t2) || isSubTree(t1->right, t2);
+	return isSubTree(t1->left, t2) || isSubTree(t1->right, t2);;
 }
 
 
@@ -718,10 +611,10 @@ int main()
 
 	// minimum depth
 	Node* rootB = NULL;
-
 	int arrB[] = { 4, 7, 2, 1, 6, 8 };
-	//for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {
-	for (int i = 0; i < 5; i++) {
+	//for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {		// minDepth : 3
+	//for (int i = 0; i < 3; i++) {								// minDepth	: 3
+	for (int i = 0; i < 3; i++) {								// minDepth	: 2
 		insertNode(&rootB, arrB[i]);
 	}
 	InOrder(rootB);		// 1 2 4 6 7 8
@@ -729,6 +622,7 @@ int main()
 	printf("min depth:%d\n", minDepth(rootB));
 
 	// 4.2 minimal binary tree
+	printf("\n4.2  ");
 	int sorted_arrA[] = { 1, 2, 4, 6, 7, 8 };
 	Node* rootC = createMinimalBST(sorted_arrA, 0, 5);
 
@@ -753,7 +647,7 @@ int main()
 	for (int i = 0; i < 4; i++) {
 		printList(pHead[i]);
 	}
-	
+
 	printf("\n\n");
 
 
@@ -768,7 +662,7 @@ int main()
 	InOrder(rootD);		// 1 2 4 6 7 8
 	printf("\n\n");
 
-	printf("4.4 balanced : %d\n", balanced_depth(rootD));
+	printf("4.4 balanced : %d\n", balancedDepth(rootD));
 
 
 
@@ -805,11 +699,11 @@ int main()
 	levelOrder(rootF);	// 4 2 7 3 6 8						// ????
 	printf("\n");
 
-	printf("%d\n", inOrderSuccessor(rootF->left));			// 2 -> 3
-	printf("%d\n", inOrderSuccessor(rootF));				// 4 -> 6
-	printf("%d\n", inOrderSuccessor(rootF->left->right));	// 3 -> 4
-	printf("%d\n", inOrderSuccessor(rootF->right->left));	// 6 -> 7
-	printf("%d\n", inOrderSuccessor(rootF->right->right));	// 8 -> NULL
+	printf("%d\n", inOrderSuccessor(rootF->left)->key);			// 2 -> 3
+	printf("%d\n", inOrderSuccessor(rootF)->key);				// 4 -> 6
+	printf("%d\n", inOrderSuccessor(rootF->left->right)->key);	// 3 -> 4
+	printf("%d\n", inOrderSuccessor(rootF->right->left)->key);	// 6 -> 7
+	printf("%d\n\n", inOrderSuccessor(rootF->right->right));		// 8 -> NULL
 
 	//~4.7 topology sort
 	//4.8 LCA
@@ -820,6 +714,7 @@ int main()
 		//		1        6    8
 	Node* rootG = NULL;
 
+	printf("\n4.8\n");
 	int arr[] = { 4, 7, 2, 1, 6, 8 };
 	for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {
 		insertNode(&rootG, arr[i]);
@@ -828,16 +723,16 @@ int main()
 	printf("\n\n");
 
 	// 2 & 8
-	printf("4.8 LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->left, rootG->right->right)->key, rootG->left->key, rootG->right->right->key);
+	printf("LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->left, rootG->right->right)->key, rootG->left->key, rootG->right->right->key);
 
 	// 2 & 1
-	printf("4.8 LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->left, rootG->left->left)->key, rootG->left->key, rootG->left->left->key);
+	printf("LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->left, rootG->left->left)->key, rootG->left->key, rootG->left->left->key);
 
 	// 7 & 6
-	printf("4.8 LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->right, rootG->right->left)->key, rootG->right->key, rootG->right->left->key);
+	printf("LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->right, rootG->right->left)->key, rootG->right->key, rootG->right->left->key);
 
 	// 6 & 8
-	printf("4.8 LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->right->left, rootG->right->right)->key, rootG->right->left->key, rootG->right->right->key);
+	printf("LCA %d for %d & %d\n\n", lowestCommonAncestor(rootG, rootG->right->left, rootG->right->right)->key, rootG->right->left->key, rootG->right->right->key);
 
 
 	//4.9 BST seq
