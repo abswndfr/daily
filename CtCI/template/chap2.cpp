@@ -66,17 +66,19 @@ int main()
 {
 	NODE* head = NULL;
 
-	int arr[] = { 1,1,3,2,4 };
-	for (int i = 0; i < 5; i++) {
+	int arr[] = { 2,1,2,3,2,4 };
+	for (int i = 0; i < sizeof(arr)/sizeof(int); i++) {
 		//printList(head);
 		addList(&head, arr[i]);
 	}
 	printList(head);
 
-// 2.1
+	// 2.1
+	printf("\n2.1\n");
 	remove_duplication(head);
 	printList(head);
 
+	printf("\n2.2\n");
 	NODE* headA = NULL;
 	int a[] = { 11,27,32,44,51 };
 	for (int i = 0; i < 5; i++) {
@@ -84,12 +86,13 @@ int main()
 	}
 	printList(headA);
 
-// 2.2
+	// 2.2
 	headA = returnKthToLast(headA, 2);
-	printf("2.2 kth node:%d", headA->data);	
+	printf("kth node:%d\n", headA->data);
 
 
-// 2.3
+	// 2.3
+	printf("\n2.3\n");
 	NODE* headB = NULL;
 	int b[] = { 11,27,32,44,51 };
 	for (int i = 0; i < 5; i++) {
@@ -97,24 +100,21 @@ int main()
 	}
 	printList(headB);
 
+	delete_middle_node(headB->next->next);
+	printList(headB);
 
-	delete_middle_node(head->next->next);
-	printList(head);
-
-// 2.4
+	// 2.4
+	printf("\n2.4\n");
 	NODE* headC = NULL;
 	int c[] = { 3,5,8,6,10,1,2 };
 	for (int i = 0; i < 7; i++) {
 		addList(&headC, c[i]);
 	}
 	printList(headC);
+	printList(partition(headC, 3));
 
-
-	printf("2.4 partition   ");
-	printList(partition(head, 3));
-
-
-// 2.5
+	// 2.5
+	printf("\n2.5\n");
 	NODE* nodeD = NULL;
 	int d[] = { 2,4,3 };
 	for (int i = 0; i < 3; i++) {
@@ -131,10 +131,11 @@ int main()
 
 	printList(nodeD);
 	printList(nodeE);
-	printf("2.5 sumlist   ");
+	printf("\nsumlist   ");
 	printList(sumList(nodeD, nodeE));
 
 // 2.6
+	printf("\n2.6\n");
 	NODE* headF = NULL;
 	//int c[] = { 1,2,3,4,5 };
 	int f[] = { 1,2,3,2,1 };
@@ -142,7 +143,7 @@ int main()
 		addList(&headF, f[i]);
 	}
 	printList(headF);
-	printf("2.6 palindrome: %d\n", palindrome(headF));
+	printf("palindrome: %d\n", palindrome(headF));
 
 /*
 //TODO  no cycle generated
