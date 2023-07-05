@@ -30,6 +30,7 @@ void insertNode(Node** root, int data)
 }
 
 
+// base case for recursive calls !!!!!! 
 void InOrder(Node* node)
 {
 }
@@ -41,6 +42,16 @@ void levelOrder(Node* node)
 }
 
 //min depth
+/*
+
+			1				3
+         /     \		 
+       2		3			2
+     /   \     /  \ 
+	4	  5   6	   7		1	
+
+							0
+  */
 int minDepth(Node* node)
 {
 	return 0;
@@ -125,11 +136,13 @@ bool isValidBST(Node* root)
 		   //			2	   7		// 3 -> 4 *
 		   //		     \    /  \		// 6 -> 7
 		   //		      3* 6	  8*	// 8 -> NULL *
-
-
-
 Node* inOrderSuccessor(Node* node)
 {
+	// root	   -> min of right C		; same as 3rd case
+	// left C  -> parent
+	// parent  -> min of right C
+	// right C -> right 1st node as left child, then parent to that.
+	// end     -> NULL
 	return NULL;
 }
 
@@ -140,6 +153,7 @@ Node* inOrderSuccessor(Node* node)
 
 
 //4.8 lowest common ancestor
+// if(root == node) instead of if(root->key == node->key) in case it's not BST
 bool isNodeFound(Node* root, Node* node)
 {
 	return true;
@@ -166,6 +180,8 @@ Node* lowestCommonAncestor(Node* root, Node* p, Node* q)
 	2. T1!=T2 then T1.left==T2 or T1.right T2 => one of them matching then goto #1
 */
 //4.10
+// Early returning upon t1.key != t2.key evades matching subtree below. #385
+// Returning upon child == null avoids reporting true/false #380~381
 bool isSubTree(Node* t1, Node* t2)
 {
 	return true;
@@ -203,10 +219,11 @@ int main()
 
 	// minimum depth
 	Node* rootB = NULL;
-	int arrB[] = { 4, 7, 2, 1, 6, 8 };
-	//for (int i = 0; i < sizeof(arr) / sizeof(int); i++) {		// minDepth : 3
+	int arrB[] = { 4, 7, 2, 1, 6, 8, 3};
+	//int arrB[] = { 1, 2, 3, 4, 5, 6, 8 };						// minDepth : 1
+	for (int i = 0; i < sizeof(arrB) / sizeof(int); i++) {		// minDepth : 3
 	//for (int i = 0; i < 3; i++) {								// minDepth	: 3
-	for (int i = 0; i < 3; i++) {								// minDepth	: 2
+	//for (int i = 0; i < 3; i++) {								// minDepth	: 2
 		insertNode(&rootB, arrB[i]);
 	}
 	InOrder(rootB);		// 1 2 4 6 7 8
@@ -343,6 +360,7 @@ int main()
 	for (int i = 0; i < sizeof(arr1) / sizeof(int); i++) {
 		insertNode(&t1, arr1[i]);
 	}
+	printf("\n\n4.10 \n");
 	InOrder(t1);		// 1 2 4 6 7 8
 	printf("\n");
 
@@ -353,7 +371,7 @@ int main()
 	InOrder(t2);		// 6 7 8
 	printf("\n\n");
 
-	printf("4.10 t2 is t1's subtree:%d\n", isSubTree(t1, t2));
+	printf("t2 is t1's subtree:%d\n", isSubTree(t1, t2));
 
 	//4.11 random node
 
