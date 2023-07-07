@@ -137,7 +137,7 @@ int main()
 // 2.6
 	printf("\n2.6\n");
 	NODE* headF = NULL;
-	//int c[] = { 1,2,3,4,5 };
+	//int f[] = { 1,2,3,4,5 };
 	int f[] = { 1,2,3,2,1 };
 	for (int i = 0; i < 5; i++) {
 		addList(&headF, f[i]);
