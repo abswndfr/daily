@@ -4,29 +4,20 @@
 
 
 //1.1
-// init bitmap after creating
+// init bitmap after creating	X 2
 // while(*str), not while(str)
-// A = 0;  (A--) < 0 ? true : false;  -> false !!!!.  use A--; A < 0 ? true : false !!!!!
 #define ASCII_CODE_SIZE		128
 bool isUnique(char* str)
 {
-	bool* isFound = (bool*)malloc(sizeof(bool) * ASCII_CODE_SIZE);
+	bool *found = (bool *)malloc(sizeof(bool) * ASCII_CODE_SIZE);
 
-	if (isFound) {
-		memset(isFound, false, sizeof(bool) * ASCII_CODE_SIZE);
-	}
-	else {
-		//
-	}
+	memset(found, false, sizeof(bool) * ASCII_CODE_SIZE);
 
 	while (*str) {
-		if (isFound[*str] == true) {
+		if (found[*str]) {
 			return false;
 		}
-		else {
-			isFound[*str] = true;
-		}
-
+		found[*str] = true;
 		str++;
 	}
 
@@ -37,19 +28,19 @@ bool isUnique(char* str)
 // is each character unique ? boolean type if yes, int type if no.
 bool isPermutation(char* strA, char* strB)
 {
-	int* charBin = (int*)malloc(sizeof(int) * ASCII_CODE_SIZE);
-	if (charBin) {
-		memset(charBin, 0, sizeof(int) * ASCII_CODE_SIZE);
-	}
+	int* letter;
+
+	letter = (int*)malloc(sizeof(int) * ASCII_CODE_SIZE);
+	memset(letter, 0, sizeof(int) * ASCII_CODE_SIZE);
 
 	while (*strA) {
-		charBin[*strA]++;
-		strA++;
+		letter[*strA]++;
+		strA++;	
 	}
 
 	while (*strB) {
-		charBin[*strB]--;
-		if ((charBin[*strB]) < 0) {
+		letter[*strB]--;
+		if (letter[*strB] < 0) {
 			return false;
 		}
 		strB++;
@@ -60,31 +51,26 @@ bool isPermutation(char* strA, char* strB)
 
 //1.4
 // is null string a palindrome ? 
-// init bitmap after creating
 // reinit ptr after string reaches '/0' -> or use for instead while w/ str++
 bool isPalindromePermutation(char* str)
 {
-	char* tmp = str;
-	int* charBin = (int*)malloc(sizeof(int) * ASCII_CODE_SIZE);
-	memset(charBin, 0, sizeof(int) * ASCII_CODE_SIZE);
+	int* letter = (int *)malloc(sizeof(int) * ASCII_CODE_SIZE);
+	bool oddFound = false;
 
-	bool isOddFound = false;
-
-	while (*tmp) {
-		charBin[*tmp]++;
-		tmp++;
-	}
+	memset(letter, 0, sizeof(int) * ASCII_CODE_SIZE);
 
 	while (*str) {
-		if (charBin[*str] & 1) {
-			if (isOddFound) {
+		letter[*str]++;
+		str++;
+	}
+
+	for (int i = 0; i < ASCII_CODE_SIZE; i++) {
+		if (letter[i] & 1) {
+			if (oddFound) {
 				return false;
 			}
-			else {
-				isOddFound = true;
-			}
+			oddFound = true;
 		}
-		str++;
 	}
 
 	return true;
@@ -96,36 +82,34 @@ bool isPalindromePermutation(char* str)
 //1.5 char edit like insert, remove, or replace => same str?
 // move next in one string only if lenA != lenB
 // asdfjkl & asejkl : 2 edits away(replace & insert) -> needs 'continue'
+// while(*str), not while(str)
 bool isOneEditAway(char* strA, char* strB)
 {
-	bool isDiffFound = false;
+	int lenA = strlen(strA);
+	int lenB = strlen(strB);
+	bool mismatchFound = false;
 
-	if (ABS(strlen(strA) - strlen(strB)) > 1) {
+	if (ABS(lenA - lenB) > 1) {
 		return false;
 	}
-	else {
-		while (*strA && *strB) {
-			//printf("%c %c\n", *strA, *strB);
-			if (*strA != *strB) {
-				if (isDiffFound == true) {
-					return false;
-				}
-				else {
-					isDiffFound = true;
-				}
-				
-				if ((*(strA+1) == *strB)) {
-					strA++;
-					continue;
-				}
-				else if (*(strA) == *(strB+1)) {
-					strB++;
-					continue;
-				}
+
+	while (*strA) {
+		if (*strA != *strB) {
+			if (mismatchFound) {
+				return false;
 			}
-			strA++;
-			strB++;
+			mismatchFound = true;		
+			if (lenA > lenB) {
+				strA++;
+				continue;
+			}
+			else if (lenA < lenB) {
+				strB++;
+				continue;
+			}
 		}
+		strA++;
+		strB++;
 	}
 
 	return true;
@@ -133,34 +117,26 @@ bool isOneEditAway(char* strA, char* strB)
 
 //1.6
 // index should be the current one at the bottom of for loop. It will advance at the top of for loop.
-// count is already 2 if 1st matching is found
-//
-// helllo, world!
-// 01234567890123
-//   i
-//    jj
-//     i
-//  aaa bbbbb c  dddd ee fff k
-//  a3  b5    c1 d4   e2 f3 k1
 char* string_compression(char* str)
 {
-	int count = 0;
+	/*	  01234567
+		  abcccdde
+		  . ijj
+			   i	*/
 	int len = strlen(str);
-	char* res = (char*)malloc(sizeof(len));
-	int index = 0;
+	int count;
 
 	for (int i = 0; i < len; i++) {
 		count = 1;
-		//printf("%c", str[i]);
-		res[index] = str[i];
-		index++;
+		printf("%c", str[i]);
 
-		if (i == len-1) {
+		if (i == len - 1) {
+
 		}
 		else {
 			if (str[i] == str[i + 1]) {
 				count = 2;
-				for (int j = i + 1; j < len - 1; j++) {
+				for (int j = i + 1; i < len - 1; j++) {
 					if (str[j] == str[j + 1]) {
 						count++;
 					}
@@ -171,13 +147,10 @@ char* string_compression(char* str)
 				}
 			}
 		}
-		//printf("%d", count);
-		//_itoa(count, &res[index], 10);
-		res[index] = count + '0';
-		index++;
+		printf("%d", count);
 	}
-	
-	return res;
+
+	return str;
 }
 
 
@@ -211,7 +184,7 @@ int main()
 	char cstr[] = "aaabbbbbcddddeefffk"; // aaabbbbbcddddeefffk
 
 
-	// 1.1
+// 1.1
 	if (isUnique(astr)) {
 		printf("1.1 no dup found\n");
 	}
@@ -219,7 +192,7 @@ int main()
 		printf("1.1 dup found\n");
 	}
 
-	// 1.2
+// 1.2
 	if (isPermutation(astr, bstr)) {
 		printf("1.2 permutation\n");
 	}
@@ -227,7 +200,7 @@ int main()
 		printf("1.2 not permutation\n");
 	}
 
-	// 1.4
+// 1.4
 	if (isPalindromePermutation(bstr)) {
 		printf("1.4 permutation of palindrome\n");
 	}
@@ -235,7 +208,7 @@ int main()
 		printf("1.4 not permutation of palindrome\n");
 	}
 
-	// 1.5
+// 1.5
 	if (isOneEditAway(astr, bstr)) {
 		printf("1.5 one edit away\n");
 	}
@@ -243,7 +216,7 @@ int main()
 		printf("1.5 more than one edit away\n");
 	}
 
-	// 1.6
+// 1.6
 	printf("\n1.6 %s", string_compression(cstr));
 
 
