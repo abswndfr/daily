@@ -1,0 +1,203 @@
+https://cheatography.com/syshella/cheat-sheets/arm-assembly/	
+https://github.com/oowekyala/arm-cheatsheet/blob/master/arm-cheatsheet.pdf
+
+
+
+
+bit_swap:                                                 	                                	
+	ldr r3, 0              	// r3 -> res    uint res = 0;					r3 = 0							res = 0
+	ldr r1, #32 			// r1 -> i      int i = 32;						r1 = 32							i = 32
+	cmp r0, #0                              while( i > 0 )                  r0 == 0 ?						n == 0 ?               
+loop:                                       {                                
+    be  exit 				// n이 0이면                                                      
+	and r2, r0, 1  			// r2 -> t      	uint t = n & 1              r2 = r0 & 1		r2 -> t 		t = n & 1
+  	lsr r0, r0, 1    		//              	n >>= 1;                    r0 = r0 >> 1	r0 -> n			n = n >> 1	
+   	lsl r3, r3, 1                           	res <<= 1;                  r3 = r3 << 1	r3 -> res		res = res << 1
+    or  r3, r3, r2                           	res |= t;                   r3 = r3 | r2					res = res | t
+    subs r1, r1, 1                          	i--; 						r1 = r1 - 1		r1 -> i			i--
+    b loop                                  }												
+	
+
+
+https://cheatography.com/syshella/cheat-sheets/arm-assembly/	
+
+	R0-R12	General Purpose			Stores temporary values, pointers
+	R13 	SP - Stack Pointer		Top of the stack. Allocate space to the stack by substr­acting the value in bytes that we want to allocate from the stack pointer.
+	R14		LR - Link Register		When a function call is made, LR gets pdated with a memory address refere­ncing the next instru­ction where the function was initiated from
+	R15		PC - Program Counter	Automatically incremented by the size of the instru­ction executed	
+		
+	
+	#123		immediate value	
+	Rx			Register x
+	Rx, LSL n	Register x with logical shift left by n bits
+	Rx, LSR n	Register x with logical shift right by n bits
+	
+	
+	MOV, MVN
+	LDR, STR, LDM, STM
+	B, BL, BX, BLX
+	ADD, SUB, MUL
+	LSL, LSR, ASR
+	CMP, CMN
+	AND, ORR, EOR, BIC 
+	MRS, MSR				;; cpsr/spsr vs. register			
+														MRS     r0, cpsr
+														ORR     r0, r0, #0x80	; bit7 is "interrupt enable"
+														MSR     cpsr_c, r0
+	
+	
+	MNEMONIC {S} {condition} {Rd}, Operand1, Operand2
+	
+		{S}			An optional suffix. If S is specified, the condition flags are updated on the result of the operation 
+		{condition}	Condition that is needed to be met in order for the instru­ction to be executed
+		{Rd}		Register destination for storing the result of the instru­ction 
+		Operand1	First operand. Either a register or an inmediate value
+		Operand2	Second (flexible) operand. Either an inmediate value (number) or a register with an optional shift
+		
+		{} - Optional
+	
+	
+	Conditionals
+	
+		Mnemonic	Description				Flags
+		EQ			Equals					Z=1
+		NE			Non equals				Z=0
+		HI			Higher than (NS)		C=1 & Z=0
+		LS			Less than (NS)			C=0 | Z=1
+		GE			Greater or equals (WS)	N=V
+		LT			Less than (WS)			N!=V
+		GT			Greater than (WS)		Z=0 & N=V
+		LE			Less or equals than (WS)Z=1 | N!=V
+		(empty)		Always (non conditional)
+		NS - No sign
+		WS - With sign
+	
+	Most of intructions can be executed using conditionals. ie: `movle r2, r 
+	
+		
+	Offset		str r2, [r1, #2]		Store the value found in R2 to the memory address found in R1 plus 2. Base register unmodified.						str : op1 -> op2
+	Preindexed	str r2, [r1, #4]!		Store the value found in R2 to the memory address found in R1 plus 4. Base register (R1) modified: R1= R1+4	 
+	Postindexed	ldr r3, [r1], r2, LSL#2	Load the value at memory address found in R1 to the register R3. Then modify base register: R1 = R1+R2<­<2	 	  	ldr : op2 -> op1 
+	
+	Syntax:
+				STR Ra, [Rb, imm]
+				LDR Ra, [Rc, imm]
+	
+	If there is a !, its prefix address mode 									: base address changed before operation
+				ldr   r3, [r1, #4]! 
+				ldr   r3, [r1, r2]!
+				ldr   r3, [r1, r2, LSL#2]!
+	
+	If the base register is in brackets by itself, it’s postfix address mode	: base address changed after operation
+				ldr   r3, [r1], #4
+				ldr   r3, [r1], r2
+				ldr   r3, [r1], r2, LSL#2
+	
+	Anything else, offset address mode:											: base address unchanged
+				ldr   r3, [r1, #4]
+				ldr   r3, [r1, r2]
+				ldr   r3, [r1, r2, LSL#2]	
+		
+	
+
+https://github.com/oowekyala/arm-cheatsheet/blob/master/arm-cheatsheet.pdf	
+	
+			mem: memory address
+
+  offset	
+	[reg, #±imm] 			reg offset by constant
+	[reg,  ±reg] 			reg offset by variable bytes
+	[reg,  ±reg, shift] 	reg offset by shifted variable reg
+
+  prefixed
+	[reg, #±imm]! 			update reg by constant, then access memory
+	[reg,  ±reg]! 			update reg by variable bytes, then access memory
+	[reg,  ±reg, shift]! 	update reg by shifted variable, then access memory
+
+  postfixed
+	[reg],#±imm 			access address reg, then update reg by offset
+	[reg], ±reg 			access address reg, then update reg by variable
+	[reg], ±reg, shift 		access address reg, then update reg by shifted variable	
+	
+
+			um: update mode	-> only for LDM & STM	
+			
+	FA / IA ascending,  starting from reg
+	EA / IB ascending,  starting from reg + 4
+	FD / DB descending, starting from reg
+	ED / DA descending, starting from reg − 4	
+	
+		A : ascending  vs. 	D : descending
+		F : including  vs. 	E : excluding		
+											or
+		I : increasing vs. 	D : decreasing
+		A : 0 base     vs. 	B : 1 base
+	
+
+	
+	
+https://developer.arm.com/documentation/dui0068/b/ARM-Instruction-Reference/ARM-general-data-processing-instructions/ADD--SUB--RSB--ADC--SBC--and-RSC#:~:text=see%20Conditional%20execution).-,S,operation%20(see%20Conditional%20execution).	
+
+  ADD, SUB, RSB, ADC, SBC, and RSC
+
+	Syntax		op{cond}{S} Rd, Rn, Operand2
+
+		op 	 	 is one of ADD, SUB, RSB, ADC, SBC,or RSC.
+		cond 	 is an optional condition code (see Conditional execution).
+		S 	 	 is an optional suffix. If S is specified, the condition code flags are updated on the result of the operation (see Conditional execution).
+		Rd   	 is the ARM register for the result.
+		Rn   	 is the ARM register holding the first operand.
+		Operand2 is a flexible second operand. See Flexible second operand for details of the options.
+	
+	Usage
+		The ADD instruction adds the values in Rn and Operand2.							Rd = Rn + op2
+		The SUB instruction subtracts the value of Operand2 from the value in Rn.		Rd = Rn - op2
+		
+
+
+https://comp.anu.edu.au/courses/comp2300/resources/03-ARM-cheat-sheet/
+
+
+	Operation		Syntax									Semantic								Flags
+   ---------------------------------------------------------------------------------------------------------------------
+	Offset			ldr Rd, [Rb {, #const}]		Rd := [Rb + const]									-	op2 -> op1		
+					str Rs, [Rb {, #const}]		[Rb + const] := Rs									-	op1 -> op2
+								
+	Pre-offset		ldr Rd, [Rb {, #const}]!	Rb += const; Rd := [Rb]								-	
+					str Rs, [Rb {, #const}]!	Rb += const; [Rb] := Rs								-
+								
+	Post-offset		ldr Rd, [Rb], #const		Rd := [Rb]; Rb += const								-	
+					str Rs, [Rb], #const		[Rb] := Rs; Rb += const								-
+								
+	Indexed			ldr Rd, [Rb, Ri {, LSL n}]	Rd := [Rb + (Ri << n)]								-	
+					str Rs, [Rb, Ri {, LSL n}]	[Rb + (Ri << n)] := Rs								-
+								
+	Literal			ldr Rd, label				Rd := [label]										-	
+					ldr Rd, [PC, #offset]		Rd := [PC + offset]									-
+	
+	Positive stack	ldmdb Rs!, registers		for Ri in rev(registers) do Rs -= 4;	Ri := [Rs]	-	op1 -> op2
+					stmia Rs!, registers		for Ri in registers 	 do [Rs] := Ri; Rs += 4		-	op2 -> op1
+					
+	Negative stack	ldmia Rs!, registers		for Ri in registers 	 do Ri := [Rs]; Rs += 4		-	op1 -> op2
+					stmdb Rs!, registers		for Ri in rev(registers) do Rs -= 4; 	[Rs] := Ri	-	op2 -> op1
+
+
+
+https://keleshev.com/ldm-my-favorite-arm-instruction/
+
+	ldm r4, {r0, r1, r2, r3} or ldm r4, {r0-r3}														- 	op1 -> op2
+
+	a base register (in this case, r4) 
+	a register set (in this case, {r0, r1, r2, r3}). 
+	
+	It loads consecutive words from the address in the base register into the registers in the set. 
+	In this example, the effect could be described using the following C-like pseudo-code:
+
+	r0 = r4[0];
+	r1 = r4[1];
+	r2 = r4[2];
+	r3 = r4[3];
+
+
+
+

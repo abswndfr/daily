@@ -1,0 +1,161 @@
+	Neso COA
+	
+		3. Classifications of Computer Architecture
+			Von Neumann, Harvard, & Modified Havard) - Harvard + cache 			
+			Flynn's taxonomy(classification) : SISD, SIMD, MISD, MIMD(multiprocessor)
+				
+		4. Introduction to Memory				
+			cache, main memory(MM) & secondary memory(SM) 
+			
+		5. Memory Hierarchy & Interfacing 
+			hierarchy : ith memory has access time T_i & hit ration H_i (instructions in main memory / instruction exectued)
+		    effective memory access time T_avg 
+ 			  P has access to M1, M2, & M3 in parallel : H_1 * T_1 + ((1-H_1) * H_2) *       T_2  + ((1-H_1) * (1-H_2)) *              T_3
+			  P has access to M1, M2, & M3 in serial   : H_1 * T_1 + ((1-H_1) * H_2) * (T1 + T_2) + ((1-H_1) * (1-H_2)) * (T_1 + T_2 + T_3)
+		
+		6. Memory Interfacing – Solved PYQs
+			T_cache = 30ns, T_main = 150ns, H_cache = 0.8 
+			  T_avg_p = 0.8 * 30 + 0.2 *  150 		= 54ns
+			  T_avg_s = 0.8 * 30 + 0.2 * (150 + 30) = 60ns
+			T_cache = 5ns, T_cache + T_main = 50ns, H_cache =  0.8
+			  T_avg s = 0.8 * 5 + 0.2 * 50 = 14ns
+			  
+		7. Introduction to Cache Memory
+			L1, L2 - internal vs. L3 - shared
+			
+			cache hit / miss : cache vs. main memory						(cache latency : time to process cache hit/miss)
+			tag directory(data structure) : tag not found -> cache miss		(miss latency  : time to find out cache miss and place it into cache)
+		
+			page fault / hit : main memory vs storage						(requested information is not found even in main memory -> page fault service time)
+
+			locality : spatial vs temporal
+			
+		8. Direct Memory Mapping
+
+			cache 			 : lines'
+			main memory 	 : blocks'		1. line size = block size
+			main memory 	 : frames*  
+			secondary memory : pages*		2. frame / page : equally divided memory chunk in main / secondary memory (f.s = p.s)
+		
+			ex) MM size : 64W, MM block size : 4W -> # blocks = 16
+			
+			PA bits for 64W = 6 bits			   PA[5:4] : tag #	 
+				PA[5:2]	: block # 				-> PA[3:2] : line #
+				PA[1:0] : block/line offset
+				
+		9. Direct Memory Mapping – Solved Examples
+		
+		10.MM : 4GB, Cache : 1 MB, Block : 4KB, Word : 1B	
+
+			1. PA bit split	 3         2           1         0         PA[31:12] block #, PA[19:0] cache size
+							109876543210 98765432 109876543210 		-> PA[31:20] tag #, PA[19:12] line #, PA[11:0] line offset
+
+			2. tag directory : keeps tag bits per cache line		(cache line 0 - tag X, cache line 1 - tag Y, and so on.)
+							   # of tag directory entries = # of cache lines
+							   size = 12 X 2^12 (PA[31:20] -> 12 bits per tag #, PA[11:0] -> 2^12 cache lines per block)
+
+		   MM : 256MB, Cache : 512KB, Block : 256KB, Word : 1B	
+
+			1. PA bit split	        2           1         0            PA[27:18] block #, PA[18:0] cache size
+							 765432109 8 765432109876543210 		-> PA[27:19] tag #, PA[18] line #, PA[17:0] line offset
+
+			2. tag directory : keeps tag bits per cache line		(cache line 0 - tag X, cache line 1 - tag Y, and so on.)
+							   # of tag directory entries = # of cache lines
+							   size = 19 X 2^18 (PA[27:19] -> 19 bits per tag #, PA[17:0] -> 2^18 cache lines per block)
+
+		   MM : 16GB, block : 16KB, # tag bits : 10, Word : 1B
+			
+			1. PA bit split	    3          2          1         0      PA[33:14] block #, PA[23:0] cache size
+							 3210987654 3210987654 32109876543210 	-> PA[33:24] tag #, PA[23:14] line #, PA[13:0] line offset
+			
+			
+		11. Direct Memory Mapping – Solved PYQs (Part 1)
+		
+			Q1. 1MB cache memory, block size 256B. T_cache = 3ns, H_cache = 0.94. T_MM_1st = 20ns, T_MM_rest = 5ns. Word = 64b. T_avg ? 
+			
+				PA[2:0] word
+				PA[7:3] word offset within a block	: 2^5
+				
+				T_avg = H_cache * T_cache + (1-H_cache) * (T_cache + T_MM) 
+				      = 0.94 x 3 + (1-0.94) x (3 + (20 x 1 + (2^5-1) x 5))  <= shouldn't 2nd term be divided by 2^5 ?
+					  = 2.82 + 10.68 = 13.5ns
+				
+			
+		14. Direct Memory Mapping – Hardware Implementation
+		
+			tag bits = n, cache lines = l -> n-bit comparator & n l x L MUXs : hit latency = T_MUX + T_n-bit comparator (T_MUX << T_n-bit comparator)
+				Q. MM size = 2GB, cache size = 1MB, comparator delay = 8 x n nsec -> # tag bits = 11 and thus hit latency is 88 nsec.
+		
+			block # bits = b, line # bits = l : block no. x -> x % 2^l  ->  cache line number !!
+			
+
+		15. Associative Mapping
+			
+			1. compulsary miss. a.k.a cold miss 			: upon 1st reference of a memory block 						-> increase line size for spatial locality
+	3Cs		2. conflict miss a.k.a collision/interence miss : upon reference to the word that got evicted from cache	-> associative mapping
+			3. capacity miss								: working set size > cache size
+			4. coherence miss
+			5. coverage miss
+			6. system related miss
+			
+
+			0  1  2  3  4  5  6  7  8  9 10 11 12 ... 30 31  
+			-----------------------------------------------
+                        0  1  2  3  4  5  6  7  8     26 27		
+            28 29 30 31'32'33'34'35'36'37'38'39 				' cold miss because 32 ~ 39 were never in cache before
+                        0  1  2  3  4  5  6  7  8     26 27		
+            28 29 30 31'32'33'34'35'36'37'38'39 				' conflic miss because 32~39 were evicted by 0 ~ 7		
+			
+
+			Associative mapping : any block can be assigned to any cache line.  
+								  PA bits are split as tag bits and block or line offset. (entire block # bits are used as tags -> fully associative mapping)
+								  
+								  no clue on memory block # in cache -> one comparator per cache line (comparator size is block # bits)
+								  
+								  hit latency = T_n-bit comparator  + T_or gate
+								  
+			Q. MM size = 2GB, block size = 2KB, comparator delay = 15 x n nsec, delay of multi-input OR gate = 7 nsec
+			
+				 3         2          1         0  
+				 09876543210987654321 09876543210		PA[30:11] block #, PA[10:0] cache offset
+				
+				Hit latency = 7 + 15 x 20
+				
+		17. Set Associative Mapping
+
+     			0        1        2         3			main memory
+              / | \	   / | \	/ | \ 	  / | \
+             0  1  2  3  4  5  0  1  2 	 3  4  5		cache 		 
+		     +-----+  +-----+  +-----+  +------+
+		      set 0    set 1	set 0	  set 1			1 set = 3 lines : 3 way set associative
+		
+			ex. MM 128B, cache 32B, block 4B, word 1B, 2 way set associative
+			
+			PA[6:0] MM					PA[6:2] # MM blocks	
+			PA[4:0]	cache				PA[4:2] # cache lines
+			PA[1:0] block offset		PA[3:2] # sets				not 4:3 !!!!
+										PA[6:4] tag bits
+
+			direct mapping  : mapping happens in cache lines			PA[4:2]
+			set associative : mapping happens with respect to the sets 	PA[3:2]
+
+				MM block no % no of set -> set no : doesn't need to search entire cache, but just a set only.
+				
+
+			ex1. MM 256MB, cache 1MB, block 128B, 2 way set associative : 1 set = 2 lines
+			
+			PA[27:0] MM				PA[27:7] # MM blocks
+			PA[19:0] cache			PA[19:7] # cache lines	: 2^13
+			PA[6:0]  block offset	PA[18:7] # sets
+									PA[27:19] tag bits		: 9
+
+			tag directory size = # of cache lines X tag bits = 2^13 X 9	
+			# comparator = # way x tag bits = 2 x 9 bit comparator							
+										
+										
+		direct mapping		tag
+		associative			fully
+		set associative 	k way set associative
+		
+		priority : RR, LRU, LIFO, optimal, MRU
+		cache coherency

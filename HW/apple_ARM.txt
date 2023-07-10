@@ -1,0 +1,109 @@
+
+	ARM 
+
+		The cache allocation policies are:
+		
+			Write allocation (WA) 	A cache line is allocated on a write miss. This means that executing a store instruction on the processor might cause a burst read to occur. 
+									  There is a linefill to obtain the data for the cache line, before the write is performed. 
+									  The cache contains the whole line, which is its smallest loadable unit, even if you are only writing to a single byte within the line.
+
+			Read allocation (RA)	A cache line is allocated on a read miss. 
+
+
+		The cache update policies are:   https://developer.arm.com/documentation/den0024/a/Caches/Cache-policies
+
+			Write-back (WB)			A write updates the cache only and marks the cache line as dirty. External memory is updated only when the line is evicted or explicitly cleaned.
+
+			Write-through (WT)		A write updates both the cache and the external memory system. This does not mark the cache line as dirty.
+			
+			
+
+		A 32KB 4-way set associative data cache		15 = 2 + 4 + 8
+		
+		tag[43:14]				30bit	
+		set(index)[13:6] 		 8bit  256 cache lines		
+		word[5:2]				 4bit	16 words		 -> 16-word (64 byte) cache line length
+		byte[1:0]				 2bit	 4 bytes			
+		
+
+		Point of Coherency (PoC): 	 For a particular address, the PoC is the point at which [all observers], for example, cores, DSPs, or DMA engines, that can access memory, are guaranteed to see the same copy of a memory location. 
+									 Typically, this is the main external system memory.
+									 
+		Point of Unification (PoU).  The PoU for [a core] is the point at which the instruction and data caches and translation table walks of the core are guaranteed to see the same copy of a memory location. 
+									 For example, a unified level 2 cache would be the point of unification in a system with Harvard level 1 caches and a TLB for caching translation table entries. 
+									 If no external cache is present, main memory would be the Point of Unification.									 
+								  
+		
+		clean or invalidate a cache. 	: clean (flush),  invalidate 
+		
+			This might be required when the contents of external memory have been changed and it is necessary to remove stale data from the cache. 
+			It can also be required after MMU-related activity such as changing access permissions, cache policies, or virtual to Physical Address mappings, 
+			or when I and D-caches must be synchronized for dynamically generated code such as JIT-compilers and dynamic library loaders.
+			
+			Invalidation of a cache or cache line means to clear it of data, by clearing the valid bit of one or more cache lines. 
+			The cache must always be invalidated after reset as its contents are undefined. This can also be viewed as a way of making changes in the memory domain outside the cache visible to the user of the cache.
+			
+			Cleaning a cache or cache line means writing the contents of cache lines that are marked as dirty, out to the next level of cache, or to main memory, and clearing the dirty bits in the cache line. 
+			This makes the contents of the cache line coherent with the next level of the cache or memory system. This is only applicable for data caches in which a write-back policy is used. 
+			This is also a way of making changes in the cache visible to the user of the outer memory domain, but is only available for data cache.
+			
+			Zero. This zeroes a block of memory within the cache, without the need to first of all read its contents from the outer domain. This is only available for data cache.
+			
+		  For each of these operations, you can select which of the entries the operation should apply to:
+			
+			All, means the entire cache and is not available for the data or unified cache			
+			Modified Virtual Address (MVA), another name for VA, is the cache line that contains a specific Virtual Address			
+			Set or Way is a specific cache line selected by its position within the cache structure
+			
+			AArch64 cache maintenance operations are performed using instructions which have the following general form:								  
+			
+			<cache> <operation>{, <Xt>}
+			
+				Cache	Operation					Description										AArch32 Equivalent
+				------------------------------------------------------------------------------------------------------	
+				DC		CISW		Clean and invalidate by Set/Way									DCCISW
+						CIVAC		Clean and Invalidate by Virtual Address to Point of Coherency	DCCIMVAC
+						
+						CSW			Clean by Set/Way												DCCSW
+						CVAC		Clean by Virtual Address to Point of Coherency					DCCMVAC
+						CVAU		Clean by Virtual Address to Point of Unification				DCCMVAU
+						
+						ISW			Invalidate by Set/Way											DCISW
+						IVAC		Invalidate by Virtual Address, to Point of Coherency			DCIMVAC
+						
+				DC		ZVA			Cache zero by Virtual Address									-
+				
+				IC		IALLUIS		Invalidate all, to Point of Unification, Inner Sharable			ICIALLUIS
+						IALLU		Invalidate all, to Point of Unification, Inner Shareable		ICIALLU
+						IVAU		Invalidate by Virtual Address to Point of Unification			ICIMVAU
+			
+					
+
+
+
+   *MMU        https://developer.arm.com/documentation/den0024/a/The-Memory-Management-Unit 
+   
+		virtual address - capable of cache control / bank switch whereas MPU not : Page Table
+   
+		An important function of the Memory Management Unit (MMU) is to enable the system to run multiple tasks, 
+		as independent programs running in their own private virtual memory space. 
+		They do not need any knowledge of the physical memory map of the system, 
+		that is, the addresses that are actually used by the hardware, or about other programs that might execute at the same time.
+
+		1. same virtual memory address space for each program
+		2. a contiguous virtual memory map, even if the physical memory is fragmented
+
+	- memory/translation table
+
+	- caches
+
+	- MMU/TLB
+		The Translation Lookaside Buffer (TLB) is a cache of recently accessed page translations in the MMU. 
+		For each memory access performed by the processor, the MMU checks whether the translation is cached in the TLB. 
+		If the requested address translation causes a hit within the TLB, the translation of the address is immediately available.
+	
+	- MMU/table walk unit
+
+			Translation table walks. A translation table walk comprises one or more translation table lookups. 
+			The translation table walk is the set of lookups that are required to translate the virtual address to the physical address.
+
