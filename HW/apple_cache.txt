@@ -301,7 +301,7 @@
 																		read request on bus
 			read broadcast message		read broadcast message							read broadcast message									
 			snoop on the shared bus		snoop on the shared bus 						snoop on the shared bus									
-			ignore msg bcs no var A		ignore msg bcs no var A							ignore msg bcs no var A		
+			ignore msg b/c no var A		ignore msg b/c no var A							ignore msg b/c no var A		
 																													provide var A to P3
 																	cache line state : S			
 																			
@@ -322,3 +322,56 @@
 																	cache line state : S							update var A if write through (update upon replacement if WB)
 																	modify var A 
 
+
+		31. directory based																		
+			for distributed system involving multiple nodes communicating in interconnected network
+			
+			snooping based is feasible w/ less # of processors b/c of bus contention(bottlenect)
+		
+					P1							P2						P3						P4						
+					cache						cache					cache					cache
+					directory                   directory               directory               directory
+					MM							MM						MM						MM
+					--------------------------------- network (P2P) -------------------------------		no shared bus -> no contention
+
+																		var A
+					to update var A
+					locate var A
+					send P2P req to P3
+																		return copy of A to P1
+					var A in private cache								cache line state : S
+																		
+																		to update var A
+																		check directory to see shared Ps : dir has P1,P3
+																		P2P : invalidate P1
+					cache line state : I																
+					return ACK to P3									
+																		now dir has P3 only
+																		cache line state : M
+																		update MM if WT
+																		cache line state : S
+					access var A
+					  coverage miss 
+					
+																		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
