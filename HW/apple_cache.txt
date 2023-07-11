@@ -1,4 +1,19 @@
 	Neso COA
+
+      direct mapping	tag								tag bits + line bits + line offset bits
+	  associative		fully							tag bits  			 + line offset bits		(tag bits = block bits)
+	  set associative 	k way set associative			tag bits + set bits  + line offset bits		(line bits = way bits + set bits)
+
+		. 1 way set associative = direct mapping
+        . N way set associative = associative 
+		
+	  tag directory = tag bits x # cache lines			 
+	  way = # cache lines per set
+	 
+   	  priority : RR, LRU, LIFO, optimal, MRU
+	  cache coherency
+
+
 	
 		3. Classifications of Computer Architecture
 			Von Neumann, Harvard, & Modified Havard) - Harvard + cache 			
@@ -8,7 +23,7 @@
 			cache, main memory(MM) & secondary memory(SM) 
 			
 		5. Memory Hierarchy & Interfacing 
-			hierarchy : ith memory has access time T_i & hit ration H_i (instructions in main memory / instruction exectued)
+			hierarchy : ith memory has access time T_i & hit ratio H_i (instructions in main memory / instruction exectued)
 		    effective memory access time T_avg 
  			  P has access to M1, M2, & M3 in parallel : H_1 * T_1 + ((1-H_1) * H_2) *       T_2  + ((1-H_1) * (1-H_2)) *              T_3
 			  P has access to M1, M2, & M3 in serial   : H_1 * T_1 + ((1-H_1) * H_2) * (T1 + T_2) + ((1-H_1) * (1-H_2)) * (T_1 + T_2 + T_3)
@@ -121,7 +136,7 @@
 				
 				Hit latency = 7 + 15 x 20
 				
-		17. Set Associative Mapping
+		17. Set Associative Mapping	 (ARM)		
 
      			0        1        2         3			main memory
               / | \	   / | \	/ | \ 	  / | \
@@ -144,18 +159,166 @@
 
 			ex1. MM 256MB, cache 1MB, block 128B, 2 way set associative : 1 set = 2 lines
 			
-			PA[27:0] MM				PA[27:7] # MM blocks
-			PA[19:0] cache			PA[19:7] # cache lines	: 2^13
-			PA[6:0]  block offset	PA[18:7] # sets
-									PA[27:19] tag bits		: 9
+			  PA[27:0] MM				PA[27:7] # MM blocks
+			  PA[19:0] cache			PA[19:7] # cache lines	: 2^13
+			  PA[6:0]  block offset		PA[18:7] # sets
+										PA[27:19] tag bits		: 9
 
-			tag directory size = # of cache lines X tag bits = 2^13 X 9	
-			# comparator = # way x tag bits = 2 x 9 bit comparator							
-										
-										
-		direct mapping		tag
-		associative			fully
-		set associative 	k way set associative
+			  tag directory size = # of cache lines X tag bits = 2^13 X 9	
+			  # comparator = # way x tag bits = 2 x 9 bit comparator							
+				
+			ex2. MM size 4MB, block 64B, tag bits 10, 4 way set associative
+
+			  PA[21:0] MM 				PA[21:6] # MM blocks
+			  PA[13:0] cache			PA[13:6] # cache lines
+			  PA[5:0]  block offset		PA[11:6] # sets
+										PA[21:12] tag bits
 		
-		priority : RR, LRU, LIFO, optimal, MRU
-		cache coherency
+			ex3. cache size 256KB, tag bits 8, 8 way set associative (1 set = 8 lines) : MM size ?
+			
+			  PA[22:0] MM				PA[]			  
+			  PA[17:0] cache 			PA[17:] # cache lines
+			  PA[]						PA[14:]	# sets
+										PA[22:]	tag bits
+				
+				MM size = 2^23B = 8MB
+
+		22. Cache Memory Mapping – A Comparative Study
+
+			MM size 8GB, block size 2KB, cache size 4MB.
+																			tag directory	# comparator								
+				direct mapping			PA[32:22] + PA[21:11] + PA[10:0]	11 x 2^11			1 x 11 bit								
+				associative 			PA[32:11]			  + PA[10:0]    22 x 2^11			2^11 x 22 bit (2^11 : # cache lines)	
+				4 way set associative	PA[32:20] + PA[19:11] + PA[10:0]    13 x 2^11			4 x 13 bit	  (4 : # ways)				
+
+
+		25. Cache Design - An Overview
+
+			block placement			map MM block to cache line		: direct mapping, associative, set associative 
+			block identification	search cache line				: 
+			block replacement		evict upon cache miss 			: compulsary, conflic, -> replace & move to next level
+			write strategy			update from cache to MM			: 
+			
+									placement			identification									 	replacement		
+            direct mapping			block % # lines		line# & offset -> tag comparison				 no decision needed									
+            associative 			block % # sets						  tag comparison				 policy reduces misses/penalties
+            set associative			anywhere			set index      -> tag comparison within the set	
+
+			replacement policies
+				random
+				FIFO & LIFO
+				recency based
+				frequency based
+				optimal / belady's 
+
+			write strategy
+				write hit
+					white through (if less write traffic) : reliable & helps in data recovery but high latency
+					write back/deferred					  : faster but no recovery. 	dirty-bit. MM updated upon replacement
+
+				write miss	
+					write allocate		: first block brought to cache and then write (write back preferred)	
+					no write allocate	: directly update to MM
+					
+		26. Cache Replacement Policies - RR, FIFO, LIFO, & Optimal		
+				random (RR)					(initial ARM)	
+				FIFO & LIFO
+				recency based				MRU, LRU, Pseudo LRU	: age bits
+				frequency based
+				optimal / belady's 			used as cache efficiency measuring tool
+				
+		27. Cache Replacement Policies - MRU, LRU, Pseudo-LRU, & LFU
+				MRU : for cyclic patterns 		1,2,3,4,5,1,2,3,4,1,2
+				LRU : temporal locality		a linked list : LRU  ...........  MRU   
+
+					age bits
+					
+							0,1,2,3,4,2,3,1,5,6,5 
+						
+						0	3 2 1 0(3)2 1 0(3)2 3
+						1   0 3 2 1 0 0 0(3)2 1 1 
+						2   1 0 3 2 1 3 2 1 0(3)2 
+						3   2 1 0 3 2 1 3 2 1 0 0
+				
+				PLRU: approximate measures for replacement due to memory overhead to keep sequences of age bits 
+
+					0->down, 1->up		0,1,2,3,4,5,6,7,2,1,9,8 
+					
+					   b0 b1_u b1_l b2_uu b2_ul b2_lu b2_ll
+						1   1         1								0
+						1   1         0								1
+						1	0		  0     1						2
+						1   0		  0 	0						3
+						0	0	 1	  0     0     1 	  			4
+						0	0	 1	  0     0     0 	  			5
+						0	0	 0	  0     0     0 	1  			6
+						0	0	 0	  0     0     0 	0  			7
+						1	0	 0	  0     1     0 	0  			2
+						1	1	 0	  0     1     0 	0  			1
+						0	1	 1	  0     1     1 	0  			4 -> 9 
+						1	0	 1	  0     0     1 	0  			3 -> 8
+						
+					can be also used to find MRU : just follow b0->b1->b2
+					
+				LFU : frequency count per each cache entry
+
+		29. Cache Coherence Problem & Cache Coherency Protocols
+			state : Modified, Shared, Invalid, Exclusive, Owned, Forward	
+			
+			MSI, MOSI, MOESI, MESI	
+		
+				https://www.geeksforgeeks.org/cache-coherence-protocols-in-multiprocessor-system/
+		
+			cache coherency schemes   : S/W based ways to avoid coherency issue
+			cache coherency protocols : H/W based
+				. snooping or bus based : snoop on the bu whenever broadcase over the shared bus
+					.. write update		: all other cache controllers get updated when one promotes from shared to modified
+					    ... write through
+						... write back
+					.. write invalidate : all other cache controllers get invalidated when one promotes from shared to modified
+					    ... write through
+						... write back
+
+				. directory based 
+					.. nodes are connected using using a scalable interconnection network implementing P2P commnunication.
+						cf) snooping uses broadcase over bus with which caches are connected	
+
+		30. Snooping-based Cache Coherency Protocol (AMD & Intel)
+		
+
+					P1							P2						P3						P4						MM
+																														var A 
+			to update var A
+			  conflict miss
+				read request on bus
+										read broadcast message	read broadcast message	read broadcast message
+										snoop on the shared bus snoop on the shared bus snoop on the shared bus
+										ignore msg bcs no var A	ignore msg bcs no var A ignore msg bcs no var A
+																													provide var A to P1
+			cache line state : S
+																	to update var A
+																	  conflict miss
+																		read request on bus
+			read broadcast message		read broadcast message							read broadcast message									
+			snoop on the shared bus		snoop on the shared bus 						snoop on the shared bus									
+			ignore msg bcs no var A		ignore msg bcs no var A							ignore msg bcs no var A		
+																													provide var A to P3
+																	cache line state : S			
+																			
+			---------------------------------------------------------- write invalidate ----------------------------------------------------------------
+			modify var A
+			cache line state : M			
+			broadcast invalidation sig on bus
+																	cache line state : I							update var A if write through (update upon replacement if WB)
+																	invalidate local copy of A 			
+																			
+																	modify var A 
+																	  coherence miss
+																			
+			---------------------------------------------------------- write udpate ----------------------------------------------------------------
+			modify var A
+			cache line state : M			
+			broadcast update sig on bus
+																	cache line state : S							update var A if write through (update upon replacement if WB)
+																	modify var A 
+
