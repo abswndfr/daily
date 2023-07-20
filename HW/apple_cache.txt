@@ -76,7 +76,7 @@
 
 			2. tag directory : keeps tag bits per cache line		(cache line 0 - tag X, cache line 1 - tag Y, and so on.)
 							   # of tag directory entries = # of cache lines
-							   size = 19 X 2^18 (PA[27:19] -> 19 bits per tag #, PA[17:0] -> 2^18 cache lines per block)
+							   size = 9 X 2^18 (PA[27:19] -> 9 bits per tag #, PA[17:0] -> 2^18 cache lines per block)
 
 		   MM : 16GB, block : 16KB, # tag bits : 10, Word : 1B
 			
