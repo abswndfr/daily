@@ -10,10 +10,14 @@
 	  tag directory = tag bits x # cache lines			 
 	  way = # cache lines per set
 	 
-   	  priority : RR, LRU, LIFO, optimal, MRU
-	  cache coherency
+   	  priority : RR, LRU, LIFO, optimal, MRU					26 ~ 27
 
-
+	  cache coherency											29 ~ 31
+		Bus watching or Snooping – generally used for bus-based SMP – Symmetric Multiprocessor System/multi-core systems
+		Directory-based – Message-passing – may be used in all systems but typically in NUMA system and in large multi-core systems
+		Shared cache – generally used in multi-core systems
+	
+	
 	
 		3. Classifications of Computer Architecture
 			Von Neumann, Harvard, & Modified Havard) - Harvard + cache 			
@@ -47,8 +51,9 @@
 			
 		8. Direct Memory Mapping
 
-			cache 			 : lines'
+			cache 			 : lines'										// smallest loadable unit
 			main memory 	 : blocks'		1. line size = block size
+			
 			main memory 	 : frames*  
 			secondary memory : pages*		2. frame / page : equally divided memory chunk in main / secondary memory (f.s = p.s)
 		
@@ -66,7 +71,7 @@
 							109876543210 98765432 109876543210 		-> PA[31:20] tag #, PA[19:12] line #, PA[11:0] line offset
 
 			2. tag directory : keeps tag bits per cache line		(cache line 0 - tag X, cache line 1 - tag Y, and so on.)
-							   # of tag directory entries = # of cache lines
+							   # of tag directory entries = # of cache lines.  size of tag directory entry = # tag bits
 							   size = 12 X 2^12 (PA[31:20] -> 12 bits per tag #, PA[11:0] -> 2^12 cache lines per block)
 
 		   MM : 256MB, Cache : 512KB, Block : 256KB, Word : 1B	
@@ -74,7 +79,7 @@
 			1. PA bit split	        2           1         0            PA[27:18] block #, PA[18:0] cache size
 							 765432109 8 765432109876543210 		-> PA[27:19] tag #, PA[18] line #, PA[17:0] line offset
 
-			2. tag directory : keeps tag bits per cache line		(cache line 0 - tag X, cache line 1 - tag Y, and so on.)
+			2. tag directory : keeps tag bits per cache line		
 							   # of tag directory entries = # of cache lines
 							   size = 9 X 2^18 (PA[27:19] -> 9 bits per tag #, PA[17:0] -> 2^18 cache lines per block)
 
@@ -101,9 +106,16 @@
 			tag bits = n, cache lines = l -> n-bit comparator & n l x L MUXs : hit latency = T_MUX + T_n-bit comparator (T_MUX << T_n-bit comparator)
 				Q. MM size = 2GB, cache size = 1MB, comparator delay = 8 x n nsec -> # tag bits = 11 and thus hit latency is 88 nsec.
 		
-			block # bits = b, line # bits = l : block no. x -> x % 2^l  ->  cache line number !!
+			block # bits = b, line # bits = L : block no. x -> x % 2^L  ->  cache line number !!
 			
-
+										cache line # 
+			 tag bit  +  cache line  		0
+			 tag bit  +  cache line  		1	
+			 tag bit  +  cache line  		2
+				...
+			 tag bit  +  cache line  		l-1
+			 
+			 
 		15. Associative Mapping
 			
 			1. compulsary miss. a.k.a cold miss 			: upon 1st reference of a memory block 						-> increase line size for spatial locality
@@ -201,8 +213,8 @@
 			
 									placement			identification									 	replacement		
             direct mapping			block % # lines		line# & offset -> tag comparison				 no decision needed									
-            associative 			block % # sets						  tag comparison				 policy reduces misses/penalties
-            set associative			anywhere			set index      -> tag comparison within the set	
+            associative 			anywhere						  	  tag comparison				 policy reduces misses/penalties
+            set associative			block % # sets		set index      -> tag comparison within the set	 policy reduces misses/penalties
 
 			replacement policies
 				random
@@ -269,9 +281,9 @@
 		
 				https://www.geeksforgeeks.org/cache-coherence-protocols-in-multiprocessor-system/
 		
-			cache coherency schemes   : S/W based ways to avoid coherency issue
+			cache coherency schemes   : S/W based ways to avoid coherency issue (compiler and OS prevents coherence issue)
 			cache coherency protocols : H/W based
-				. snooping or bus based : snoop on the bu whenever broadcase over the shared bus
+				. snooping or bus based : snoop on the bus whenever broadcase over the shared bus
 					.. write update		: all other cache controllers get updated when one promotes from shared to modified
 					    ... write through
 						... write back
@@ -280,16 +292,16 @@
 						... write back
 
 				. directory based 
-					.. nodes are connected using using a scalable interconnection network implementing P2P commnunication.
+					.. nodes are connected using a scalable interconnection network implementing P2P commnunication.
 						cf) snooping uses broadcase over bus with which caches are connected	
 
-		30. Snooping-based Cache Coherency Protocol (AMD & Intel)
+		30. Snooping-based Cache Coherency Protocol (AMD & Intel, ARM)
 		
 
 					P1							P2						P3						P4						MM
 																														var A 
 			to update var A
-			  conflict miss
+			  compulsary miss
 				read request on bus
 										read broadcast message	read broadcast message	read broadcast message
 										snoop on the shared bus snoop on the shared bus snoop on the shared bus
@@ -297,17 +309,17 @@
 																													provide var A to P1
 			cache line state : S
 																	to update var A
-																	  conflict miss
+																	  compulsary miss
 																		read request on bus
 			read broadcast message		read broadcast message							read broadcast message									
 			snoop on the shared bus		snoop on the shared bus 						snoop on the shared bus									
-			ignore msg b/c no var A		ignore msg b/c no var A							ignore msg b/c no var A		
+			IGNORE msg b/c state is S	ignore msg b/c no var A							ignore msg b/c no var A		
 																													provide var A to P3
-																	cache line state : S			
-																			
-			---------------------------------------------------------- write invalidate ----------------------------------------------------------------
+																	cache line state : S		
+																	
+			---------------------------------------------------------- if write invalidate is used ----------------------------------------------------------------																					
 			modify var A
-			cache line state : M			
+			cache line state : M <- S			
 			broadcast invalidation sig on bus
 																	cache line state : I							update var A if write through (update upon replacement if WB)
 																	invalidate local copy of A 			
@@ -315,9 +327,9 @@
 																	modify var A 
 																	  coherence miss
 																			
-			---------------------------------------------------------- write udpate ----------------------------------------------------------------
+			---------------------------------------------------------- if write udpate is used ----------------------------------------------------------------
 			modify var A
-			cache line state : M			
+			cache line state : M <- S			
 			broadcast update sig on bus
 																	cache line state : S							update var A if write through (update upon replacement if WB)
 																	modify var A 
@@ -332,44 +344,6 @@
 					cache						cache					cache					cache
 					directory                   directory               directory               directory
 					MM							MM						MM						MM
-					--------------------------------- network (P2P) -------------------------------		no shared bus -> no contention
-
-																		var A
-					to update var A
-					locate var A
-					send P2P req to P3
-																		return copy of A to P1
-					var A in private cache								cache line state : S
-																		
-																		to update var A
-																		check directory to see shared Ps : dir has P1,P3
-																		P2P : invalidate P1
-					cache line state : I																
-					return ACK to P3									
-																		now dir has P3 only
-																		cache line state : M
-																		update MM if WT
-																		cache line state : S
-					access var A
-					  coverage miss 
-					
-																		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		
 		
