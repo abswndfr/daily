@@ -4,38 +4,41 @@
 
 
 //1.1
-// init bitmap after creating	X 2
+// init bitmap after creating
 // while(*str), not while(str)
 #define ASCII_CODE_SIZE		128
 bool isUnique(char* str)
 {
-	bool *found = (bool *)malloc(sizeof(bool) * ASCII_CODE_SIZE);
-
-	memset(found, false, sizeof(bool) * ASCII_CODE_SIZE);
+	bool* letter = (bool *)malloc(sizeof(bool) * ASCII_CODE_SIZE);
+	memset(letter, 0, sizeof(bool) * ASCII_CODE_SIZE);
 
 	while (*str) {
-		if (found[*str]) {
+		if (letter[*str]) {
 			return false;
-		}
-		found[*str] = true;
+		} 
+		letter[*str] = true;
+	
 		str++;
 	}
 
 	return true;
 }
 
+
 //1.2
 // is each character unique ? boolean type if yes, int type if no.
 bool isPermutation(char* strA, char* strB)
 {
-	int* letter;
-
-	letter = (int*)malloc(sizeof(int) * ASCII_CODE_SIZE);
+	int* letter = (int*)malloc(sizeof(int) * ASCII_CODE_SIZE);
 	memset(letter, 0, sizeof(int) * ASCII_CODE_SIZE);
+
+	if (strlen(strA) != strlen(strB)) {
+		return false;
+	}
 
 	while (*strA) {
 		letter[*strA]++;
-		strA++;	
+		strA++;
 	}
 
 	while (*strB) {
@@ -54,9 +57,9 @@ bool isPermutation(char* strA, char* strB)
 // reinit ptr after string reaches '/0' -> or use for instead while w/ str++
 bool isPalindromePermutation(char* str)
 {
-	int* letter = (int *)malloc(sizeof(int) * ASCII_CODE_SIZE);
-	bool oddFound = false;
-
+	char* p = str;
+	bool isOddFound = false;
+	int* letter = (int*)malloc(sizeof(int) * ASCII_CODE_SIZE);
 	memset(letter, 0, sizeof(int) * ASCII_CODE_SIZE);
 
 	while (*str) {
@@ -64,13 +67,14 @@ bool isPalindromePermutation(char* str)
 		str++;
 	}
 
-	for (int i = 0; i < ASCII_CODE_SIZE; i++) {
-		if (letter[i] & 1) {
-			if (oddFound) {
+	while (*p) {
+		if (letter[*p] & 1) {
+			if (isOddFound) {
 				return false;
 			}
-			oddFound = true;
+			isOddFound = true;
 		}
+		p++;
 	}
 
 	return true;
@@ -82,14 +86,13 @@ bool isPalindromePermutation(char* str)
 //1.5 char edit like insert, remove, or replace => same str?
 // move next in one string only if lenA != lenB
 // asdfjkl & asejkl : 2 edits away(replace & insert) -> needs 'continue'
-// while(*str), not while(str)
 bool isOneEditAway(char* strA, char* strB)
 {
 	int lenA = strlen(strA);
 	int lenB = strlen(strB);
 	bool mismatchFound = false;
 
-	if (ABS(lenA - lenB) > 1) {
+	if(ABS(lenA - lenB) > 1) {
 		return false;
 	}
 
@@ -98,7 +101,8 @@ bool isOneEditAway(char* strA, char* strB)
 			if (mismatchFound) {
 				return false;
 			}
-			mismatchFound = true;		
+			mismatchFound = true;
+
 			if (lenA > lenB) {
 				strA++;
 				continue;
@@ -109,7 +113,7 @@ bool isOneEditAway(char* strA, char* strB)
 			}
 		}
 		strA++;
-		strB++;
+		strB++;		
 	}
 
 	return true;
@@ -119,24 +123,24 @@ bool isOneEditAway(char* strA, char* strB)
 // index should be the current one at the bottom of for loop. It will advance at the top of for loop.
 char* string_compression(char* str)
 {
-	/*	  01234567
-		  abcccdde
-		  . ijj
-			   i	*/
 	int len = strlen(str);
 	int count;
 
-	for (int i = 0; i < len; i++) {
-		count = 1;
+	for (int i = 0;i < len; i++) {
 		printf("%c", str[i]);
+		count = 1;
 
 		if (i == len - 1) {
-
+			//printf("%d\n", count);		
 		}
 		else {
 			if (str[i] == str[i + 1]) {
 				count = 2;
-				for (int j = i + 1; i < len - 1; j++) {
+				// 012345
+				// aaabbc
+				//   i
+				//   j
+				for (int j = i + 1; j < len - 1; j++) {
 					if (str[j] == str[j + 1]) {
 						count++;
 					}
@@ -184,15 +188,15 @@ int main()
 	char cstr[] = "aaabbbbbcddddeefffk"; // aaabbbbbcddddeefffk
 
 
-// 1.1
-	if (isUnique(astr)) {
+	// 1.1
+	if (isUnique(cstr)) {
 		printf("1.1 no dup found\n");
 	}
 	else {
 		printf("1.1 dup found\n");
 	}
 
-// 1.2
+	// 1.2
 	if (isPermutation(astr, bstr)) {
 		printf("1.2 permutation\n");
 	}
@@ -200,7 +204,7 @@ int main()
 		printf("1.2 not permutation\n");
 	}
 
-// 1.4
+	// 1.4
 	if (isPalindromePermutation(bstr)) {
 		printf("1.4 permutation of palindrome\n");
 	}
@@ -208,7 +212,7 @@ int main()
 		printf("1.4 not permutation of palindrome\n");
 	}
 
-// 1.5
+	// 1.5
 	if (isOneEditAway(astr, bstr)) {
 		printf("1.5 one edit away\n");
 	}
@@ -216,7 +220,7 @@ int main()
 		printf("1.5 more than one edit away\n");
 	}
 
-// 1.6
+	// 1.6
 	printf("\n1.6 %s", string_compression(cstr));
 
 
