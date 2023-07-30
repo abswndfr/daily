@@ -28,18 +28,23 @@ w/o backtrack
     ['A', 'B', 'C']
     ['A', 'C', 'B']
 """
+# n: string length
+# l: starting index
+# r: ending index   (r-1)
 
-def permute(a, l, r):
-    if l==r:
-        print(a)
+def permute(a, l, n, r):
+    if l == r:
+        print(a[0:r])
     else:
-        for i in range(l, r):
-            a[i], a[l] = a[l], a[i]
-            permute(a, l+1, r)
-            a[i], a[l] = a[l], a[i]     # backtrack
+        for i in range(l, n):
+            a[i],a[l] = a[l],a[i]
+            permute(a,l+1,n,r)
+            a[i],a[l] = a[l],a[i]
 
-string = "ABC"
+
+string = "ABCD"
 n = len(string)
 a = list(string)
- 
-permute(a, 0, n)
+r = 3
+
+permute(a, 0, n, r)
