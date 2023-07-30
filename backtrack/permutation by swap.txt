@@ -1,0 +1,45 @@
+"""
+                            r:2   
+                            l:  0       1       
+
+a b c                           0   0            
+        a,  b c
+                    a, b, c             1   1
+                    a, c, b             1   2
+        b,  a c                 0   1    
+                    b, a, c             1   1
+                    b, c, a             1   2
+        c,  b a                 0   2    
+                    c, b, a             1   1
+                    c, a, b             1   2
+w/ backtrack
+    ['A', 'B', 'C']
+    ['A', 'C', 'B']
+    ['B', 'A', 'C']
+    ['B', 'C', 'A']
+    ['C', 'B', 'A']
+    ['C', 'A', 'B']  
+
+w/ backtrack
+    ['A', 'B', 'C']
+    ['A', 'C', 'B']
+    ['C', 'A', 'B']
+    ['C', 'B', 'A']
+    ['A', 'B', 'C']
+    ['A', 'C', 'B']
+"""
+
+def permute(a, l, r):
+    if l==r:
+        print(a)
+    else:
+        for i in range(l, r):
+            a[i], a[l] = a[l], a[i]
+            permute(a, l+1, r)
+            a[i], a[l] = a[l], a[i]     # backtrack
+
+string = "ABC"
+n = len(string)
+a = list(string)
+ 
+permute(a, 0, n)
