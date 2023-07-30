@@ -20,7 +20,7 @@ w/ backtrack
     ['C', 'B', 'A']
     ['C', 'A', 'B']  
 
-w/ backtrack
+w/o backtrack
     ['A', 'B', 'C']
     ['A', 'C', 'B']
     ['C', 'A', 'B']
