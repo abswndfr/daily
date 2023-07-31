@@ -1,0 +1,96 @@
+// https://gudwns999.tistory.com/99?category=836032
+
+#include<stdio.h>
+#define MAX (101)
+
+int map[MAX][MAX] = {
+		{1,1,1,1,1,1,1,1},		// map
+		{0,0,0,0,0,1,1,1},
+		{1,0,1,1,0,0,1,1},
+		{1,0,1,1,1,0,0,1},
+		{1,0,1,1,1,1,0,1},
+		{1,0,0,0,0,0,0,0},  // {1,0,0,0,0,0,0,1}, 
+		{1,1,1,1,1,1,1,1},
+}; 
+
+int visit[MAX][MAX];
+int steps = 0;
+
+typedef struct _node {
+	int r, c, time;
+}NODE;
+
+NODE que[MAX * MAX];
+
+int rp, wp;
+int R, C, sr, sc, er, ec;
+
+void In_Que(int r, int c, int time) {
+    //NODE node = NODE{r, c, time};
+    NODE node;
+    node.r = r;
+    node.c = c;
+    node.time = time;
+    que[wp++] = node;
+}
+
+void Out_Que(NODE* p) {
+    *p = que[rp++];
+}
+
+int bfs(void) {
+    int nr, nc;
+    int step = 0;
+    
+    int dr[4] = {1, -1, 0, 0};
+    int dc[4] = {0, 0, 1, -1};
+    
+    wp = 0;
+    rp = 0;
+
+    In_Que(sr, sc, step);
+    NODE p;
+    
+    while(rp < wp) {
+        Out_Que(&p);        
+        //printf("*************r:%d, c:%d, time:%d***************\n", p.r, p.c, p.time);
+        for(int i=0; i<4; i++) {
+            nr = p.r + dr[i];        
+            nc = p.c + dc[i];                         
+            //printf("r:%d, c:%d, time:%d -> ", nr,nc,p.time+1);
+            
+            if ((nr == er) && (nc == ec)) {
+                //printf("found\n");
+                return p.time+1;
+            }
+
+            if(map[nr][nc] || visit[nr][nc] || (nr < 1 || nc < 1 || nr > R || nc > C)) {
+                //printf("stop\n");
+                visit[nr][nc] = 1;
+                continue;
+            }                            
+            visit[nr][nc] = 1;
+            //printf("queued\n");
+            In_Que(nr, nc, p.time+1);
+        }
+    }
+
+	return -1; 
+}
+
+void input(void) {
+     C = 8;      R = 7;
+    sc = 1;     sr = 2;
+    ec = 7;     er = 5;
+}
+
+int main(void) {
+	int sol;
+
+	input();
+
+	sol = bfs();
+	printf("%d\n", sol);
+
+	return 0;
+}
