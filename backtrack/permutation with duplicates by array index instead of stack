@@ -42,3 +42,37 @@ public class MyCombi {
     }
 }
 */
+
+
+
+/*
+// https://velog.io/@newon-seoul/%EB%AC%B8%EA%B3%BC%EC%83%9D%EC%9D%B4-%EC%A0%81%EC%96%B4%EB%B3%B4%EB%8A%94-%EB%B0%B1%ED%8A%B8%EB%9E%98%ED%82%B9-%EC%9E%AC%EA%B7%80%EC%99%80-DFS-%EB%A5%BC-%EA%B3%81%EB%93%A4%EC%9D%B8
+
+#include <stdio.h>
+
+int arr[3];                                    // 빈칸을 전역변수로 선언하여 함수가 호출할 때 마다 넣어주는 번거로움을 줄였다.
+int N, M;                                      // 문제에선 6개 중 3개이지만, 언제든 입력값에 따라 바꿀 수 있게 N과 M으로 설정했다.
+                                               // 여기서는 각각 6과 3으로 직접 하드코딩하지만 밑의 예제는 N과 M으로 넣는다.
+
+void DFS(int depth){                           // 이 재귀함수는 depth 를 기준으로 움직인다. 따라서 Base Condition 도 depth 를 기준으로 작성된다.
+     if(depth == 3){                           // depth == 3일 때가 Base Condition 이다.
+        for(int i = 0; i < 3; i++){            // 배열에 쌓인 내용을 출력하고 있다.
+	        printf("%d ", arr[i]);
+	    }
+	    printf("\n");
+	    return;
+     }
+     
+     for(int i = 1; i <= 6; i++){              // Base Condition 이 아닐때 for문을 돌며 후보군(1 ~ 6)을 찾고 있다.
+	    arr[depth] = i;                    	   // 후보군을 찾으면 배열의 빈 칸에 넣고 있다.
+	    DFS(depth + 1);                    	   // 다음 깊이로 넘어가고 있다.
+     }
+}
+
+int main(){
+    //scanf("%d %d", &N, &M);                    // N과 M을 받고 있다.
+    N = 3;
+    M = 1;
+    DFS(0);                                    // DFS를 0의 깊이부터 선언하고 있다.
+}
+*/
