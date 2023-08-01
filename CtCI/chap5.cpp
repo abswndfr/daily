@@ -159,7 +159,40 @@ vector<string> permu(string s)
 	return result;
 }
 
-// CtCI 2nd sol'n
+// CtCI sol'n 2
+/*
+    abc    
+    
+    a + bc  : bc, cb    -> abc, acb
+    b + ac  : ac, ca    -> bac, bca
+    c + ab  : ab, ba    -> cab, cba    
+ */
+vector<string> permu2(string s)
+{
+    vector<string> result;
+    
+    // base case
+    if(s.length() == 0) {
+        result.push_back("");
+        return result;
+    }
+    
+    for(int i=0; i<s.length(); i++) {
+        // take one char each time
+        string c = s.substr(i,1);
+        string temp = s;
+        
+        // get permutations for the rest
+        vector<string> subs = permu2(temp.erase(i,1));
+
+        // put back the one char to the perm.
+        for(int j=0; j<subs.size(); j++) {
+            result.push_back(c+subs[j]);    
+        }
+    }
+
+    return result;
+}
 
 
 
