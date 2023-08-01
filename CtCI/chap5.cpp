@@ -3,6 +3,11 @@
 #include <string.h>
 //#include <math.h>
 
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
 
 void printBin(unsigned int a)
 {
@@ -17,7 +22,7 @@ int countOnes(unsigned int a)
 	int count = 0;
 
 	while (a) {
-		a = a & (a - 1);  	
+		a = a & (a - 1);
 		count++;
 	}
 
@@ -33,7 +38,7 @@ bool isPrime(int n)
 		return false;
 	}
 
-	for (int i = 2; i < n/2; i++) {
+	for (int i = 2; i < n / 2; i++) {
 		if (n % i == 0) {
 			return false;
 		}
@@ -47,7 +52,7 @@ void find_prime(int n)
 {
 	for (int i = 0; i < n; i++) {
 		printf("%d is a prime number:%d\n", i, isPrime(i));
-	}	
+	}
 }
 
 
@@ -97,11 +102,52 @@ void printCombination(int* arr, int n, int r)
 void swap(char* x, char* y)
 {
 }
+*/
 
 
-void permute(char* a, int l, int r)
+
+vector<string> permu(string s)
 {
-}*/
+	//cout << s << "---> ";
+	vector<string> result;
+
+	// base case
+	if (s.length() == 0) {
+		//cout << "len = 0" << endl;
+		// without this line, adding the 1st char fail in the for loop above leading no change in the upper call upon returning.
+		//result.push_back("");
+		return result;
+	}
+	//else
+		//cout << "len = " << s.length() << endl;
+
+	// take 1st char
+	string c = s.substr(0, 1);
+	//cout << "(" << c << ")";
+
+	// get permutation with the remainder
+	vector<string> subs = permu(s.substr(1));
+	//cout << "subs size:" << subs.size() << endl;
+
+	// iteration at current level
+	for (int i = 0; i < subs.size(); i++) {
+		// get each element
+		string sub = subs[i];
+		// place 1st char at every possible poistion
+		for (int j = 0; j <= sub.length(); j++) {
+			string sub_temp = sub;
+			sub_temp.insert(j, c);
+			result.push_back(sub_temp);
+		}
+	}
+
+	// without this line, adding the 1st char fail in the for loop above leading no change in the upper call upon returning.
+	if (subs.size() == 0) {
+		result.push_back(c);
+	}
+
+	return result;
+}
 
 
 
@@ -117,20 +163,20 @@ void permute(char* a, int l, int r)
 // 2. b << i, not b << j
 unsigned int bitInsert(unsigned int a, unsigned int b, int i, int j)
 {
-/*
-	9876543210
-	0001111100
-	   1111111
-	        11	
+	/*
+		9876543210
+		0001111100
+		   1111111
+				11
 
-*/
+	*/
 	int mask = 0;
-										//  9876543210
+	//  9876543210
 	mask = (1 << j);					//	   1000000	
 	mask = mask | ((1 << j) - 1);		//     1111111
 	mask = mask ^ ((1 << i) - 1);		//	   0000011	
-										//     1111100 	
-	a = a & ~mask;						
+	//     1111100 	
+	a = a & ~mask;
 	a = a | b << i;
 
 	return a;
@@ -179,7 +225,7 @@ unsigned int bigSmallFromGiven(unsigned int a)
 
 	printBin(a);
 
-	while(i<len) {
+	while (i < len) {
 		bit = 1 << i;
 		if (a & bit) {
 			count++;
@@ -196,7 +242,7 @@ unsigned int bigSmallFromGiven(unsigned int a)
 
 	a &= ~(bit - 1);
 
-	for (int j = 0; j < count-1; j++) {
+	for (int j = 0; j < count - 1; j++) {
 		a |= 1 << j;
 	}
 
@@ -205,17 +251,17 @@ unsigned int bigSmallFromGiven(unsigned int a)
 	/* 1  0  0  1  1  1  1  0  0  0  0  0  1  1
 		1  0  0  1  1  1  0  0  0  0  0  0  0  0
 		1  0  0  1  1  1  0  1  1  1  0  0  0  0 */
-	//** closet smaller number
-	//find the right most non trailing zero and clear it
-		// find 0 first
-		// then find 1 and clear it to zero
-	// clear after the flipped bit and then set count + 1
+		//** closet smaller number
+		//find the right most non trailing zero and clear it
+			// find 0 first
+			// then find 1 and clear it to zero
+		// clear after the flipped bit and then set count + 1
 	i = 0;
 	count = 0;
 	found = false;
 	a = b;
 
-	while(i<len) {
+	while (i < len) {
 		bit = 1 << i;
 		if (a & bit) {
 			count++;
@@ -234,7 +280,7 @@ unsigned int bigSmallFromGiven(unsigned int a)
 	a &= ~(bit - 1);
 
 	for (int j = 0; j < count; j++) {
-		a |= 1 << (i-j-1);
+		a |= 1 << (i - j - 1);
 	}
 
 	printBin(a);
@@ -294,15 +340,14 @@ int main()
 	printf("org des             :%p %s\n\n\n", des_org, des_org);
 
 
+	// permutation
+	string s = "abc";
+	vector<string> res = permu(s);
 
+	for (int i = 0; i < res.size(); ++i)
+		cout << res[i] << endl;
 
 #if 0
-	// permutation
-	printf("string permutation\n");
-	char s[] = "ABC";
-	int n = strlen(s);
-	permute(s, 0, n - 1);
-
 	// combination
 	printf("combination\n");
 	int comb[4] = { 10,20,30,40 };
