@@ -88,24 +88,34 @@ char* myMemcpy(char* src, char* des, int size)
 
 
 
-/*
-void combinationUtil(int* arr, int* data, int start, int end, int index, int r)
+int arr[] = { 1, 2, 3 };
+int r = 2;
+int buf[2] = {0,0};
+int n = sizeof(arr) / sizeof(arr[0]);
+
+void printArray()
 {
+	for (int j = 0; j < r; j++)
+		printf("%d ", buf[j]);
+	printf("\n");
+}
+
+void combinationUtil(int start, int end, int index)
+{
+	if (index == r) {
+		printArray();
+		return;
+	}
+
+	for (int i = start; i <= end && end - i + 1 >= r - index; i++)
+	{
+		buf[index] = arr[i];
+		combinationUtil(i + 1, end, index + 1);
+	}
 }
 
 
-void printCombination(int* arr, int n, int r)
-{
-}
-
-
-void swap(char* x, char* y)
-{
-}
-*/
-
-
-// CtCI sol'n 1
+// CtCI 1st sol'n
 vector<string> permu(string s)
 {
 	//cout << s << "---> ";
@@ -149,40 +159,7 @@ vector<string> permu(string s)
 	return result;
 }
 
-// CtCI sol'n 2
-/*
-    abc    
-    
-    a + bc  : bc, cb    -> abc, acb
-    b + ac  : ac, ca    -> bac, bca
-    c + ab  : ab, ba    -> cab, cba    
- */
-vector<string> permu2(string s)
-{
-    vector<string> result;
-    
-    // base case
-    if(s.length() == 0) {
-        result.push_back("");
-        return result;
-    }
-    
-    for(int i=0; i<s.length(); i++) {
-        // take one char each time
-        string c = s.substr(i,1);
-        string temp = s;
-        
-        // get permutations for the rest
-        vector<string> subs = permu2(temp.erase(i,1));
-
-        // put back the one char to the perm.
-        for(int j=0; j<subs.size(); j++) {
-            result.push_back(c+subs[j]);    
-        }
-    }
-
-    return result;
-}
+// CtCI 2nd sol'n
 
 
 
@@ -382,12 +359,11 @@ int main()
 	for (int i = 0; i < res.size(); ++i)
 		cout << res[i] << endl;
 
-#if 0
+
 	// combination
 	printf("combination\n");
-	int comb[4] = { 10,20,30,40 };
-	printCombination(comb, 4, 2);
-#endif
+	combinationUtil(0, n - 1, 0);
+
 
 	// 5.1
 	printf("5.1\n");
