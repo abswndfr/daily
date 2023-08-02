@@ -488,6 +488,7 @@ void createPowerSet(vector<int> set, vector<int>& powerSet) {
 // Q8.4 Write a method that returns all subsets of a set.
 // https://github.com/black-shadows/Cracking-the-Coding-Interview/blob/master/Solutions/Chapter%208%20Recursion/8.3.cpp
 
+
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -495,85 +496,73 @@ using namespace std;
 typedef vector<vector<int>> vvi;
 typedef vector<int> vi;
 
-void print_subset(vi subset)
+
+void print_subsets(vector<vector<int>> subsets)
 {
-    cout << "______";
-    for (int i = 0; i < subset.size(); ++i)
-    {
-        cout << subset[i] << " ";
+    for(int i=0; i<subsets.size(); i++) {
+        cout << ".";
+        for(int j=0; j<subsets[i].size(); j++) {
+            cout << subsets[i][j] << " ";
+        }
+        cout << endl;
     }
     cout << endl;
 }
 
-void print_subsets(vvi subsets)
+// CtCI 1
+vector<vector<int>> get_subsets1(int a[], int idx, int n)
 {
-    cout << "=======\n";
-    for (int i = 0; i < subsets.size(); ++i)
-    {
-        vi subset = subsets[i];
-        printf(".");
-        for (int j = 0; j < subset.size(); ++j)
-        {
-            cout << subset[j] << " ";
-        }
-        cout << endl;
+    vector<vector<int>> result;
+    
+    // base case
+    if(idx==n) {
+        vector<int> sub;
+        result.push_back(sub);
+        return result;
+    }    
+    
+    // get subsets of n-1
+    vector<vector<int>> subs = get_subsets1(a, idx+1, n);
+    
+    int t = a[idx];
+    
+    for(int i=0; i<subs.size(); i++) {
+        vector<int> sub = subs[i];
+        
+        // with or without n         
+        result.push_back(sub);
+        sub.push_back(t);
+        result.push_back(sub);
     }
+    
+    return result;
 }
 
-// CtCI Q8.4 1nd sol'n : recursive
-vvi get_subsets1(int a[], int idx, int n)
-{
-    vvi subsets;                                            // Arraylist<Arraylist<Integer>> allsubsets;
-    if (idx == n)                                           // if (set.size()== index) {	//Base case - add empty set
-    {                                                       //
-        vi subset;                                          // allsubsets = new Arraylist<Arraylist<Integer>>();
-        subsets.push_back(subset);//empty set               // allsubsets.add(new Arraylist<Integer>()); 	// Empty set
-        printf("%d: sss size:%d ", idx, subsets.size());
-        print_subset(subset);
-    }
-    else
-    {
-        vvi rsubsets = get_subsets1(a, idx + 1, n);         // allsubsets = getSubsets(set, index+ 1);		// allsubset <- getSubsets	
-        printf("%d: sss size:%d ", idx, rsubsets.size());
-        print_subsets(rsubsets);
-        int v = a[idx];                                     // int item= set.get(index);
-        for (int i = 0; i < rsubsets.size(); ++i)           // for (Arraylist<Integer> subset : allsubsets) {// for subset in allsubsets
-        {
-            vi subset = rsubsets[i];                        // 
-            subsets.push_back(subset);  // without v        // newsubset.addAll(subset);
-            printf("%d:", idx);
-            print_subset(subset);
-            subset.push_back(v);                            // newsubset.add(item);	             // newsubset = subset + item
-            subsets.push_back(subset);  // with v           // moresubsets.add(newsubset);	     // moresubset += newsubset 
-            printf("%d:", idx);
-            print_subset(subset);
-        }                                                   // allsubsets.addAll(moresubsets);   // allsubset += moresubset
-    }
-    return subsets;
-}
 
-// CtCI Q8.4 2nd sol'n : convert to binary and add elements at the postion of 1 of j.
-vvi get_subsets(int a[], int n)
+// CtCI 2
+vector<vector<int>> get_subsets(int a[], int n)
 {
-    vvi subsets;
-    int max = 1 << n;
-    for (int i = 0; i < max; ++i)
-    {
-        vi subset;
-        int idx = 0;
-        int j = i;
-        while (j > 0)
-        {
-            if (j & 1)
-            {
-                subset.push_back(a[idx]);
-            }
-            j >>= 1;
-            ++idx;
+    vector<vector<int>> result;
+
+    for(int i=0; i < (1<<4); i++) {
+        vector<int> sub;
+        
+        int n = i;
+        int bit = 0;
+
+        while(n > 0) {
+            if(n&1) {
+                //cout << a[bit] ;
+                sub.push_back(a[bit]);
+            }                                     
+            n = n >> 1;
+            bit++;        
         }
-        subsets.push_back(subset);
+        result.push_back(sub);
+        //cout << endl;
     }
-    return subsets;
+
+    return result;
 }
 
 
@@ -902,12 +891,13 @@ int main()
     vector<int> testPowerSet = {};
     createPowerSet(set123, testPowerSet);*/
 
-
     int a[] = { 1,2,3,4 };
-    vvi sub = get_subsets(a, 4);        // sol'n #1 : recurvsively P(n-1) + a_n
-    vvi sub1 = get_subsets1(a, 0, 4);   // sol'n #2 : include elements at bit position of 1
-    print_subsets(sub);
+    vector<vector<int>> subs = get_subsets(a, 4);        // sol'n #1 : recurvsively P(n-1) + a_n
+    print_subsets(subs);
+    
+    vector<vector<int>> sub1 = get_subsets1(a, 0, 4);   // sol'n #2 : include elements at bit position of 1    
     print_subsets(sub1);
+
     
     // 8.6
 
