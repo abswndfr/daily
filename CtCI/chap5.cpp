@@ -102,10 +102,14 @@ void printArray()
 
 void combinationUtil(int start, int end, int index)
 {
-	if (index == r) {
-		printArray();
-		return;
+    #if 1
+	if (index == r) { // combination
+	    printArray(index);
+    	    return;
 	}
+    #else   // subset
+	printArray(index);
+    #endif
 
 	for (int i = start; i <= end && end - i + 1 >= r - index; i++)
 	{
