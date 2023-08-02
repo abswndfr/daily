@@ -5,36 +5,36 @@ using namespace std;
 
 // 8.1 
 
-/*       
-// https://github.com/careercup/CtCI-6th-Edition-cpp/blob/master/chapter-8-recursion-and-Dynamic-Programming/8-1-Triple-Step.cpp    
+/*
+// https://github.com/careercup/CtCI-6th-Edition-cpp/blob/master/chapter-8-recursion-and-Dynamic-Programming/8-1-Triple-Step.cpp
 int countWays(int n, vector<int> v) {
 
-	if (n == 0) {
-		return 1;
-	}
+    if (n == 0) {
+        return 1;
+    }
 
-	int sum = 0;
+    int sum = 0;
 
-	for (int i = 0; i < v.size(); ++i)
-	{
-		if (n >= v[i]) {
-			sum = sum + countWays((n - v[i]), v);
-		}
-	}
-	return sum;
+    for (int i = 0; i < v.size(); ++i)
+    {
+        if (n >= v[i]) {
+            sum = sum + countWays((n - v[i]), v);
+        }
+    }
+    return sum;
 }
 
 int main(int argc, char const* argv[])
 {
-	vector<int> v;	// vector to store possible step sizes
-	v.push_back(1);
-	v.push_back(2);
-	v.push_back(3);
+    vector<int> v;	// vector to store possible step sizes
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
 
-	int noOfWays = countWays(6, v);
-	cout << noOfWays << endl;	// Total number of stairs = 6
+    int noOfWays = countWays(6, v);
+    cout << noOfWays << endl;	// Total number of stairs = 6
 
-	return 0;
+    return 0;
 }
 
 // https://github.com/alexhagiopol/cracking-the-coding-interview/blob/master/cpp_solutions/chapter_08_recursion_and_dynamic_programming/problem_08_01_tripleStep.cpp
@@ -43,7 +43,7 @@ int main(int argc, char const* argv[])
 
         #pragma once
         #include <vector>
-        
+
         namespace chapter_08{
             int tripleStep(int n);
         }
@@ -74,7 +74,7 @@ int main(int argc, char const* argv[])
     }
 //}
 
-int main() 
+int main()
 {
     //printf("3->%d\n", tripleStep(3));
     //printf("4->%d\n", tripleStep(4));
@@ -186,7 +186,7 @@ struct Point {
 //Checks if path is valid and simultaneously adds position to a result vector
 #if 1   
 /*7/26/2023
-bool getPath(int** matrix, int currRow, int currColumn, vector<Point*>& path) 
+bool getPath(int** matrix, int currRow, int currColumn, vector<Point*>& path)
 {
     if ((currRow < 0) || (currColumn < 0) || !matrix[currRow][currColumn]) {
         return false;
@@ -209,7 +209,7 @@ vector<Point*> getPath(int** matrix, int rows, int columns) {
 
     if ((matrix == nullptr) || (rows == 0)) {
         return path;
-    } 
+    }
 
     if (getPath(matrix, rows - 1, columns - 1, path)) {
         return path;
@@ -234,7 +234,7 @@ bool getPath(int **matrix, int row, int col, vector<Point*> &path)
 
         return true;
     }
-   
+
     return false;
 }
 
@@ -278,22 +278,22 @@ vector<Point*> getPath(int** matrix, int row, int col)
         return path;
     }
 
-    getPath(matrix, row-1, col-1, path);
+    getPath(matrix, row - 1, col - 1, path);
 
     return path;
 }
 #else   // Careercup org
-bool getPath(int** matrix, int currRow, int currColumn, vector<Point*>& path){
-    
+bool getPath(int** matrix, int currRow, int currColumn, vector<Point*>& path) {
+
     //if out of bounds or curr position is off limits, return false
-    if (currRow < 0 || currColumn < 0 || matrix[currRow][currColumn] == -1){
+    if (currRow < 0 || currColumn < 0 || matrix[currRow][currColumn] == -1) {
         return false;
     }
-    
+
     bool atOrigin = currRow == 0 && currColumn == 0;
-    
+
     //Everytime robot moves up or left and it is a valid position, add the point to result vector
-    if (atOrigin || getPath(matrix, currRow-1, currColumn, path) || getPath(matrix, currRow, currColumn-1, path)) {
+    if (atOrigin || getPath(matrix, currRow - 1, currColumn, path) || getPath(matrix, currRow, currColumn - 1, path)) {
         Point* currPos = new Point(currRow, currColumn);
         path.push_back(currPos);
         return true;
@@ -301,14 +301,14 @@ bool getPath(int** matrix, int currRow, int currColumn, vector<Point*>& path){
     return false;
 }
 
-vector<Point*> getPath(int** matrix, int rows, int columns){
+vector<Point*> getPath(int** matrix, int rows, int columns) {
     //create result vector
     vector<Point*> path;
-    
+
     //Bounds checking
-    if (rows != 0 || matrix != nullptr){
+    if (rows != 0 || matrix != nullptr) {
         //Start checking positions from bottom-right
-        if (getPath(matrix, rows - 1, columns - 1, path)){
+        if (getPath(matrix, rows - 1, columns - 1, path)) {
             return path;
         }
     }
@@ -488,7 +488,6 @@ void createPowerSet(vector<int> set, vector<int>& powerSet) {
 // Q8.4 Write a method that returns all subsets of a set.
 // https://github.com/black-shadows/Cracking-the-Coding-Interview/blob/master/Solutions/Chapter%208%20Recursion/8.3.cpp
 
-
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -499,9 +498,9 @@ typedef vector<int> vi;
 
 void print_subsets(vector<vector<int>> subsets)
 {
-    for(int i=0; i<subsets.size(); i++) {
+    for (int i = 0; i < subsets.size(); i++) {
         cout << ".";
-        for(int j=0; j<subsets[i].size(); j++) {
+        for (int j = 0; j < subsets[i].size(); j++) {
             cout << subsets[i][j] << " ";
         }
         cout << endl;
@@ -513,28 +512,28 @@ void print_subsets(vector<vector<int>> subsets)
 vector<vector<int>> get_subsets1(int a[], int idx, int n)
 {
     vector<vector<int>> result;
-    
+
     // base case
-    if(idx==n) {
+    if (idx == n) {
         vector<int> sub;
         result.push_back(sub);
         return result;
-    }    
-    
+    }
+
     // get subsets of n-1
-    vector<vector<int>> subs = get_subsets1(a, idx+1, n);
-    
+    vector<vector<int>> subs = get_subsets1(a, idx + 1, n);
+
     int t = a[idx];
-    
-    for(int i=0; i<subs.size(); i++) {
+
+    for (int i = 0; i < subs.size(); i++) {
         vector<int> sub = subs[i];
-        
+
         // with or without n         
         result.push_back(sub);
         sub.push_back(t);
         result.push_back(sub);
     }
-    
+
     return result;
 }
 
@@ -544,19 +543,19 @@ vector<vector<int>> get_subsets(int a[], int n)
 {
     vector<vector<int>> result;
 
-    for(int i=0; i < (1<<4); i++) {
+    for (int i = 0; i < (1 << 4); i++) {
         vector<int> sub;
-        
+
         int n = i;
         int bit = 0;
 
-        while(n > 0) {
-            if(n&1) {
+        while (n > 0) {
+            if (n & 1) {
                 //cout << a[bit] ;
                 sub.push_back(a[bit]);
-            }                                     
+            }
             n = n >> 1;
-            bit++;        
+            bit++;
         }
         result.push_back(sub);
         //cout << endl;
@@ -567,6 +566,32 @@ vector<vector<int>> get_subsets(int a[], int n)
 
 
 
+// g4g 
+
+vector<int> A = { 1, 2, 3 };
+
+void subsetsUtil(
+    vector<vector<int>>& res,
+    vector<int>& subset,
+    int index)
+{
+    res.push_back(subset);
+    /*  this will generate combination list
+    if(subset.size() == 2) {
+        res.push_back(subset);
+        return;
+    }*/
+
+    for (int i = index; i < A.size(); i++) {
+        subset.push_back(A[i]);
+        subsetsUtil(res, subset, i + 1);
+        subset.pop_back();
+    }
+
+    return;
+}
+
+
 // 8.6
 #include <stdio.h>
 
@@ -575,10 +600,10 @@ int count;
 
 void Hanoi(int N, int A, int B, int C) {
 
-    if (N > 0) {                                                 
-        Hanoi(N - 1, A, C, B);                                   
-        printf("move top disk from %d to %d\n", A, C);      
-        Hanoi(N - 1, B, A, C);                                   
+    if (N > 0) {
+        Hanoi(N - 1, A, C, B);
+        printf("move top disk from %d to %d\n", A, C);
+        Hanoi(N - 1, B, A, C);
     }
 }
 
@@ -630,7 +655,7 @@ vs permu1(string s)
 
         vs res = permu1(t.erase(i, 1));             // get all permutations of remainder
 
-        for (int j = 0; j < res.size(); ++j) { 
+        for (int j = 0; j < res.size(); ++j) {
             result.push_back(c + res[j]);           // c + permutations of remainder
         }
     }
@@ -638,7 +663,7 @@ vs permu1(string s)
 }
 
 // 8.8  https://github.com/careercup/CtCI-6th-Edition-cpp/blob/master/chapter-8-recursion-and-Dynamic-Programming/8.8_Permutations_with_Dups.cpp
-/* Careercup 
+/* Careercup
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -673,7 +698,7 @@ void permute(char* str_start, char* str, int length) {
         printf("%s smallest:%c ->", str, *smallest);
         iter_swap(str, smallest);
         printf("%s smallest:%c\n", str, *smallest);
-        
+
         permute(str_start, str + 1, length - 1);
 
         // Look for the smallest element strictly greater than the first element of the current string
@@ -732,82 +757,82 @@ Space complexity: O(N!*N)
 #include <unordered_map>
 #include <iostream>
 
-    void permutationsWithDupsHelper(const std::string& prefix, std::unordered_set<std::string>& permutations, const std::unordered_map<char, int>& hashTable, int d) {
-        bool found = false;
+void permutationsWithDupsHelper(const std::string& prefix, std::unordered_set<std::string>& permutations, const std::unordered_map<char, int>& hashTable, int d) {
+    bool found = false;
 
-        printf("[%d]", d);
-        cout << "prefix: " << prefix << endl;
-        
+    printf("[%d]", d);
+    cout << "prefix: " << prefix << endl;
+
+
+    for (auto pair : hashTable) {
+
+        if (pair.second > 0) {
+#if 1
+            printf("[%d]%c:%d <= ", d, pair.first, pair.second);
+            std::unordered_map<char, int> hashTableCopy1 = hashTable;  // each recursive call is passed a different hash table copy
+            for (auto pair : hashTableCopy1) {
+                printf("%c:%d, ", pair.first, pair.second);
+            }
+            printf("      ");
+#endif          
+            std::unordered_map<char, int> hashTableCopy = hashTable;  // each recursive call is passed a different hash table copy
+            hashTableCopy[pair.first]--;
+
+            std::string prefixCopy = prefix;  // each recursive call is passed a different prefix copy
+            prefixCopy += pair.first;
+
+            found = true;
+#if 1
+            cout << "--> prefix:  " << prefixCopy;
+            for (auto pair : hashTableCopy) {
+                printf(",  %c:%d, ", pair.first, pair.second);
+            }
+            printf("\n");
+#endif
+            permutationsWithDupsHelper(prefixCopy, permutations, hashTableCopy, d + 1);
+            printf("returned to %d\n", d);
+        }
+
+    }
+
+    if (!found) {  // when the hash table has been depleted, add prefix to the permutations set
+        printf("found == false\n");
+        permutations.insert(prefix);
+
+        printf("\n{");
+        for (auto i = permutations.begin(); i != permutations.end(); ++i) {
+            std::cout << (*i) << ", ";
+        }
+        printf("}\n\n");
+    }
+}
+
+void permutationsWithDups(const std::string& string, std::unordered_set<std::string>& permutations) {
+    if (string.length() == 1) {
+        permutations.insert(string);
+    }
+    else if (string.length() >= 2) {
+        // map the characters we've seen so far to their counts in a hash table
+        std::unordered_map<char, int> hashTable;
+
+        for (const char& singleChar : string) {
+            if (hashTable.count(singleChar)) {
+                hashTable[singleChar]++;
+            }
+            else {
+                hashTable[singleChar] = 1;
+            }
+        }
 
         for (auto pair : hashTable) {
-
-            if (pair.second > 0) {
-                #if 1
-                    printf("[%d]%c:%d <= ", d, pair.first, pair.second);
-                    std::unordered_map<char, int> hashTableCopy1 = hashTable;  // each recursive call is passed a different hash table copy
-                    for (auto pair : hashTableCopy1) {
-                        printf("%c:%d, ", pair.first, pair.second);
-                    }
-                    printf("      ");
-                #endif          
-                std::unordered_map<char, int> hashTableCopy = hashTable;  // each recursive call is passed a different hash table copy
-                hashTableCopy[pair.first]--;
-
-                std::string prefixCopy = prefix;  // each recursive call is passed a different prefix copy
-                prefixCopy += pair.first;
-
-                found = true;
-                #if 1
-                    cout << "--> prefix:  " << prefixCopy ;
-                    for (auto pair : hashTableCopy) {
-                        printf(",  %c:%d, ", pair.first, pair.second);
-                    }
-                    printf("\n");
-                #endif
-                permutationsWithDupsHelper(prefixCopy, permutations, hashTableCopy, d+1);
-                printf("returned to %d\n", d);
-            }
-
+            //printf("%c:%d\n", pair.first, pair.second);
         }
 
-        if (!found) {  // when the hash table has been depleted, add prefix to the permutations set
-            printf("found == false\n");
-            permutations.insert(prefix);
-
-            printf("\n{");
-            for (auto i = permutations.begin(); i != permutations.end(); ++i) {
-                std::cout << (*i) << ", ";
-            }
-            printf("}\n\n");
-        }
+        // pass hash table representation to recursive function that computes permutations
+        permutationsWithDupsHelper("", permutations, hashTable, 0);
     }
-
-    void permutationsWithDups(const std::string& string, std::unordered_set<std::string>& permutations) {
-        if (string.length() == 1) {
-            permutations.insert(string);
-        }
-        else if (string.length() >= 2) {
-            // map the characters we've seen so far to their counts in a hash table
-            std::unordered_map<char, int> hashTable;
-
-            for (const char& singleChar : string) {
-                if (hashTable.count(singleChar)) {
-                    hashTable[singleChar]++;
-                }
-                else {
-                    hashTable[singleChar] = 1;
-                }
-            }
-
-            for (auto pair : hashTable) {
-                //printf("%c:%d\n", pair.first, pair.second);
-            }
-
-            // pass hash table representation to recursive function that computes permutations
-            permutationsWithDupsHelper("", permutations, hashTable, 0);
-        }
-        // if string.length() <= 0 do nothing
-    }
+    // if string.length() <= 0 do nothing
+}
 
 
 int main()
@@ -886,19 +911,32 @@ int main()
     char set[] = { 'a','b','c','d' };
     printPowerSet(set, 4);
 
-/*
-    vector<int> set123 = { 1, 2, 3 };
-    vector<int> testPowerSet = {};
-    createPowerSet(set123, testPowerSet);*/
+    /*
+        vector<int> set123 = { 1, 2, 3 };
+        vector<int> testPowerSet = {};
+        createPowerSet(set123, testPowerSet);*/
+
 
     int a[] = { 1,2,3,4 };
     vector<vector<int>> subs = get_subsets(a, 4);        // sol'n #1 : recurvsively P(n-1) + a_n
     print_subsets(subs);
-    
+
     vector<vector<int>> sub1 = get_subsets1(a, 0, 4);   // sol'n #2 : include elements at bit position of 1    
     print_subsets(sub1);
 
-    
+    // g4g    
+    vector<int> subset;
+    vector<vector<int> > result;
+
+    subsetsUtil(result, subset, 0);
+
+    for (int i = 0; i < result.size(); i++) {
+        for (int j = 0; j < result[i].size(); j++)
+            cout << result[i][j] << " ";
+        cout << "_" << endl;
+    }
+
+
     // 8.6
 
     N = 4;
@@ -919,7 +957,7 @@ int main()
 
     std::unordered_set<std::string> actual3 = {};
     permutationsWithDups("alaa", actual3);
-    
+
     for (auto i = actual3.begin(); i != actual3.end(); ++i) {
         std::cout << (*i) << std::endl;
     }
