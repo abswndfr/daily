@@ -47,12 +47,32 @@ bool isPrime(int n)
 	return true;
 }
 
+#define N 100
 
 void find_prime(int n)
 {
-	for (int i = 0; i < n; i++) {
-		printf("%d is a prime number:%d\n", i, isPrime(i));
+	// truth table for prime number
+	bool prime[N + 1];
+	memset(prime, true, sizeof(bool) * (n+1));
+
+	// remove non prime numbers
+	// 2,   4,6,8,...
+	// 3,   6,9,12,,..
+	// 4,   8,12,...
+	for (int p = 2; p < n; p++) {
+		if (prime[p]) {
+			for (int i = p * 2; i <= n; i+=p) {
+				prime[i] = false;
+			}
+		}
 	}
+
+	// show prime numbers
+	for (int i = 2; i <= n; i++) {
+		if(prime[i])
+			printf("%d ", i);
+	}
+	printf("\n");
 }
 
 
@@ -90,10 +110,10 @@ char* myMemcpy(char* src, char* des, int size)
 
 int arr[] = { 1, 2, 3 };
 int r = 2;
-int buf[2] = {0,0};
+int buf[2] = { 0,0 };
 int n = sizeof(arr) / sizeof(arr[0]);
 
-void printArray()
+void printArray(int r)
 {
 	for (int j = 0; j < r; j++)
 		printf("%d ", buf[j]);
@@ -102,14 +122,14 @@ void printArray()
 
 void combinationUtil(int start, int end, int index)
 {
-    #if 1
+#if 0
 	if (index == r) { // combination
-	    printArray(index);
-    	    return;
+		printArray(index);
+		return;
 	}
-    #else   // subset
+#else   // subset
 	printArray(index);
-    #endif
+#endif
 
 	for (int i = start; i <= end && end - i + 1 >= r - index; i++)
 	{
@@ -165,37 +185,37 @@ vector<string> permu(string s)
 
 // CtCI sol'n 2
 /*
-    abc    
-    
-    a + bc  : bc, cb    -> abc, acb
-    b + ac  : ac, ca    -> bac, bca
-    c + ab  : ab, ba    -> cab, cba    
+	abc
+
+	a + bc  : bc, cb    -> abc, acb
+	b + ac  : ac, ca    -> bac, bca
+	c + ab  : ab, ba    -> cab, cba
  */
 vector<string> permu2(string s)
 {
-    vector<string> result;
-    
-    // base case
-    if(s.length() == 0) {
-        result.push_back("");
-        return result;
-    }
-    
-    for(int i=0; i<s.length(); i++) {
-        // take one char each time
-        string c = s.substr(i,1);
-        string temp = s;
-        
-        // get permutations for the rest
-        vector<string> subs = permu2(temp.erase(i,1));
+	vector<string> result;
 
-        // put back the one char to the perm.
-        for(int j=0; j<subs.size(); j++) {
-            result.push_back(c+subs[j]);    
-        }
-    }
+	// base case
+	if (s.length() == 0) {
+		result.push_back("");
+		return result;
+	}
 
-    return result;
+	for (int i = 0; i < s.length(); i++) {
+		// take one char each time
+		string c = s.substr(i, 1);
+		string temp = s;
+
+		// get permutations for the rest
+		vector<string> subs = permu2(temp.erase(i, 1));
+
+		// put back the one char to the perm.
+		for (int j = 0; j < subs.size(); j++) {
+			result.push_back(c + subs[j]);
+		}
+	}
+
+	return result;
 }
 
 
@@ -364,7 +384,8 @@ int main()
 	printf("%d has %d 1s...", 31, countOnes(31));		printBin(31);
 
 	// prime
-	//printf("is prime?: %d\n", find_prime(7));
+	find_prime(30);
+
 	printf("is 2 prime?(1): %d\n", isPrime(2));
 	printf("is 3 prime?(1): %d\n", isPrime(3));
 	printf("is 4 prime?(0): %d\n", isPrime(4));	// ????
