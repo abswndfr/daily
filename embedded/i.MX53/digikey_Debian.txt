@@ -1,0 +1,285 @@
+https://forum.digikey.com/t/debian-getting-started-with-the-mcimx53-start-r/12462
+
+
+1. toolchain
+
+	sudo apt-get install flex															
+	
+	wget -c https://releases.linaro.org/components/toolchain/binaries/6.5-2018.12/arm-linux-gnueabihf/gcc-linaro-6.5.0-2018.12-x86_64_arm-linux-gnueabihf.tar.xz
+	tar xf gcc-linaro-6.5.0-2018.12-x86_64_arm-linux-gnueabihf.tar.xz
+	export CC=`pwd`/gcc-linaro-6.5.0-2018.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+	${CC}gcc --version
+		arm-linux-gnueabihf-gcc (Linaro GCC 6.5-2018.12) 6.5.0	
+		Copyright (C) 2017 Free Software Foundation, Inc.
+		This is free software; see the source for copying conditions.  There is NO
+		warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+
+		note:
+		
+			cc1: error: bad value (‘generic-armv7-a’) for ‘-mtune=’ switch
+			cc1: note: valid arguments to ‘-mtune=’ switch are: 
+			
+			=> 
+				vboxuser@Ubuntu:~/u-boot$ ${CC}gcc --version
+				
+				gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0				Copyright (C) 2019 Free Software Foundation, Inc.
+				arm-linux-gnueabihf-gcc (Linaro GCC 6.5-2018.12) 6.5.0	Copyright (C) 2017 Free Software Foundation, Inc.
+
+
+2. u-boot
+
+	sudo apt install git
+	sudo apt install make
+	sudo apt install bison
+	
+	git clone -b v2019.04 https://github.com/u-boot/u-boot --depth=1
+	cd u-boot/
+	
+	wget -c https://github.com/eewiki/u-boot-patches/raw/master/v2019.04/0001-mx53loco-uEnv.txt-bootz-n-fixes.patch
+	
+	patch -p1 < 0001-mx53loco-uEnv.txt-bootz-n-fixes.patch
+	
+	make ARCH=arm CROSS_COMPILE=${CC} distclean
+
+	make ARCH=arm CROSS_COMPILE=${CC} mx53loco_defconfig
+	
+	make ARCH=arm CROSS_COMPILE=${CC}
+
+
+3. kernel
+
+	sudo apt-get install build-essential fakeroot lzma gettext libmpc-dev u-boot-tools libncurses5-dev:amd64 libssl-dev:amd64 lzop
+
+	git clone https://github.com/RobertCNelson/armv7-multiplatform ./kernelbuildscripts
+	cd kernelbuildscripts/
+
+	For v5.4.x (Longterm 5.4.x):
+		#user@localhost:~/kernelbuildscripts$
+		git checkout origin/v5.4.x -b tmp
+
+	For v5.4.x-rt (Longterm 5.4.x + Real-Time Linux):
+		#user@localhost:~/kernelbuildscripts$
+		git checkout origin/v5.4.x-rt -b tmp
+
+	For v5.10.x (Longterm 5.10.x):
+		#user@localhost:~/kernelbuildscripts$
+		git checkout origin/v5.10.x -b tmp
+
+	For v5.10.x-rt (Longterm 5.10.x + Real-Time Linux):
+		#user@localhost:~/kernelbuildscripts$
+		git checkout origin/v5.10.x-rt -b tmp
+
+	For v5.15.x (Longterm 5.15.x):												!
+		#user@localhost:~/kernelbuildscripts$
+		git checkout origin/v5.15.x -b tmp
+
+	For v5.15.x-rt (Longterm 5.15.x + Real-Time Linux):
+		#user@localhost:~/kernelbuildscripts$
+		git checkout origin/v5.15.x-rt -b tmp
+
+	./build_kernel.sh	
+		
+		-----------------------------
+		'arch/arm/boot/zImage' -> '/home/home/imx53/kernelbuildscripts/deploy/5.15.119-armv7-x38.zImage'
+		'.config' -> '/home/home/imx53/kernelbuildscripts/deploy/config-5.15.119-armv7-x38'
+		-rwxrwxr-x 1 home home 13M Sep  1 13:56 /home/home/imx53/kernelbuildscripts/deploy/5.15.119-armv7-x38.zImage
+
+		-----------------------------
+		Building modules archive...
+		Compressing 5.15.119-armv7-x38-modules.tar.gz...
+		-rw-rw-r-- 1 home home 24M Sep  1 13:57 /home/home/imx53/kernelbuildscripts/deploy/5.15.119-armv7-x38-modules.tar.gz
+
+		-----------------------------
+		Building dtbs archive...
+		Compressing 5.15.119-armv7-x38-dtbs.tar.gz...
+		-rw-rw-r-- 1 home home 6.1M Sep  1 13:57 /home/home/imx53/kernelbuildscripts/deploy/5.15.119-armv7-x38-dtbs.tar.gz
+
+		-----------------------------
+		Script Complete
+		eewiki.net: [user@localhost:~$ export kernel_version=5.15.119-armv7-x38]
+		-----------------------------	
+	
+	
+
+4. root file system (id:debian, pwd:temppwd // id:root, pwd:root)
+
+	wget -c https://rcn-ee.com/rootfs/eewiki/minfs/debian-11.3-minimal-armhf-2022-04-15.tar.xz
+	sha256sum debian-11.3-minimal-armhf-2022-04-15.tar.xz
+
+		=> 575738843651de2962f251447f4742d4f33313d6f7f5edf282a401207f5e6646  debian-11.3-minimal-armhf-2022-04-15.tar.xz
+
+	tar xf debian-11.3-minimal-armhf-2022-04-15.tar.xz
+
+
+
+
+5. Setup microSD card
+
+	#Example: for DISK=/dev/sdX
+		lsblk
+		NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+		sda      8:0    0 465.8G  0 disk
+		├─sda1   8:1    0   512M  0 part /boot/efi
+		└─sda2   8:2    0 465.3G  0 part /                <- Development Machine Root Partition
+		sdb      8:16   1   962M  0 disk                  <- microSD/USB Storage Device
+		└─sdb1   8:17   1   961M  0 part                  <- microSD/USB Storage Partition
+	
+	export DISK=/dev/sdb
+
+
+	#Example: for DISK=/dev/mmcblkX
+		lsblk
+		NAME      MAJ:MIN   RM   SIZE RO TYPE MOUNTPOINT
+		sda         8:0      0 465.8G  0 disk
+		├─sda1      8:1      0   512M  0 part /boot/efi
+		└─sda2      8:2      0 465.3G  0 part /           <- Development Machine Root Partition
+		mmcblk0     179:0    0   962M  0 disk             <- microSD/USB Storage Device
+		└─mmcblk0p1 179:1    0   961M  0 part             <- microSD/USB Storage Partition
+
+	#export DISK=/dev/mmcblk0
+
+
+	sudo dd if=/dev/zero of=${DISK} bs=1M count=10
+
+	sudo dd if=./u-boot.imx of=${DISK} seek=2 bs=512
+
+		https://community.nxp.com/t5/i-MX-Processors/u-boot-bin-and-u-boot-imx/m-p/276484
+		
+		  $[u-boot path]/tools/mkimage -T imximage
+		
+		  The difference between u-boot.bin and u-boot.imx is the IVT header. That means after u-boot.bin is build, we will also add a IVT header and put it in front of u-boot.bin. This IVT header is for our boot ROM to identify the u-boot's location & function etc... The parameter "imximage" means telling mkimage tool to generate a imx uboot image, which means to put a header defined by image_type_params, then full in the imx content. So we will see after u-boot.imx generated, it is actually u-boot.bin with a imx IVT header which include header, DCD/plugin. For more detail, you can refer to: tools/imximage.c.
+
+
+	5.1 fdisk
+
+		#sfdisk >= 2.26.x
+		sudo sfdisk ${DISK} <<-__EOF__
+		1M,,L,*
+		__EOF__
+
+			Checking that no-one is using this disk right now ... OK
+			
+			Disk /dev/sdb: 3.75 GiB, 4009754624 bytes, 7831552 sectors
+			Disk model: STORAGE DEVICE  
+			Units: sectors of 1 * 512 = 512 bytes
+			Sector size (logical/physical): 512 bytes / 512 bytes
+			I/O size (minimum/optimal): 512 bytes / 512 bytes
+			
+			>>> Created a new DOS disklabel with disk identifier 0x49886fc1.
+			/dev/sdb1: Created a new partition 1 of type 'Linux' and of size 3.8 GiB.
+			/dev/sdb2: Done.
+			
+			New situation:
+			Disklabel type: dos
+			Disk identifier: 0x49886fc1
+			
+			Device     Boot Start     End Sectors  Size Id Type
+			/dev/sdb1  *     2048 7831551 7829504  3.8G 83 Linux
+			
+			The partition table has been altered.
+			Calling ioctl() to re-read partition table.
+			Syncing disks
+
+
+		home@VB:~/imx53$ lsblk
+			
+			sdb      8:16   1   3.8G  0 disk 
+			└─sdb1   8:17   1   3.8G  0 part 
+
+
+
+	5.2 partition
+	
+		for: DISK=/dev/mmcblkX
+		sudo mkfs.ext4 -L rootfs ${DISK}p1
+		
+		for: DISK=/dev/sdX
+		sudo mkfs.ext4 -L rootfs ${DISK}1
+
+			mke2fs 1.45.5 (07-Jan-2020)
+			Creating filesystem with 978688 4k blocks and 244800 inodes
+			Filesystem UUID: 3dfd0573-3789-4ccc-bea4-5b34c9fff4e9
+			Superblock backups stored on blocks: 
+					32768, 98304, 163840, 229376, 294912, 819200, 884736
+			
+			Allocating group tables: done                            
+			Writing inode tables: done                            
+			Creating journal (16384 blocks): 
+			done
+			Writing superblocks and filesystem accounting information: done 
+
+
+	5.3 mount
+	
+		sudo mkdir -p /media/rootfs/
+		
+		for: DISK=/dev/mmcblkX
+		sudo mount ${DISK}p1 /media/rootfs/
+		
+		for: DISK=/dev/sdX
+		sudo mount ${DISK}1 /media/rootfs/
+
+
+6 Install Kernel and Root File System
+
+		-----------------------------
+		Script Complete
+		eewiki.net: [user@localhost:~$ export kernel_version=5.15.119-armv7-x38]	fail
+
+		eewiki.net: [user@localhost:~$ export kernel_version=5.4.242-armv7-x66]		pass	
+		-----------------------------	
+
+		=>	To help new users, since the kernel version can change on a daily basis. The kernel building scripts listed on this page will now give you a hint of what kernel version was built.
+			-----------------------------
+				Script Complete
+				eewiki.net: [user@localhost:~$ export kernel_version=5.X.Y-Z]
+			-----------------------------
+		
+			Copy and paste that “export kernel_version=5.X.Y-Z” exactly as shown in your own build/desktop environment and hit enter to create an environment variable to be used later.
+		
+			export kernel_version=5.X.Y-Z
+			
+
+	6.1 Copy Root File System
+	
+		#Debian; Root File System: user@localhost:~$
+		sudo tar xfvp ./debian-*-*-armhf-*/armhf-rootfs-*.tar -C /media/rootfs/
+		sync
+
+			home@VB:~/imx53$ echo ${kernel_version}
+			5.15.119-armv7-x38							<= check this
+	
+	6.2 Set uname_r in /boot/uEnv.txt
+	
+		#user@localhost:~$
+		sudo sh -c "echo 'uname_r=${kernel_version}' >> /media/rootfs/boot/uEnv.txt"
+
+	6.3 Copy Kernel Image
+		Kernel Image:
+
+		#user@localhost:~$
+		sudo cp -v ./kernelbuildscripts/deploy/${kernel_version}.zImage /media/rootfs/boot/vmlinuz-${kernel_version}
+
+	6.4 Copy Kernel Device Tree Binaries
+
+		#user@localhost:~$
+		sudo mkdir -p /media/rootfs/boot/dtbs/${kernel_version}/
+		sudo tar xfv ./kernelbuildscripts/deploy/${kernel_version}-dtbs.tar.gz -C /media/rootfs/boot/dtbs/${kernel_version}/
+		
+	6.5 Copy Kernel Modules
+
+		#user@localhost:~$
+		sudo tar xfv ./kernelbuildscripts/deploy/${kernel_version}-modules.tar.gz -C /media/rootfs/
+
+	6.6 File Systems Table (/etc/fstab)
+
+		#user@localhost:~/$
+		sudo sh -c "echo '/dev/mmcblk0p1  /  auto  errors=remount-ro  0  1' >> /media/rootfs/etc/fstab"
+
+	6.7 Remove microSD/SD card
+
+		sync
+		sudo umount /media/rootfs
+		
+		
+		

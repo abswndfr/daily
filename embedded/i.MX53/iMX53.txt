@@ -1,0 +1,54 @@
+~1. check inventory - SSDs, SD cards, boards, etc
+~2. clone SD cards using Win32 disk imager
+~3. VMWare CD
+~4. flash player for tutorial		
+~5. clone SD cards from OS 	  
+ 
+ 
+ https://wiki.debian.org/InstallingDebianOn/Freescale/i.MX53%20Quick%20Start%20board/debootstrap
+ 
+  MCIMX53-START
+	This is an older version. PCB with yellow lines, PMIC Dialog DA9053.
+	Has 6 revisions: A, B, C, D, E, F.
+	The Device tree file is imx53-qsb.dtb
+
+  MCIMX53-START-R
+	The new one, with PMIC MC34708.
+	Also you can see revision letter on Ethernet socket, it looks like "700-27104 REV C".
+	The Device tree file is imx53-qsrb.dtb
+
+ . build kernel image
+	  - mother to mother 
+
+	  - daughter to daughter
+
+	  - mother to daughter	  		
+
+			UILD
+			+ cd u-boot-2009.08
+			/home/lucid/ltib/ltib/tmp/rpm-tmp.16964: 22: PKG_U_BOOT_CONFIG_TYPE: must be set, e.g. MPC8548CDS_config
+			error: Bad exit status from /home/lucid/ltib/ltib/tmp/rpm-tmp.16964 (%build)
+
+				RPM build errors:
+				Bad exit status from /home/lucid/ltib/ltib/tmp/rpm-tmp.16964 (%build)
+			Build time for u-boot: 30 seconds
+			
+			Failed building u-boot
+			
+			
+dd if=/path/to/factory/build_armv7l-timesys-linux-<libc>/images/bootloader/u-boot.bin of=/dev/sdX bs=512 seek=1 skip=1			
+
+
+		This means you don't have sudo permission to execute rpm commands as root
+		without a password.  This is needed for this build script to operate correctly.
+		
+		To configure this, as root using the command "/usr/sbin/visudo",
+		and add the following line to the end of file:
+		
+		vboxuser ALL = NOPASSWD: /usr/bin/rpm, /opt/ltib/usr/bin/rpm
+		
+		traceback:
+		main::check_sudo_setup:2606
+		main::host_checks:1513
+		main:562
+		
