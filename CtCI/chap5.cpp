@@ -3,11 +3,6 @@
 #include <string.h>
 //#include <math.h>
 
-#include <iostream>
-#include <string>
-#include <vector>
-
-using namespace std;
 
 void printBin(unsigned int a)
 {
@@ -21,7 +16,7 @@ int countOnes(unsigned int a)
 {
 	int count = 0;
 
-	while (a) {
+	while (a > 0) {	
 		a = a & (a - 1);
 		count++;
 	}
@@ -34,11 +29,10 @@ int countOnes(unsigned int a)
 // 1. n = 4; n / 2 = 2 while i starts from 2 -> skip for loop
 bool isPrime(int n)
 {
-	if ((n == 0) || (n == 1) || (n == 4)) {
-		return false;
+	if (n > 7) {
+		n = n / 2;
 	}
-
-	for (int i = 2; i < n / 2; i++) {
+	for (int i = 2; i < n; i++) {
 		if (n % i == 0) {
 			return false;
 		}
@@ -47,33 +41,33 @@ bool isPrime(int n)
 	return true;
 }
 
-#define N 100
 
-void find_prime(int n)
+#define N	100
+
+bool prime_number[N+1];
+
+bool find_prime(int n)
 {
-	// truth table for prime number
-	bool prime[N + 1];
-	memset(prime, true, sizeof(bool) * (n+1));
+	memset(prime_number, true, sizeof(bool) * (N+1));
 
-	// remove non prime numbers
-	// 2,   4,6,8,...
-	// 3,   6,9,12,,..
-	// 4,   8,12,...
-	for (int p = 2; p < n; p++) {
-		if (prime[p]) {
-			for (int i = p * 2; i <= n; i+=p) {
-				prime[i] = false;
-			}
+	for (int p = 2; p < n; p++) {	
+		if (prime_number[p] == false) continue;
+		for (int i = p * 2; i < n; i += p) {
+			prime_number[i] = false;
 		}
 	}
-
-	// show prime numbers
-	for (int i = 2; i <= n; i++) {
-		if(prime[i])
-			printf("%d ", i);
+	 
+	for (int p = 2; p < n; p++) {
+		if (prime_number[p] == true) {
+			printf("%d ", p);
+		}
 	}
 	printf("\n");
+
+	return true;
 }
+
+
 
 
 // 1. *des++ &	*src++		!!!!
@@ -83,24 +77,21 @@ void find_prime(int n)
 //	  or while(tmpS >= src) { tmpS--; ...}
 char* myMemcpy(char* src, char* des, int size)
 {
-	/*
-		src			---------						---------				  -----------
-		des						---------				 ---------		----------
-	*/
-	if (0) {// (des < src) || (des > src + size)) {
-		while (size) {
-			*des++ = *src++;
-			size--;
+/*
+*	src	ABCABCD-|				???		src < des && src + size > des
+*   des    ABCABC--|
+*/
+	char* tmpS = src + size;
+	char* tmpD = des + size;
+
+	if (1) { // (src + size) > des) {
+		while (tmpS >= src) {
+			*tmpD-- = *tmpS--;
 		}
+		des = tmpD+1;
 	}
 	else {
-		src = src + size - 1;
-		des = des + size - 1;
-
-		while (size) {
-			*des-- = *src--;
-			size--;
-		}
+		memcpy(des, src, size);
 	}
 
 	return des;
@@ -108,121 +99,32 @@ char* myMemcpy(char* src, char* des, int size)
 
 
 
-int arr[] = { 1, 2, 3 };
-int r = 2;
-int buf[2] = { 0,0 };
-int n = sizeof(arr) / sizeof(arr[0]);
-
-void printArray(int r)
-{
-	for (int j = 0; j < r; j++)
-		printf("%d ", buf[j]);
-	printf("\n");
-}
-
-void combinationUtil(int start, int end, int index)
-{
-#if 0
-	if (index == r) { // combination
-		printArray(index);
-		return;
-	}
-#else   // subset
-	printArray(index);
-#endif
-
-	for (int i = start; i <= end && end - i + 1 >= r - index; i++)
-	{
-		buf[index] = arr[i];
-		combinationUtil(i + 1, end, index + 1);
-	}
-}
-
-
-// CtCI 1st sol'n
-vector<string> permu(string s)
-{
-	//cout << s << "---> ";
-	vector<string> result;
-
-	// base case
-	if (s.length() == 0) {
-		//cout << "len = 0" << endl;
-		// without this line, adding the 1st char fail in the for loop above leading no change in the upper call upon returning.
-		//result.push_back("");
-		return result;
-	}
-	//else
-		//cout << "len = " << s.length() << endl;
-
-	// take 1st char
-	string c = s.substr(0, 1);
-	//cout << "(" << c << ")";
-
-	// get permutation with the remainder
-	vector<string> subs = permu(s.substr(1));
-	//cout << "subs size:" << subs.size() << endl;
-
-	// iteration at current level
-	for (int i = 0; i < subs.size(); i++) {
-		// get each element
-		string sub = subs[i];
-		// place 1st char at every possible poistion
-		for (int j = 0; j <= sub.length(); j++) {
-			string sub_temp = sub;
-			sub_temp.insert(j, c);
-			result.push_back(sub_temp);
-		}
-	}
-
-	// without this line, adding the 1st char fail in the for loop above leading no change in the upper call upon returning.
-	if (subs.size() == 0) {
-		result.push_back(c);
-	}
-
-	return result;
-}
-
-// CtCI sol'n 2
 /*
-	abc
-
-	a + bc  : bc, cb    -> abc, acb
-	b + ac  : ac, ca    -> bac, bca
-	c + ab  : ab, ba    -> cab, cba
- */
-vector<string> permu2(string s)
+void combinationUtil(int* arr, int* data, int start, int end, int index, int r)
 {
-	vector<string> result;
-
-	// base case
-	if (s.length() == 0) {
-		result.push_back("");
-		return result;
-	}
-
-	for (int i = 0; i < s.length(); i++) {
-		// take one char each time
-		string c = s.substr(i, 1);
-		string temp = s;
-
-		// get permutations for the rest
-		vector<string> subs = permu2(temp.erase(i, 1));
-
-		// put back the one char to the perm.
-		for (int j = 0; j < subs.size(); j++) {
-			result.push_back(c + subs[j]);
-		}
-	}
-
-	return result;
 }
+
+
+void printCombination(int* arr, int n, int r)
+{
+}
+
+
+void swap(char* x, char* y)
+{
+}
+
+
+void permute(char* a, int l, int r)
+{
+}*/
 
 
 
 //5.1
 // i = 2, j = 6
 // 9876543210
+// 
 //    j   i 
 // 
 // 1110000011 *
@@ -231,22 +133,14 @@ vector<string> permu2(string s)
 // 1. +/- has a higher precedence than <</>> : 1 << j - 1 vs. (1 << j) - 1	=> - first vs. << first	
 // 2. b << i, not b << j
 unsigned int bitInsert(unsigned int a, unsigned int b, int i, int j)
-{
-	/*
-		9876543210
-		0001111100
-		   1111111
-				11
+{									//			   76543210	
+	int mask_j = (1 << j + 1) - 1;	// 10000000 -> 01111111
+	int mask_i = (1 << i) - 1;		// 00000100	-> 00000011		
+	int mask = mask_j ^ mask_i;		//			   01111100
 
-	*/
-	int mask = 0;
-	//  9876543210
-	mask = (1 << j);					//	   1000000	
-	mask = mask | ((1 << j) - 1);		//     1111111
-	mask = mask ^ ((1 << i) - 1);		//	   0000011	
-	//     1111100 	
-	a = a & ~mask;
-	a = a | b << i;
+	a = a & ~mask;					// 01111100 -> 10000011 
+
+	a = a | (b << i);
 
 	return a;
 }
@@ -285,74 +179,17 @@ unsigned int bigSmallFromGiven(unsigned int a)
 	   // find the right most non trailing zero and set to it
 		   // find 1 first
 		   // then find 0 
-	int b = a;
-	int i = 0;
-	int len = sizeof(int) * 8;
-	int bit = 0;
-	bool found = false;
-	int count = 0;
 
-	printBin(a);
+	   // clear after the 1st one and then set count - 1
 
-	while (i < len) {
-		bit = 1 << i;
-		if (a & bit) {
-			count++;
-			found = true;
-		}
-
-		if ((found) && (!(a & bit))) {
-			a |= bit;
-			break;
-		}
-
-		i++;
-	}
-
-	a &= ~(bit - 1);
-
-	for (int j = 0; j < count - 1; j++) {
-		a |= 1 << j;
-	}
-
-	printBin(a);
-
-	/* 1  0  0  1  1  1  1  0  0  0  0  0  1  1
-		1  0  0  1  1  1  0  0  0  0  0  0  0  0
-		1  0  0  1  1  1  0  1  1  1  0  0  0  0 */
-		//** closet smaller number
-		//find the right most non trailing zero and clear it
-			// find 0 first
-			// then find 1 and clear it to zero
-		// clear after the flipped bit and then set count + 1
-	i = 0;
-	count = 0;
-	found = false;
-	a = b;
-
-	while (i < len) {
-		bit = 1 << i;
-		if (a & bit) {
-			count++;
-			if (found) {
-				a &= ~bit;
-				break;
-			}
-		}
-
-		if (!(a & bit)) {
-			found = true;
-		}
-		i++;
-	}
-
-	a &= ~(bit - 1);
-
-	for (int j = 0; j < count; j++) {
-		a |= 1 << (i - j - 1);
-	}
-
-	printBin(a);
+	   /* 1  0  0  1  1  1  1  0  0  0  0  0  1  1
+		  1  0  0  1  1  1  0  0  0  0  0  0  0  0
+		  1  0  0  1  1  1  0  1  1  1  0  0  0  0 */
+		  //** closet smaller number
+		  //find the right most non trailing zero and clear it
+			  // find 0 first
+			  // then find 1 and clear it to zero
+		  // clear after the flipped bit and then set count + 1
 	return a;
 }
 
@@ -365,7 +202,7 @@ int conversion(int a, int b)
 
 	a = a ^ b;
 
-	while (a) {
+	while (a > 0) {
 		a = a & (a - 1);
 		count++;
 	}
@@ -384,18 +221,13 @@ int main()
 	printf("%d has %d 1s...", 31, countOnes(31));		printBin(31);
 
 	// prime
-	find_prime(30);
+	//printf("is prime?: %d\n", find_prime(7));
 
-	printf("is 2 prime?(1): %d\n", isPrime(2));
-	printf("is 3 prime?(1): %d\n", isPrime(3));
-	printf("is 4 prime?(0): %d\n", isPrime(4));	// ????
-	printf("is 5 prime?(1): %d\n", isPrime(5));
-	printf("is 6 prime?(0): %d\n", isPrime(6));
-	printf("is 7 prime?(1): %d\n", isPrime(7));
-	printf("is 8 prime?(0): %d\n", isPrime(8));
-	printf("is 9 prime?(0): %d\n", isPrime(9));
+	for (int i = 2; i < 10; i++) {
+		printf("is %d prime?: %d\n", i, isPrime(i));
+	}
 
-	find_prime(20);
+	find_prime(100);
 
 	char src[] = "hello";
 	char* des = (char*)malloc(20);
@@ -409,25 +241,23 @@ int main()
 	printf("new des(after copy) :%p %s  \n", des, des);
 	printf("org des             :%p %s\n\n\n", des_org, des_org);
 
-
+#if 0
 	// permutation
-	string s = "abc";
-	vector<string> res = permu(s);
-
-	for (int i = 0; i < res.size(); ++i)
-		cout << res[i] << endl;
-
+	printf("string permutation\n");
+	char s[] = "ABC";
+	int n = strlen(s);
+	permute(s, 0, n - 1);
 
 	// combination
 	printf("combination\n");
-	combinationUtil(0, n - 1, 0);
-
-
+	int comb[4] = { 10,20,30,40 };
+	printCombination(comb, 4, 2);
+#endif
 	// 5.1
 	printf("5.1\n");
 	printBin(bitInsert(0b11111111111, 0b01011, 2, 6));
-	printBin(bitInsert(0b10000000000, 0b10011, 2, 6));
-	printBin(bitInsert(0b10010110001, 0b1000, 3, 6));
+	//printBin(bitInsert(0b10000000000, 0b10011, 2, 6));
+	//printBin(bitInsert(0b10010110001, 0b1000, 3, 6));
 
 	// 5.4										B		S
 	printf("5.4\n");
@@ -437,7 +267,7 @@ int main()
 	bigSmallFromGiven(13948);	//	
 
 	// 5.6		29 (or: 11101), 15 (or: 01111) -> 2	
-	printf("5.6   %d %d -> %d\n", 29, 15, conversion(29, 15));
+	printf("5.6   %d -> %d : %d bit\n", 29, 15, conversion(29, 15));
 
 	int testa = ~0;
 
