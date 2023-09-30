@@ -27,28 +27,23 @@ int tail;
 // malloc(sizeof(Node*)); (X)   malloc(sizeof(Node)); (O)
 void insertNode(Node** root, int data)
 {
-	Node* node = *root;
-
-	if (node == NULL) {
-		node = (Node*)malloc(sizeof(Node));
-		node->key = data;
-		node->left = NULL;
-		node->right = NULL;
-		node->parent = NULL;
-		*root = node;
-	}
-	else {
-		if (data < node->key) {
-			insertNode(&node->left, data);
-			if (node->left) {
-				node->left->parent = node;
-			}
+	if (*root) {
+		if (data < (*root)->key) {
+			insertNode(&(*root)->left, data);
 		}
 		else {
-			insertNode(&node->right, data);
-			if (node->right) {
-				node->right->parent = node;
-			}
+			insertNode(&(*root)->right, data);
+		}
+	}
+	else {
+		Node* node = (Node*)malloc(sizeof(Node));
+
+		if (node) {
+			node->key = data;
+			node->left = NULL;
+			node->right = NULL;
+			node->parent = NULL;
+			*root = node;
 		}
 	}
 }
@@ -59,35 +54,43 @@ void InOrder(Node* node)
 {
 	if (node) {
 		InOrder(node->left);
-		printf("%d[%d] ", node->key, node->parent == NULL ? 0 : node->parent->key);
-		InOrder(node->right);	
+		printf("%d->", node->key);
+		InOrder(node->right);
 	}
 }
 
 
+
 void levelOrder(Node* node)
 {
-	Node* temp;
-
 	head = 0;
 	tail = 0;
+	int size = 0;
+	Node* temp;
+
+	if (node == NULL) {
+		return;
+	}
 
 	queue[tail++] = node;
-	temp = queue[head++];
+	size++;
 
-	while (temp) {
-		printf("%d[%d] ", temp->key, temp->parent == NULL ? 0 : temp->parent->key);
+	while (size) {
+		temp = queue[head++];
+		printf("%d->", temp->key);
+		size--;
+
 		if (temp->left) {
 			queue[tail++] = temp->left;
+			size++;
 		}
 
 		if (temp->right) {
 			queue[tail++] = temp->right;
+			size++;
 		}
-
-		temp = queue[head++];
 	}
-	printf("\n");
+
 }
 
 //min depth
@@ -103,13 +106,8 @@ void levelOrder(Node* node)
   */
 int minDepth(Node* node)
 {
-
 	if (node == NULL) {
 		return 0;
-	}
-
-	if ((node->left == NULL) && (node->right == NULL)) {
-		return 1;
 	}
 
 	return MIN(minDepth(node->left), minDepth(node->right)) + 1;
@@ -120,45 +118,27 @@ int minDepth(Node* node)
 
 //4.2
 // input array needs to be sorted !!!!!
-/*
-		s		e		m
-		0		5		2		4
-		0		1		0		1
-		3		5		4		7
-
-		0	1	2	3	4	5	
-				.
-		.				.		
-
-								
-*/
+// start < end (X), start <= end (O)
 Node* createMinimalBST(int* arr, int start, int end)
 {
-	// base case : start < end
+	Node* left = NULL;
+	Node* right = NULL;
 	Node* node = NULL;
-	int mid;
 
+	// size = 0			0,-1
+	// size = 1			0,0
+	// size > 1			0,1 ~ 
 	if (start <= end) {
-		mid = (start + end) / 2;
 		node = (Node*)malloc(sizeof(Node));
+
+		int mid = (start + end) / 2;
 		node->key = arr[mid];
-		node->parent = NULL;
-
-		node->left = createMinimalBST(arr, start, mid - 1);
-		if (node->left) {
-			node->left->parent = node;
-		}
-
-		node->right = createMinimalBST(arr, mid + 1, end);
-		if (node->right) {
-			node->right->parent = node;
-		}
+		node->left = createMinimalBST(arr, start, mid-1);
+		node->right = createMinimalBST(arr, mid+1, end);
 	}
 
 	return node;
 }
-	
-	
 
 
 //4.3
@@ -172,92 +152,68 @@ typedef struct _sllNode {
 
 void addList(sllNode** pHead, Node* tNode)
 {
-	sllNode* node = *pHead;
-	sllNode* temp;
-	
-	temp = (sllNode*)malloc(sizeof(sllNode));
-	temp->next = node;
-	temp->treeNode = tNode;
-	//node = temp							-> !!!!!!
-	*pHead = temp;
 }
 
 void printList(sllNode* pNode)
 {
-	while (pNode) {
-		printf("%d->", pNode->treeNode->key);
-		pNode = pNode->next;
-	}
-
-	printf("NULL\n");
 }
 
 sllNode* listOfDepth[10];
 
 void preOrderPerDepth(Node* node, int depth)
 {
-	if (node) {
-		addList(&listOfDepth[depth], node);
-
-		preOrderPerDepth(node->left, depth+1);
-		preOrderPerDepth(node->right, depth+1);
-	}
 }
 
 sllNode** listOfDepths(Node* root)
 {
-	for (int i = 0; i < 10; i++) {
-		listOfDepth[i] = NULL;
-	}
-
-	preOrderPerDepth(root, 0);
-
 	return listOfDepth;
 }
 
 
 //4.4
+
+
 int maxDepth(Node* node)
 {
 	if (node == NULL) {
 		return 0;
 	}
 
-	if ((node->left == NULL) && (node->right == NULL)) {
-		return 1;
-	}
-
 	return MAX(maxDepth(node->left), maxDepth(node->right)) + 1;
 }
 
 bool balancedDepth(Node* node)
-{	
+{
 	if (node == NULL) {
-		return 0;
+		return true;
 	}
-	return ABS(maxDepth(node->left) - maxDepth(node->right)) < 2;
+
+	return (ABS(maxDepth(node->left) - maxDepth(node->right)) <= 1);
 }
 
 
 
 
 //4.5   - leecode #98
+// null tree is always a valid BST.
 bool isValidBST(Node* root)
 {
 	if (root == NULL) {
 		return true;
 	}
 
-	if ((root->left) && !(root->key > root->left->key)) {
+	if ((root->left) && !(root->left->key < root->key)) {
 		return false;
 	}
-		
-	if ((root->right) && !(root->key < root->right->key)) {
+
+	if ((root->right) && !(root->right->key > root->key)) {
 		return false;
 	}
 
 	return isValidBST(root->left) && isValidBST(root->right);
 }
+
+
 
 //4.6 successor
 		/*
@@ -285,25 +241,6 @@ Node* inOrderSuccessor(Node* node)
 	// parent  -> min of right C
 	// right C -> right 1st node as left child, then parent to that.
 	// end     -> NULL
-
-	// root
-
-	Node* temp;
-
-	if (node->right) {
-		// find min of right subtree
-		temp = node->right;
-		while (temp->left) {
-			temp = temp->left;
-		}
-		return temp;
-	}
-
-	while (node->parent && (node == node->parent->right)) {
-		node = node->parent;
-	}
-	return node->parent;
-
 	return NULL;
 }
 
@@ -326,22 +263,33 @@ bool isNodeFound(Node* root, Node* node)
 	return isNodeFound(root->left, node) || isNodeFound(root->right, node);
 }
 
+// p == root, q == root (not p == null, q == null) should be considered
 Node* lowestCommonAncestor(Node* root, Node* p, Node* q)
 {
-	if ((root == p) || (root == q) || (root == NULL)) {
+	bool left = false;
+	bool right = false;
+	Node* node = NULL;
+
+	if ((root == NULL) || (p == NULL) || (q == NULL)) {
 		return root;
 	}
 
-	if (isNodeFound(root->left, p) && isNodeFound(root->right, q)) {
+	left = isNodeFound(root->left, p);
+	right = isNodeFound(root->right, q);
+
+	if (left && right) {
 		return root;
 	}
 
-	if (isNodeFound(root->left, p)) {
-		return lowestCommonAncestor(root->left, p, q);
+	if (left) {
+		node = lowestCommonAncestor(root->left, p, q);
 	}
-	else {
-		return lowestCommonAncestor(root->right, p, q);
+
+	if (right) {
+		node = lowestCommonAncestor(root->right, p, q);
 	}
+
+	return node;
 }
 
 
@@ -364,22 +312,7 @@ Node* lowestCommonAncestor(Node* root, Node* p, Node* q)
 // Returning upon child == null avoids reporting true/false #380~381
 bool isSubTree(Node* t1, Node* t2)
 {
-	if (t2 == NULL) {
-		return true;
-	}
-
-	if (t1 == NULL) {
-		return false;
-	}
-
-	bool left;
-	bool right;
-
-	if ((t1->key == t2->key) && isSubTree(t1->left, t2->left) && isSubTree(t1->right, t2->right)) {
-		return true;
-	}
-
-	return isSubTree(t1->left, t2) || isSubTree(t1->right, t2);
+	return true;
 }
 
 
@@ -414,10 +347,11 @@ int main()
 
 	// minimum depth
 	Node* rootB = NULL;
-	int arrB[] = { 4, 7, 2, 1, 6, 8, 3};						// minDepth : 3
+	int arrB[] = { 4, 7, 2, 1, 6, 8, 3 };
+	//int arrB[] = { 4, 7, 2, 6, 8, 3 };						// minDepth : 2
 	//int arrB[] = { 1, 2, 3, 4, 5, 6, 8 };						// minDepth : 1
-	for (int i = 0; i < sizeof(arrB) / sizeof(int); i++) {		
-	//for (int i = 0; i < 3; i++) {								// minDepth	: 2
+	for (int i = 0; i < sizeof(arrB) / sizeof(int); i++) {		// minDepth : 3
+		//for (int i = 0; i < 3; i++) {								// minDepth	: 3
 		insertNode(&rootB, arrB[i]);
 	}
 	InOrder(rootB);		// 1 2 4 6 7 8
@@ -431,6 +365,7 @@ int main()
 
 	InOrder(rootC);		// 1 2 4 6 7 8
 	printf("\n4.3\n");
+
 
 	//4.3 list of depths
 	Node* node3 = NULL;
@@ -500,12 +435,13 @@ int main()
 	levelOrder(rootF);	// 4 2 7 3 6 8						// ????
 	printf("\n");
 
+#if 0
 	printf("%d\n", inOrderSuccessor(rootF->left)->key);			// 2 -> 3
 	printf("%d\n", inOrderSuccessor(rootF)->key);				// 4 -> 6
 	printf("%d\n", inOrderSuccessor(rootF->left->right)->key);	// 3 -> 4
 	printf("%d\n", inOrderSuccessor(rootF->right->left)->key);	// 6 -> 7
-	printf("%d\n\n", inOrderSuccessor(rootF->right->right));	// 8 -> NULL
-
+	printf("%d\n\n", inOrderSuccessor(rootF->right->right));		// 8 -> NULL
+#endif
 	//~4.7 topology sort
 	//4.8 LCA
 		//				4
@@ -537,6 +473,7 @@ int main()
 
 
 	//4.9 BST seq
+
 
 	//4.10 subtree
 		//				4
