@@ -8,7 +8,7 @@ void printBin(unsigned int a)
 {
 	for (int i = 31; i >= 0; i--)
 		printf("%d", (a & (1 << i)) >> i);
-	printf("\n");
+	printf("... %d\n", a);
 }
 
 
@@ -16,8 +16,8 @@ int countOnes(unsigned int a)
 {
 	int count = 0;
 
-	while (a > 0) {	
-		a = a & (a - 1);
+	while(a > 0) {	
+		a = a & (a - 1);		// 0b1_1000 & 0b1_0111 = 0b1_0000
 		count++;
 	}
 
@@ -29,10 +29,11 @@ int countOnes(unsigned int a)
 // 1. n = 4; n / 2 = 2 while i starts from 2 -> skip for loop
 bool isPrime(int n)
 {
-	if (n > 7) {
-		n = n / 2;
-	}
-	for (int i = 2; i < n; i++) {
+	//for (int i = 2; i < n; i++) {
+
+	// n = 2, 3, 5, 
+	if (n == 4) return false;
+	for (int i = 2; i < n/2; i++) {
 		if (n % i == 0) {
 			return false;
 		}
@@ -41,33 +42,32 @@ bool isPrime(int n)
 	return true;
 }
 
-
-#define N	100
-
-bool prime_number[N+1];
-
-bool find_prime(int n)
+/*
+	2	4,6,8,...
+	3	6,9,12,...
+	4	8,12,...
+	5	10,15,...
+*/
+void find_prime(int n)
 {
-	memset(prime_number, true, sizeof(bool) * (N+1));
+	bool *number = (bool*)malloc(sizeof(bool) * n);
+	if (number) {
+		memset(number, true, sizeof(bool) * n);
 
-	for (int p = 2; p < n; p++) {	
-		if (prime_number[p] == false) continue;
-		for (int i = p * 2; i < n; i += p) {
-			prime_number[i] = false;
+		for (int i = 2; i < n/2; i++) {	
+			for (int p = i * 2; p < n; p+=i) {
+				number[p] = false;
+			}
 		}
-	}
-	 
-	for (int p = 2; p < n; p++) {
-		if (prime_number[p] == true) {
-			printf("%d ", p);
-		}
-	}
-	printf("\n");
 
-	return true;
+		for (int i = 0; i < n; i++) {
+			if (number[i]) {
+				printf("%d ", i);
+			}	
+		}
+		printf("\n");
+	}
 }
-
-
 
 
 // 1. *des++ &	*src++		!!!!
@@ -77,24 +77,21 @@ bool find_prime(int n)
 //	  or while(tmpS >= src) { tmpS--; ...}
 char* myMemcpy(char* src, char* des, int size)
 {
-/*
-*	src	ABCABCD-|				???		src < des && src + size > des
-*   des    ABCABC--|
-*/
-	char* tmpS = src + size;
-	char* tmpD = des + size;
+	//while (*src) {
+	//	*des++ = *src++;
+	//}
 
-	if (1) { // (src + size) > des) {
-		while (tmpS >= src) {
-			*tmpD-- = *tmpS--;
-		}
-		des = tmpD+1;
-	}
-	else {
-		memcpy(des, src, size);
+	// 0123456
+	// helloN
+
+	char* src_end = src + size - 1;
+	char* des_end = des + size - 1;
+
+	while (size--) {	
+		*des_end-- = *src_end--;
 	}
 
-	return des;
+	return des; //  +size;
 }
 
 
@@ -124,7 +121,6 @@ void permute(char* a, int l, int r)
 //5.1
 // i = 2, j = 6
 // 9876543210
-// 
 //    j   i 
 // 
 // 1110000011 *
@@ -133,13 +129,16 @@ void permute(char* a, int l, int r)
 // 1. +/- has a higher precedence than <</>> : 1 << j - 1 vs. (1 << j) - 1	=> - first vs. << first	
 // 2. b << i, not b << j
 unsigned int bitInsert(unsigned int a, unsigned int b, int i, int j)
-{									//			   76543210	
-	int mask_j = (1 << j + 1) - 1;	// 10000000 -> 01111111
-	int mask_i = (1 << i) - 1;		// 00000100	-> 00000011		
-	int mask = mask_j ^ mask_i;		//			   01111100
-
-	a = a & ~mask;					// 01111100 -> 10000011 
-
+{
+	// 9876543210	
+	// 1101011011
+/*
+	(1<<(j+1))-1 = 0b001111111
+	1<<i	-1	 = 0b000000011
+	
+*/
+	int mask = ((1 << (j + 1)) - 1) ^ ((1 << i) - 1);
+	a = a & (~mask);
 	a = a | (b << i);
 
 	return a;
@@ -164,7 +163,7 @@ unsigned int bitInsert(unsigned int a, unsigned int b, int i, int j)
  1   0   0    1  1  1  1  0  0  0  0  0  1  1
 					   ^
  1   0   0    1  1  1  0  0  0  0  0  0  0  0
-										^  ^
+										 ^  ^
  1   0   0    1  1  1  0  1  1  1  0  0  0  0
 						  ^  ^  ^
 */
@@ -172,24 +171,57 @@ unsigned int bitInsert(unsigned int a, unsigned int b, int i, int j)
 //	set oneCount+1 not zeroCount+1 for smaller closest number 
 unsigned int bigSmallFromGiven(unsigned int a)
 {
-	/* 1  1  0  1  1  0  0  1  1  1  1  1  0  0
-	   1  1  0  1  1  0  1  1  1  1  1  1  0  0
-	   1  1  0  1  1  0  1  0  0  0  1  1  1  1 */
-	   //** closet bigger number
-	   // find the right most non trailing zero and set to it
-		   // find 1 first
-		   // then find 0 
+	int c = a;
+	int c0 = 0;
+	int c1 = 0;
 
-	   // clear after the 1st one and then set count - 1
+	// next
+	while ((c & 1) == 0 && c)    {
+		c = c >> 1;
+		c0++;
+	}
 
-	   /* 1  0  0  1  1  1  1  0  0  0  0  0  1  1
-		  1  0  0  1  1  1  0  0  0  0  0  0  0  0
-		  1  0  0  1  1  1  0  1  1  1  0  0  0  0 */
-		  //** closet smaller number
-		  //find the right most non trailing zero and clear it
-			  // find 0 first
-			  // then find 1 and clear it to zero
-		  // clear after the flipped bit and then set count + 1
+	while ((c & 1)) {
+		c = c >> 1;
+		c1++;
+	}
+
+	printBin(a);
+	c = a;
+
+	int p = c0 + c1;
+	a = a | (1 << p);
+	a = a & ~((1 << p) - 1);
+	for (int i = 0; i < c1 - 1; i++) {
+		a = a | 1 << i;
+	}
+	printBin(a);
+
+	// previous
+	a = c;
+	c0 = 0;
+	c1 = 0;
+
+	while ((c & 1) && c) {
+		c = c >> 1;
+		c1++;
+	}
+
+	while ((c & 1) == 0 && c) {
+		c = c >> 1;
+		c0++;
+	}
+
+	p = c0 + c1;
+	a = a & ~(1 << p);
+	a = a & ~((1 << p) - 1);
+	for (int i = 0; i < c1+1; i++) {
+		a = a | (1 << (p-1-i));
+	}
+
+	printBin(a);
+	printf("----------------\n");
+
 	return a;
 }
 
@@ -202,9 +234,9 @@ int conversion(int a, int b)
 
 	a = a ^ b;
 
-	while (a > 0) {
+	while (a) {	
 		a = a & (a - 1);
-		count++;
+		count++;	
 	}
 
 	return count;
@@ -221,13 +253,17 @@ int main()
 	printf("%d has %d 1s...", 31, countOnes(31));		printBin(31);
 
 	// prime
-	//printf("is prime?: %d\n", find_prime(7));
-
-	for (int i = 2; i < 10; i++) {
-		printf("is %d prime?: %d\n", i, isPrime(i));
-	}
-
 	find_prime(100);
+
+	printf("is 2 prime?: %d\n", isPrime(2));
+	printf("is 3 prime?: %d\n", isPrime(3));
+	printf("is 4 prime?: %d\n", isPrime(4));	// ????
+	printf("is 5 prime?: %d\n", isPrime(5));
+	printf("is 6 prime?: %d\n", isPrime(6));
+	printf("is 7 prime?: %d\n", isPrime(7));
+	printf("is 8 prime?: %d\n", isPrime(8));
+	printf("is 9 prime?: %d\n", isPrime(9));
+
 
 	char src[] = "hello";
 	char* des = (char*)malloc(20);
@@ -241,6 +277,9 @@ int main()
 	printf("new des(after copy) :%p %s  \n", des, des);
 	printf("org des             :%p %s\n\n\n", des_org, des_org);
 
+
+
+
 #if 0
 	// permutation
 	printf("string permutation\n");
@@ -253,21 +292,23 @@ int main()
 	int comb[4] = { 10,20,30,40 };
 	printCombination(comb, 4, 2);
 #endif
+
+
 	// 5.1
 	printf("5.1\n");
 	printBin(bitInsert(0b11111111111, 0b01011, 2, 6));
-	//printBin(bitInsert(0b10000000000, 0b10011, 2, 6));
-	//printBin(bitInsert(0b10010110001, 0b1000, 3, 6));
+	printBin(bitInsert(0b10000000000, 0b10011, 2, 6));
+	printBin(bitInsert(0b10010110001, 0b1000, 3, 6));
 
 	// 5.4										B		S
 	printf("5.4\n");
 	bigSmallFromGiven(5);		//  5: 0101		0110	0011		 6	3
 	bigSmallFromGiven(9);		//  9: 1001		1010	0110		10	6	
 	bigSmallFromGiven(11);		// 11: 1011		1101	0111		13	7	
-	bigSmallFromGiven(13948);	//	                                        13967   13946
+	bigSmallFromGiven(13948);	//     11011001111100				13967   13946
 
 	// 5.6		29 (or: 11101), 15 (or: 01111) -> 2	
-	printf("5.6   %d -> %d : %d bit\n", 29, 15, conversion(29, 15));
+	printf("5.6   %d %d -> %d\n", 29, 15, conversion(29, 15));
 
 	int testa = ~0;
 
