@@ -9,19 +9,18 @@
 #define ASCII_CODE_SIZE		128
 bool isUnique(char* str)
 {
-	bool* letters = (bool*)malloc(sizeof(bool) * ASCII_CODE_SIZE);
-
-	if (letters == NULL) {
-		return false;
-	}
-
+	bool* letters = (bool *)malloc(sizeof(bool) * ASCII_CODE_SIZE);
 	memset(letters, false, sizeof(bool) * ASCII_CODE_SIZE);
 
-	while (*str) {
-		if (letters[*str] == true) {
-			return false;
+	bool isFound = false;
+
+	while (*str) {	
+		if (letters[*str]) {
+			return false;		
 		}
-		letters[*str] = true;
+		else {
+			letters[*str] = true;
+		}
 
 		str++;
 	}
@@ -30,23 +29,10 @@ bool isUnique(char* str)
 }
 
 //1.2
-// init bitmap after creating
 // is each character unique ? boolean type if yes, int type if no.
 bool isPermutation(char* strA, char* strB)
 {
-	int lenA = strlen(strA);
-	int lenB = strlen(strB);
-
-	if ((lenA != lenB) || (lenA == 0)) {
-		return false;
-	}
-
 	int* letters = (int*)malloc(sizeof(int) * ASCII_CODE_SIZE);
-
-	if (letters == NULL) {
-		return false;
-	}
-
 	memset(letters, 0, sizeof(int) * ASCII_CODE_SIZE);
 
 	while (*strA) {
@@ -59,7 +45,6 @@ bool isPermutation(char* strA, char* strB)
 		if (letters[*strB] < 0) {
 			return false;
 		}
-
 		strB++;
 	}
 
@@ -72,26 +57,17 @@ bool isPermutation(char* strA, char* strB)
 bool isPalindromePermutation(char* str)
 {
 	int* letters = (int*)malloc(sizeof(int) * ASCII_CODE_SIZE);
-
-	if (letters == NULL) {
-		return false;
-	}
-
 	memset(letters, 0, sizeof(int) * ASCII_CODE_SIZE);
 
-	char* org = str;
+	bool isOddFound = false;
 
 	while (*str) {
 		letters[*str]++;
 		str++;
 	}
 
-	bool isOddFound = false;
-
-	str = org;
-
-	while (*str) {
-		if (letters[*str] & 1) {
+	for (int i = 0; i < ASCII_CODE_SIZE; i++) {
+		if (letters[i] % 2 == 1) {
 			if (isOddFound) {
 				return false;
 			}
@@ -99,7 +75,6 @@ bool isPalindromePermutation(char* str)
 				isOddFound = true;
 			}
 		}
-		org++;
 	}
 
 	return true;
@@ -115,32 +90,35 @@ bool isOneEditAway(char* strA, char* strB)
 {
 	int lenA = strlen(strA);
 	int lenB = strlen(strB);
+	bool isMismatchFound = false;
 
 	if (ABS(lenA - lenB) > 1) {
 		return false;
 	}
 
-	bool mismatchFound = false;
-
 	while (*strA) {
 		if (*strA != *strB) {
-			if (mismatchFound) {
+			if (isMismatchFound) {
 				return false;
 			}
-			mismatchFound = true;
+
+			isMismatchFound = true;
 
 			if (lenA > lenB) {
 				strA++;
 				continue;
 			}
-			if (lenA < lenB) {
+			else if (lenA < lenB) {
 				strB++;
 				continue;
 			}
-		}
+			else {
 
+			}
+		}
 		strA++;
 		strB++;
+
 	}
 
 	return true;
@@ -148,49 +126,43 @@ bool isOneEditAway(char* strA, char* strB)
 
 //1.6
 // index should be the current one at the bottom of for loop. It will advance at the top of for loop.
-//    0123456789012345678
-//    aaabbbbbcddddeefffk
-//     i     
-//     j
-//c     3    
+
+/*
+ 	0123456789012345678
+	aaabbbbbcddddeefffk
+	  i
+	  j
+c   123
+*/
 char* string_compression(char* str)
 {
-	int count = 0;
 	int len = strlen(str);
-
-	if (len == 0) {
-		printf("0\n");
-		return str;
-	}
+	int count;
 
 	for (int i = 0; i < len; i++) {
-		printf("%c", str[i]);
 		count = 1;
+		printf("%c", str[i]);
 
-		if (i == len - 1) {
-			
+		if (i==len-1) {
+		
 		}
 		else {
-			if (str[i] == str[i+1]) {
+			if (str[i] == str[i + 1]) {
 				count = 2;
-				for (int j = i+1; j<len - 1; j++) {
+				for (int j = i + 1; j < len-1; j++) {
 					i = j;
 					if (str[j] != str[j + 1]) {
 						break;
 					}
 					count++;
 				}
-
-				/*for (; i < len - 1; i++) {
-					if (str[i] != str[i + 1]) {
-						break;
-					}
-					count++;
-				}*/
 			}
 		}
-		printf("%d", count);
+
+		printf("%d",count);
 	}
+
+	printf("\n");
 
 	return str;
 }
@@ -227,7 +199,7 @@ int main()
 
 
 	// 1.1
-	if (isUnique(cstr)) {
+	if (isUnique(astr)) {
 		printf("1.1 no dup found\n");
 	}
 	else {
