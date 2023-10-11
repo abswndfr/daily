@@ -8,7 +8,7 @@ void printBin(unsigned int a)
 {
 	for (int i = 31; i >= 0; i--)
 		printf("%d", (a & (1 << i)) >> i);
-	printf("\n");
+	printf("... %d\n", a);
 }
 
 
