@@ -199,7 +199,7 @@ int main()
 	bigSmallFromGiven(5);		//  5: 0101		0110	0011		 6	3
 	bigSmallFromGiven(9);		//  9: 1001		1010	0110		10	6	
 	bigSmallFromGiven(11);		// 11: 1011		1101	0111		13	7	
-	bigSmallFromGiven(13948);	//	
+	bigSmallFromGiven(13948);	//	                                        13967   13946
 
 	// 5.6		29 (or: 11101), 15 (or: 01111) -> 2	
 	printf("5.6   %d %d -> %d\n", 29, 15, conversion(29, 15));
