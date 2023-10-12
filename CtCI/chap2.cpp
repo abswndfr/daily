@@ -11,46 +11,42 @@ typedef struct _node {
 
 void addList(NODE** pHead, int data)
 {
-	NODE* node = (NODE*)malloc(sizeof(NODE));
-	
-	if (node) {
+	if (pHead) {
+		NODE* node = (NODE *)malloc(sizeof(NODE));
+
 		node->data = data;
 		node->next = *pHead;
 		*pHead = node;
-	}
-	else {
-		//
 	}
 }
 
 void printList(NODE* pNode)
 {
-	while (pNode) {	
+	while (pNode) {
 		printf("%d->", pNode->data);
 		pNode = pNode->next;
 	}
-	printf("NULL\n");
+	printf("\n");
 }
 
 //2.1
 // NODE **pHead; -> *pHead->next (X) but (*pHead)->next (O)
 // add list : newNode->next = *pHead, not *pHead->next unless pHead is a dummy
-// prev = cur only if no dup found. If found, pre->next = cur->next
 void remove_duplication(NODE* node)
 {
-	NODE* curr;
 	NODE* prev;
+	NODE* curr;
 
-	while (node) {		
+	while (node) {
 		prev = node;
 		curr = node->next;
-
 		while (curr) {
 			if (node->data == curr->data) {
 				prev->next = curr->next;
-			} else { 
-				prev = curr;
 			}
+			else {
+				prev = prev->next;
+			}			
 			curr = curr->next;
 		}
 		node = node->next;
@@ -62,19 +58,16 @@ void remove_duplication(NODE* node)
 // missing index++;
 NODE* returnKthToLast(NODE* node, int k)
 {
-	NODE* org = node;
+	NODE* temp = node;
 
-	while (node && (k>0)) {
-		k--;
-		node = node->next;
+	while (k-- > 0 && node) {
+		temp = temp->next;
 	}
 
-	while (node) {
+	while (temp) {
+		temp = temp->next;
 		node = node->next;
-		org = org->next;
 	}
-
-	node = org;
 
 	return node;
 }
@@ -83,14 +76,12 @@ NODE* returnKthToLast(NODE* node, int k)
 //2.3
 bool delete_middle_node(NODE* node)
 {
-	if (node) {
-		if (node->next) {
-			node->data = node->next->data;
-			node->next = node->next->next;
-		}
-		else {
-			node = NULL;
-		}
+	if (node && node->next) {
+		node->data = node->next->data;
+		node->next = node->next->next;
+	}
+	else {
+		node = NULL;
 	}
 
 	return true;
@@ -103,49 +94,36 @@ NODE* partition(NODE* node, int x)
 	NODE less;
 	NODE more;
 	NODE* temp;
-	NODE* tail = NULL;
 
 	less.next = NULL;
 	more.next = NULL;
 
 	while (node) {
 		temp = node->next;
-
-		if (node->data < x) {			
-			if (less.next == NULL) {
-				tail = node;
-			}
+		if (node->data < x) {
 			node->next = less.next;
 			less.next = node;
+
 		}
 		else {
 			node->next = more.next;
 			more.next = node;
 		}
-
 		node = temp;
 	}
 
-	printf("less:");
 	printList(less.next);
-	printf("more:");
 	printList(more.next);
 
 	node = less.next;
-/* #1 travers less list to find the tail
-	temp = less.next;
+	temp = &less;
 
-	while (temp && temp->next) {
+	while(temp->next) {
 		temp = temp->next;
 	}
 
-	temp->next = more.next;*/
+	temp->next = more.next;
 
-	// #2 remember the tail of less list
-	if (tail) {
-		tail->next = more.next;
-	}
-	
 	return node;
 }
 
@@ -154,12 +132,11 @@ NODE* partition(NODE* node, int x)
 // dont' overwrite to head : head->data = sum;
 NODE* sumList(NODE* nodeA, NODE* nodeB)
 {
-	int carry = 0;
 	int sum;
-	NODE* temp;
-	NODE* head = NULL;
+	int carry = 0;
+	NODE* node = NULL;
 
-	while (nodeA || nodeB || carry) {
+	while ((nodeA) || (nodeB) || carry) {
 		sum = carry;
 
 		if (nodeA) {
@@ -175,60 +152,40 @@ NODE* sumList(NODE* nodeA, NODE* nodeB)
 		carry = sum / 10;
 		sum = sum % 10;
 
-		//printf("%d", sum);
-
-		temp = (NODE*)malloc(sizeof(NODE));
+		NODE *temp = (NODE *)malloc(sizeof(NODE));
 		temp->data = sum;
-		temp->next = head;
-		head = temp;
-	}
-	
-	nodeA = NULL;
-	while (head) {
-		temp = head->next;
-		head->next = nodeA;
-		nodeA = head;
-		head = temp;
+		temp->next = node;
+		node = temp;
 	}
 
-	return nodeA;
+	return node;
 }
 
 //2.6
-/*
-		node -> 1 -> 2 -> 3 -> NULL
-		head ---+
-
-		rev -> NULL
-		rev -> 1 -> NULL
-		rev -> 2 -> 1 -> NULL
-		rev -> 3 -> 2 -> 1 -> NULL
-*/
 bool palindrome(NODE* node)
 {
+	NODE* rev = NULL;
 	NODE* head = node;
-	NODE* revHead = NULL;
-	NODE* temp = NULL;
-
-	while (node) {
+	NODE* temp;
+	
+	while (head) {
 		temp = (NODE*)malloc(sizeof(NODE));
-		if (temp != NULL) {
-			temp->data = node->data;
-			temp->next = revHead;
-			revHead = temp;
-		}
-		node = node->next;	
+		temp->data = head->data;
+		temp->next = rev;
+		rev = temp;
+		head = head->next;
 	}
 
-	node = head;
 	while (node) {
-		if (node->data != revHead->data) {
+		if (rev->data != node->data) {
 			return false;
 		}
-
+	
+		rev = rev->next;
 		node = node->next;
-		revHead = revHead->next;
-	}
+	} 
+
+	//printList(rev);
 
 	return true;
 }
@@ -260,7 +217,7 @@ int main()
 	printList(headA);
 
 	// 2.2
-	headA = returnKthToLast(headA, 4);
+	headA = returnKthToLast(headA, 2);
 	printf("kth node:%d\n", headA->data);
 
 
@@ -300,7 +257,6 @@ int main()
 	for (int i = 0; i < 4; i++) {
 		addList(&nodeE, e[i]);
 	}
-
 
 	printList(nodeD);
 	printList(nodeE);
