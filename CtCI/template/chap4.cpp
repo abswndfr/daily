@@ -20,11 +20,12 @@ typedef struct _treeNode {
 Node* queue[QUE_MAX];
 int head;
 int tail;
-//int count = 0;
+int count = 0;
 
 // passing by value of a pointer never gets newly allocated address. Pass it by reference, ie, **p, or "RETURN IT".
 // call by reference
 // malloc(sizeof(Node*)); (X)   malloc(sizeof(Node)); (O)
+// Node *node = *root ->  node is not root !!!!!  *node = temp wouldn't update root
 void insertNode(Node** root, int data)
 {
 }
@@ -37,6 +38,17 @@ void InOrder(Node* node)
 
 
 
+int enqueue(Node* node)
+{
+	return 0;
+}
+
+Node* dequeue()
+{
+	return nullptr;
+}
+
+// don't enqueue null node
 void levelOrder(Node* node)
 {
 }
@@ -45,10 +57,10 @@ void levelOrder(Node* node)
 /*
 
 			1				3
-         /     \		 
-       2		3			2
-     /   \     /  \ 
-	4	  5   6	   7		1	
+		 /     \
+	   2		3			2
+	 /   \     /  \
+	4	  5   6	   7		1
 
 							0
   */
@@ -58,14 +70,17 @@ int minDepth(Node* node)
 }
 
 
+
 //4.1 graph
+
 
 //4.2
 // input array needs to be sorted !!!!!
 Node* createMinimalBST(int* arr, int start, int end)
 {
-	return NULL;
+	return nullptr;
 }
+
 
 
 //4.3
@@ -87,13 +102,14 @@ void printList(sllNode* pNode)
 
 sllNode* listOfDepth[10];
 
+
 void preOrderPerDepth(Node* node, int depth)
 {
 }
 
 sllNode** listOfDepths(Node* root)
 {
-	return listOfDepth;
+	return nullptr;
 }
 
 
@@ -110,12 +126,12 @@ bool balancedDepth(Node* node)
 
 
 
-
 //4.5   - leecode #98
 bool isValidBST(Node* root)
 {
 	return true;
 }
+
 
 //4.6 successor
 		/*
@@ -138,12 +154,7 @@ bool isValidBST(Node* root)
 		   //		      3* 6	  8*	// 8 -> NULL *
 Node* inOrderSuccessor(Node* node)
 {
-	// root	   -> min of right C		; same as 3rd case
-	// left C  -> parent
-	// parent  -> min of right C
-	// right C -> right 1st node as left child, then parent to that.
-	// end     -> NULL
-	return NULL;
+	return node;
 }
 
 
@@ -161,7 +172,7 @@ bool isNodeFound(Node* root, Node* node)
 
 Node* lowestCommonAncestor(Node* root, Node* p, Node* q)
 {
-	return NULL;
+	return nullptr;
 }
 
 
@@ -204,7 +215,7 @@ int main()
 		//			2	   7
 		//		  /       /  \
 		//		1        6    8
-	Node* rootA = NULL;
+	Node* rootA = nullptr;
 
 	int arrA[] = { 4, 7, 2, 1, 6, 8 };
 	for (int i = 0; i < sizeof(arrA) / sizeof(int); i++) {
@@ -218,12 +229,12 @@ int main()
 	printf("\n");
 
 	// minimum depth
-	Node* rootB = NULL;
-	int arrB[] = { 4, 7, 2, 1, 6, 8, 3};
+	Node* rootB = nullptr;
+	int arrB[] = { 4, 7, 2, 1, 6, 8, 3 };
 	//int arrB[] = { 1, 2, 3, 4, 5, 6, 8 };						// minDepth : 1
 	for (int i = 0; i < sizeof(arrB) / sizeof(int); i++) {		// minDepth : 3
-	//for (int i = 0; i < 3; i++) {								// minDepth	: 3
-	//for (int i = 0; i < 3; i++) {								// minDepth	: 2
+		//for (int i = 0; i < 3; i++) {								// minDepth	: 3
+		//for (int i = 0; i < 3; i++) {								// minDepth	: 2
 		insertNode(&rootB, arrB[i]);
 	}
 	InOrder(rootB);		// 1 2 4 6 7 8
@@ -261,10 +272,10 @@ int main()
 
 
 	//4.4
-	Node* rootD = NULL;
+	Node* rootD = nullptr;
 
-	int arrD[] = { 4, 7, 2, 1, 6, 8 };
-	//int arrD[] = { 1, 2, 4, 6, 7, 8 };
+	//int arrD[] = { 4, 7, 2, 1, 6, 8 };
+	int arrD[] = { 1, 2, 4, 6, 7, 8 };
 	for (int i = 0; i < sizeof(arrD) / sizeof(int); i++) {
 		insertNode(&rootD, arrD[i]);
 	}
@@ -276,7 +287,7 @@ int main()
 
 
 	// 4.5 valid BST
-	Node* rootE = NULL;
+	Node* rootE = nullptr;
 
 	int arrE[] = { 4, 7, 2, 1, 6, 8 };
 	for (int i = 0; i < sizeof(arrE) / sizeof(int); i++) {
@@ -308,11 +319,11 @@ int main()
 	levelOrder(rootF);	// 4 2 7 3 6 8						// ????
 	printf("\n");
 
-	printf("%d\n", inOrderSuccessor(rootF->left)->key);			// 2 -> 3
-	printf("%d\n", inOrderSuccessor(rootF)->key);				// 4 -> 6
-	printf("%d\n", inOrderSuccessor(rootF->left->right)->key);	// 3 -> 4
-	printf("%d\n", inOrderSuccessor(rootF->right->left)->key);	// 6 -> 7
-	printf("%d\n\n", inOrderSuccessor(rootF->right->right));		// 8 -> NULL
+	printf("2 -> %d\n", inOrderSuccessor(rootF->left)->key);			// 2 -> 3
+	printf("4 -> %d\n", inOrderSuccessor(rootF)->key);					// 4 -> 6
+	printf("3 -> %d\n", inOrderSuccessor(rootF->left->right)->key);		// 3 -> 4
+	printf("6 -> %d\n", inOrderSuccessor(rootF->right->left)->key);		// 6 -> 7
+	printf("8 -> %d\n\n", inOrderSuccessor(rootF->right->right));		// 8 -> NULL
 
 	//~4.7 topology sort
 	//4.8 LCA
