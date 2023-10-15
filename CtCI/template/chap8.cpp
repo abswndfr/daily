@@ -124,7 +124,6 @@ int main()
     dp[0] = 1;
     dp[1] = 1;
     dp[2] = 2;
-    dp[3] = 4;
 
     //printf("6 step -> %d ways\n", countWays(6));
 
