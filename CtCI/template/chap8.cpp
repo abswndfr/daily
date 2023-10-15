@@ -91,11 +91,6 @@ vector<vector<int>> get_subsets(int* arr, int idx, int size)
 
 // 8.6
 #include <stdio.h>
-
-int N;
-int count;
-
-
 /*
 
     N   +  N-1 ~
