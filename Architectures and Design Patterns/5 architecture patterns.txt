@@ -5,9 +5,9 @@ layered   	: components are organized into layers, with each layer performing a 
 
 microkernel	: two types of components - a core system that works on minimual functionality and several plug-in modules that provide extra functionality
        
-	 __|__|__|__|__|__|__|__
-    |						|
-	|  	   core system 		|
+     __|__|__|__|__|__|__|__
+    |			    |
+    |  	   core system      |
     |_______________________|	
        |  |  |  |  |  |  |   	 <= plug-in modules
 	
@@ -15,39 +15,39 @@ microkernel	: two types of components - a core system that works on minimual fun
 event-driven: an agile approach where services of the software are triggered by events
 
 		Event generators
-			  |
+		       |
 		Event Mediator
-			  |
+		       |
 		Event Consumers
 
 
 microservice: a modular architecture where the software services are divided into small and independent modules.
 
- 	          client
-			    |
-		   _____+______	  
-		  |	   	       |
+ 	      client
+	        |
+	   _____+______	  
+	  |   	       |
    +------| API gateway|------+
    |   +--|_____ ______|--+   |  
   _|___|________|_________|___|_
- |	 __	   __   __   __   __	|
- |	|__|  |__| |__| |__| |__|	|
- |								|
- |			microservices		|
+ |   __    __   __   __   __	|
+ |  |__|  |__| |__| |__| |__|	|
+ |				|
+ |	microservices		|
  |______________________________|	
 
 
 client-server:two main components - the client, which requests the service, and the server, which provides it over the same or a different network
 
- 	          server
-			    |
-		   _____+______	  
-		  |	   	       |
+ 	      server
+	        |
+	   _____+______	  
+	  |	       |
        +--|_____ ______|--+     
   _____|________|_________|_____
- |	 __	   	    __   	  __	|
- |	|__|   	   |__| 	 |__|	|
- |								|
- |			  clients			|
+ |   __	       __   	  __	|
+ |  |__|      |__| 	 |__|	|
+ |				|
+ |	    clients		|
  |______________________________|	
 
