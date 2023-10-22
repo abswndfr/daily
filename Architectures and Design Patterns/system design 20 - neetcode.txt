@@ -1,3 +1,5 @@
+https://www.youtube.com/shorts/bw8trOl0xgo
+
 1. Vertical scaling - refers to increasing the resources (such as CPU, memory, or storage) of a single machine to improve its performance or handle higher workloads. Pretty easy but very limited
 
 2. Horizontal scaling -adding more servers w/ replicas to a system to distribute the workload and increase overall capacity and performance. More powerful because we can almost scale infinitely w/ not so good machine. Also adds redundancy & fault tolerance. More complicated in implementation -> needs load balancer.
