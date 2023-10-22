@@ -1,4 +1,4 @@
-https://www.youtube.com/shorts/bw8trOl0xgo
+https://www.youtube.com/watch?v=i53Gi_K3o7I&list=PLot-Xpze53le35rQuIbRET3YwEtrcJfdt&index=1
 
 1. Vertical scaling - refers to increasing the resources (such as CPU, memory, or storage) of a single machine to improve its performance or handle higher workloads. Pretty easy but very limited
 
@@ -85,15 +85,15 @@ leader-leader replication  : write can go either but lead to inconsistency
 
   note : consistency here means something different than with ACID.
 
-			partition 
-			    |
-		  +-----+-----+ 
-		YES			  NO
-     +---+---+     +---+---+ 
+	   partition 
+	       |
+	 +-----+-----+ 
+	YES	     NO
+     +---+---+    +---+---+  
 availability |   latency   |
-	     consistency    consistency
+       consistency    consistency
 
-      PAC				 ELC
+       PAC		   ELC
 		 
 
 20. Message Queues - Kind of like databases because they have durable storage. They can be replicated for redunduncy or sharded for scalability. This can be used in task distribution and workload decoupling.
