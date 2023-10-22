@@ -1,3 +1,5 @@
+https://www.youtube.com/shorts/bw8trOl0xgo
+
 layered   	: components are organized into layers, with each layer performing a specific role.
 
      presentation -> application -> business -> persistence -> database
