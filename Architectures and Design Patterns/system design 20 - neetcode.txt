@@ -1,0 +1,98 @@
+1. Vertical scaling - refers to increasing the resources (such as CPU, memory, or storage) of a single machine to improve its performance or handle higher workloads. Pretty easy but very limited
+
+2. Horizontal scaling -adding more servers w/ replicas to a system to distribute the workload and increase overall capacity and performance. More powerful because we can almost scale infinitely w/ not so good machine. Also adds redundancy & fault tolerance. More complicated in implementation -> needs load balancer.
+
+3. Load balancer - A load balancer is a network device or software that evenly distributes incoming network traffic across multiple servers or resources to optimize performance and ensure high availability.		(reverse-proxy)
+
+Round-robin cycling through the pool of servers or hashing the incoming ID.
+Goal is to distribute the load evenly. Can even route the requests to the nearest location if servers are located globally.  -> CDN
+
+
+4. Content delivery networks - Content Delivery Networks (CDNs) are distributed networks of servers located geographically closer to end users, designed to deliver web content efficiently by caching and serving it from nearby locations
+For static content caching : images, videos, HTML/CSS/JS. Origin servers copies contents to CDN servers by push/pull. 
+
+
+5. Caching - Caching is the process of storing frequently accessed data or content in a temporary storage location (cache) to improve retrieval speed and reduce the need for repeated requests
+
+	internet < storage < ram < L? cache 
+
+
+Protocol
+
+	6. Internet Protocol Address - An IP address is a unique numerical label assigned to each device connected to a computer network
+	
+	7. TCP - TCP (Transmission Control Protocol) is a communication protocol that ensures reliable, connection-oriented transmission of data by dividing it into smaller packets, numbering them, and reassembling them at the receiving end.
+	HTTP & websocket are on TCP/IP
+	
+	8. DNS - DNS (Domain Name System) is a decentralized naming system that translates human-readable domain names into IP addresses
+	
+	9. HTTP - HTTP (Hypertext Transfer Protocol) is a protocol that governs the communication between web browsers and servers, allowing for the retrieval and transfer of web pages and resources over the internet.
+	
+	(application layer protocol)
+	
+	request header
+	request body
+	
+	
+API patterns (in HTTP)
+
+	10. REST - REST (Representational State Transfer) is an approach to designing web services that uses standard HTTP methods and URLs to facilitate communication between clients and servers. (stateless & consistent)
+	
+		200 OK
+		400	bad request
+		500 internal server error	
+	
+	11. GraphQL - GraphQL is a query language for APIs that provides a flexible and efficient way for clients to request and retrieve data from servers by allowing them to specify exactly what data they need. Using single query it can 
+	fetch multiple resources without overfetching as well.
+	
+	12. gRPC  - gRPC (Google Remote Procedure Call) is an open-source framework that enables efficient communication and interoperation between services by defining the interface and data contracts 
+		using Protocol Buffers and 
+		facilitating bi-directional streaming and error handling.
+	
+	13. web sockets - WebSockets is a communication protocol that provides full-duplex, real-time, and bidirectional communication between a client and a server over a single, long-lived connection. WebSockets can be used in applications such as chat systems or real-time collaboration tools, where instant and continuous data exchange between clients and servers is required.
+	
+
+14. SQL - SQL (Structured Query Language) is a programming language used for managing and manipulating relational databases, allowing users to perform tasks such as querying data, defining database structure, and modifying data records. SQL is considered to use when fast retrieval of data is needed
+
+15. ACID compliance - ACID (Atomicity, Consistency, Isolation, Durability) compliance is a set of properties that ensure reliability and integrity in database transactions, guaranteeing that they are executed reliably, consistently, and without interference.
+
+	Atomicity	: all or nothing
+	Consistency	: foreign key & other constraints always forced
+	Isolation 	: different transactions won't interfere each other
+	Durability  : stored in permanent storage
+
+16. NoSQL databases - NoSQL (Not Only SQL) databases are a class of databases that provide flexible, schema-less data models and horizontal scalability, making them suitable for handling large volumes of unstructured or semi-structured data.
+
+	Consistency makes DB hard to scale.
+	No consistency & no relations => scalability !
+
+		KV store : dynamoDB
+		documement store : mongoDB
+		graph DB : neo4j
+		
+	
+17. Sharding - Sharding is a technique in database management where data is horizontally divided and distributed across multiple servers or nodes to improve performance, scalability, and load balancing.
+
+18. Replication - Replication is the process of creating and maintaining identical copies of data across multiple servers or nodes, providing redundancy, fault tolerance, and improved data availability in distributed systems.
+
+leader-follower replication : write goes to leader only
+leader-leader replication  : write can go either but lead to inconsistency 
+
+
+19. CAP thoerem - The CAP theorem states that in a distributed system, it is impossible to simultaneously guarantee consistency, availability, and partition tolerance, and therefore, trade-offs must be made between these three properties.
+
+  note : consistency here means something different than with ACID.
+
+			partition 
+			    |
+		  +-----+-----+ 
+		YES			  NO
+     +---+---+     +---+---+ 
+availability |   latency   |
+	     consistency    consistency
+
+      PAC				 ELC
+		 
+
+20. Message Queues - Kind of like databases because they have durable storage. They can be replicated for redunduncy or sharded for scalability. This can be used in task distribution and workload decoupling.
+
