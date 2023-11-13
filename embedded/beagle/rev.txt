@@ -1,0 +1,16 @@
+
+				        Release Date	  SoC			  Freq	  CPU															                            GPU						        board storage:					    Memory (SDRAM):	
+														                                                                                                                        
+BeagleV-Ahead	  Jul 12, 2023    TH1520     2000    4x C910 (RISC-V RV64GC)										                BXM-4-64	            16 GB eMMC                      4096 MiB LPDDR4
+BeaglePlay		  Mar  8, 2023    AM625		   1400    4x Cortex-A53 + 1x Cortex-M4F(400 MHz)	                    PowerVR AXE-1-16      16 GB eMMC                      2048 MiB DDR4
+BeagleBone AI64	Jun 14, 2022    TDA4VM	   2000    2x Cortex-A72 + 4x Cortex-R5F(1GHz) + 2x Cortex-R5F(1GHz)	PowerVR 8XE GE8430    16 GB eMMC                      4096 MiB LPDDR4		!
+
+BeagleBone AI	  Sep 19, 2019	  AM5729	   1500	   Cortex-A15	                                                Dual PowerVR SGX544	  16 GB eMMC	                    1024 MiB DDR3L	
+PocketBeagle	  Sep 21, 2017	  OSD3358-SM 1000	   Cortex-A8	                                                PowerVR SGX530	       4 KB EEPROM                     512 MiB DDR3	
+
+BeagleBoard-X15	Sep 23, 2016 	  AM5728   	 1500	   2x Cortex-A15 + 2x M4(212 MHz) + 4x PRU(200 MHz)	          Dual PowerVR SGX544	   4 GB eMMC                      2048 MiB DDR3L	
+
+BeagleBone BlackApr 23, 2013	  AM3358/9	1000	   Cortex-A8 + 2x PRU(200 MHz)                          		  PowerVR SGX530(200MHz) 2 GB eMMC (Rev B), 4GB (Rev C)  512 MiB DDR3	
+BeagleBone		  Oct 31, 2011	  AM3358/9	 720	                                                                                                                     256 MiB DDR2	
+BeagleBoard-xM	Sep 14, 2010	  DM3730	  1000	                                                                                                                     512 MiB DDR2	
+BeagleBoard		  Jul 28, 2008    OMAP3530   720                                                                                     256 MB NAND Flash, SD/MMC card    128 MiB (rev B) DDR
