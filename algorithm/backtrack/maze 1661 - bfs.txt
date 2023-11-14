@@ -1,0 +1,264 @@
+https://aronglife.tistory.com/entry/AlgorithmBFS%EC%A0%95%EC%98%AC-1661-%EB%AF%B8%EB%A1%9C%ED%83%88%EC%B6%9C%EB%A1%9C%EB%B4%87
+#include <queue> // c++의 Queue STL
+#include <iostream>
+#include <cstring> // memset위해서
+using namespace std;
+ 
+/*
+배열의 인덱스, 현재까지의 시간 구조체
+Queue에 정보를 다 넣어야하기 때문에 구조체 정의함.
+*/
+struct stu {
+    int y;
+    int x;
+    int t;
+};
+ 
+int X, Y;
+int sx, sy, ex, ey; // 시작s와 끝e
+queue<stu> Q;
+int map[101][101] = {
+		{1,1,1,1,1,1,1,1},		// map
+		{0,0,0,0,0,1,1,1},
+		{1,0,1,1,0,0,1,1},
+		{1,0,1,1,1,0,0,1},
+		{1,0,1,1,1,1,0,1},
+		{1,0,0,0,0,0,0,1},  // {1,0,0,0,0,0,0,0}, 
+		{1,1,1,1,1,1,1,1},
+}; 
+ 
+// 이번 경우에는 map을 0->1로 훼손하며 방문표시함 visit 사용X
+// int visit[100 + 2][100 + 2];
+ 
+void input() {
+     Y = 8;      X = 7;
+    sy = 1;     sx = 2;
+    ey = 7;     ex = 5;
+}
+ 
+int BFS() {
+	// 상하좌우 탐색 위한 dy,dx
+    int dy[4] = { 0,0,-1,1 };
+    int dx[4] = { 1,-1,0,0 };
+ 
+    // Q에 초기정보를 stu구조로 push함 (map[0][0]과 time =0)
+    Q.push(stu{ sy,sx,0 });
+    map[sy][sx] = 1;
+ 
+    //Q가 텅 빌때까지 반복(모든노드 탐색)
+    while (!Q.empty()) {
+        stu curstu = Q.front(); //현재정보
+        Q.pop(); //큐에서 제거
+ 
+        //4가지 방향을 모두 확인해본다.
+        for (int d = 0; d < 4; d++) {
+			// 다음정보를 계산해줌
+            int nextx = curstu.x + dx[d];
+            int nexty = curstu.y + dy[d];
+            int nextt = curstu.t + 1;
+            
+            //if (nexty == ey and nextx == ex) return curstu.t + 1; // 마지막 도착하면 return
+            
+            if (nexty == 0 or nextx == 0 or
+                nexty == Y+1 or nextx == X+1) continue; // 배열 벗어나면 무시
+                
+            // 다음위치가 0이라면 확산
+            //printf("map[%d][%d] = %d\n", nexty, nextx, map[nexty][nextx]);
+            if (!map[nexty][nextx]) {
+                Q.push(stu{ nexty,nextx,nextt }); // 다음 정보 Q에 Push
+                map[nexty][nextx] = 1; // map 훼손하며 방문표시 
+            }
+        }
+    }
+    return -1; // 해도되고 안해도 됨. 못찾을 때 대비
+}
+ 
+int main() {
+    memset(map, 0, sizeof(map));
+    
+    input();
+    
+    int ans = BFS();
+    cout << ans;
+ 
+    return 0;
+}
+
+
+// https://zoosso.tistory.com/471
+/*
+ Input 
+8 7				// Y, X
+1 2 7 5			// sy, sx, ey, ex
+
+		{1,1,1,1,1,1,1,1},		// map
+		{0,0,0,0,0,1,1,1},
+		{1,0,1,1,0,0,1,1},
+		{1,0,1,1,1,0,0,1},
+		{1,0,1,1,1,1,0,1},
+		{1,0,0,0,0,0,0,1},
+		{1,1,1,1,1,1,1,1},
+
+ Output 
+9
+*/
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#define INF 2e9
+
+typedef struct ROBOT {
+    int x, y, time;
+} Q;
+
+Q que[100 * 100];
+
+int X, Y, sx, sy, ex, ey;
+int visited[101][101];
+int dr[] = { 0, 0, 1, -1 };
+int dc[] = { 1, -1, 0, 0 };
+int fr, re;
+
+int map[101][101] = {
+		{1,1,1,1,1,1,1,1},		// map
+		{0,0,0,0,0,1,1,1},
+		{1,0,1,1,0,0,1,1},
+		{1,0,1,1,1,0,0,1},
+		{1,0,1,1,1,1,0,1},
+		{1,0,0,0,0,0,0,0},  // {1,0,0,0,0,0,0,1}, 
+		{1,1,1,1,1,1,1,1},
+}; 
+
+void input() {
+     Y = 8;      X = 7;
+    sy = 1;     sx = 2;
+    ey = 7;     ex = 5;
+}
+ 
+void push(int x, int y, int time) {
+    printf("r:%d,c:%d,time:%d->", x,y,time);
+    
+    // 범위를 벗어나는 경우
+    if (x < 1 || y < 1 || x > X || y > Y) {
+        printf("OOB\n");
+        return;
+    }
+ 
+    // 벽(장애물)인 경우
+    if (map[x][y] == 1) {
+        printf("OBS\n");
+        return;
+    }
+ 
+    // 이전에 방문한 것보다 늦게 도착한 경우
+    if (visited[x][y]) {
+        printf("visited\n");
+        return;
+    }
+ 
+    printf("queued:%d -> ", re);
+    visited[x][y] = 1;
+    que[re++] = (Q){ x, y, time };
+    /*que[re].x = x;
+    que[re].y = y;
+    que[re].time = time;
+    re++;*/
+    printf("%d\n", re);
+}
+ 
+int BFS() {
+    Q cur;
+    
+    push(sx, sy, 0);
+    while (fr < re) {
+        cur = que[fr++];
+        // 두 고슴도치가 모두 집에 도착한 경우
+        if (cur.x == ex && cur.y == ey)
+            return cur.time;
+
+        for (int i = 0; i < 4; ++i)
+            push(cur.x + dr[i], cur.y + dc[i], cur.time + 1);
+    }
+    return -1;
+}
+ 
+int main() {
+    // freopen("input.txt", "r", stdin);
+    input();
+    printf("%d\n", BFS());
+}
+
+
+// https://gudwns999.tistory.com/99?category=836032
+
+#include<stdio.h>
+#define MAX (101)
+
+int map[101][101] = {
+		{1,1,1,1,1,1,1,1},		// map
+		{0,0,0,0,0,1,1,1},
+		{1,0,1,1,0,0,1,1},
+		{1,0,1,1,1,0,0,1},
+		{1,0,1,1,1,1,0,1},
+		{1,0,0,0,0,0,0,0},  // {1,0,0,0,0,0,0,1}, 
+		{1,1,1,1,1,1,1,1},
+}; 
+
+int visit[MAX][MAX]; // 방문체크
+// 큐 구조체 설계
+typedef struct _node {
+	int r, c, time;
+}NODE;
+
+NODE que[MAX * MAX]; //큐배열 생성 -> Full 상태 없게 하기 위해 충분히 크게!
+
+int rp, wp;
+int R, C, sr, sc, er, ec;
+
+void In_Que(int r, int c, int time) {
+	que[wp].r = r;
+	que[wp].c = c;
+	que[wp].time = time;
+	wp++;
+}
+
+void Out_Que(NODE* p) {
+	*p = que[rp++];
+}
+
+int BFS(void) {
+	int dr[4] = { -1,1,0,0 }, dc[4] = { 0,0,-1,1 }; //상하좌우
+	int i, nr, nc;
+	NODE q;
+	In_Que(sr, sc, 0);
+	visit[sr][sc] = 1; // 방문체크
+	while (rp < wp) { // 큐 empty check
+		//q = que[rp++];
+		Out_Que(&q); // 현재 좌표
+		if (q.r == er && q.c == ec) return q.time;
+		for (i = 0; i < 4; i++) {
+			nr = q.r + dr[i];
+			nc = q.c + dc[i];
+			if (nr<1 || nr>R || nc<1 || nc>C) continue; // 범위 벗어나면 스킵
+			if (visit[nr][nc] == 1) continue;
+			if (map[nr][nc] == 0) { //연결점 찾기(길)
+				In_Que(nr, nc, q.time + 1);
+				visit[nr][nc] = 1;
+			}
+		}
+	}
+	return -1; //큐가 빈상태(예외체크 - 미로탈출의 경우 예외경우 없음)
+}
+
+void input(void) {
+     C = 8;      R = 7;
+    sc = 1;     sr = 2;
+    ec = 7;     er = 5;
+}
+
+int main(void) {
+	int sol;
+	input();
+	sol = BFS();
+	printf("%d\n", sol);
+	return 0;
+}

@@ -1,0 +1,48 @@
+[] 					0 0			+( 					0 0
+['('] 				1 0				+( 				1 0
+['(', '('] 			2 0					+) 			2 0
+['(', '(', ')'] 	2 1						+) 		2 1
+['(', '(', ')', ')']2 2			r
+											=) 		2 1
+										=) 			2 0
+									-( 				1 0
+									+) 				1 0
+
+['(', ')'] 			1 1					+( 			1 1
+['(', ')', '('] 	2 1						+)		2 1
+['(', ')', '(', ')']2 2			r					
+											=) 		2 1
+										-( 			1 1
+									=) 				1 0
+								-(	 				0 0
+
+
+#only add open parenthesis if open < n
+#only add a closing parenthesis if closed < open
+#valid IIF open == closed == n
+
+class Solution:
+    def generateParenthesis(self, n: int) -> List[str]:
+        stack = []
+        res = []
+
+        def backtrack(openN, closedN):
+
+            print(stack)
+			
+            if openN == closedN == n:
+                res.append("".join(stack))
+                return
+
+            if openN < n:
+                stack.append("(")							#=============
+                backtrack(openN + 1, closedN)
+                stack.pop()									#=============	
+
+            if closedN < openN:
+                stack.append(")")							#=============
+                backtrack(openN, closedN + 1)
+                stack.pop()									#=============
+
+        backtrack(0, 0)
+        return res
