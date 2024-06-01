@@ -1,0 +1,129 @@
+
+Hey, welcome back to the lecture.
+
+So, now you have successfully booted your Linux kernel by using the file system which you generated using
+
+busybox, isn't it? Great.
+
+So, now in this lecture let's understand the 'init' program of the busybox and the runlevel scripts
+
+OK? As you know from all of our previous discussion of Linux booting process, Linux finally launches
+
+the init userspace application found in one of these locations.
+
+Right?
+
+as a last step in the kernel initialization.
+
+OK? So, that's the parent of all Linux processes and having the 'pid' number 1. The core to launch the init
+
+program is implemented in the function kernel
+
+init of main.c of the Linux kernel.
+
+So, hope you remember this. In busy box, you can locate this init file under the directory sbin.
+
+Just type ls-l init and you can see that it's pointing back to the busybox.
+
+OK?
+
+Now, there are two types of init programs, which you can use with Linux.
+
+One is busybox init.
+
+OK.
+
+And another one is System V init.
+
+OK?
+
+Both init programs they actually try to execute a special script.
+
+OK?
+
+The busy box init tries to execute a script called rcS, which is present in the directory
+
+/etc/init.d/
+
+of the file system. And system V init program tries to execute a special script called inittab
+
+found in /etc/init.d directory of the file system.
+
+OK?
+
+So, by default, busybox doesn't support system V init program.
+
+OK?
+
+So, for a time being let's not concentrate on system V init program execution.
+
+So, let's keep everything simple.
+
+All right. So, now if we go back to our log here, you'll see one error message emitted by the init program
+
+of the busybox.
+
+OK?
+
+So, here the init program
+
+is saying that, cannot run the rcS script.
+
+OK?
+
+Because, there is no such file or directory.
+
+OK?
+
+That means, the init program, the busybox init program always tries to execute the rcS script present
+
+at this location,
+
+/etc/init.d
+
+OK?
+
+since in our file system, we neither have created etc/init.d folder nor
+
+we have kept any rcS script in the file system,
+
+this error message is obvious, isn't it?
+
+So, what is this
+
+rcS?
+
+So, as I said, rcS is nothing but just a script.
+
+OK?
+
+That is executed by the init program of
+
+the busy box.
+
+OK? So, what you write inside the script,
+
+that depends on you.
+
+You can write anything.
+
+So, here 'S' actually stands for start.
+
+That means, if you have any scripts or services to execute during starting up of the Linux kernel
+
+then you can execute all those scripts our services or commands from this file.
+
+OK?
+
+All right. So, now we will see all these things practically with our hardware.
+
+OK? So, now, in the next lecture I'm going to show you this rcS script and a couple of other scripts
+
+OK.
+
+which we can use to launch some of the services from our file system which we just generated in our
+
+previous lecture.
+
+So, I'll see you in the next lecture.
+

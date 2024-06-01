@@ -1,0 +1,252 @@
+
+And there are two more folders.
+
+One is sbin and another one is user.
+
+So, the sbin also consists of lots of or symbolic links which are actually pointing to the bin busybox.
+
+.
+
+So, all the commands must point to the busybox binary which is present in the bin folder.
+
+OK?
+
+Similarly, you can go under user and you can go under
+
+sbin and you can check here also.
+
+OK?
+
+So, everybody are pointing to the bin
+
+busybox binary. OK?
+
+Now, if you want to check the size of this root file system, just run
+
+du-sh
+
+command
+
+and here you can see that the size of this file system is only 1.4 MB.
+
+OK? that's megabytes.
+
+OK? So, that is nothing but it's the size of the busybox binary itself.
+
+For example, let's go to bin and let's do a ls-l busybox.
+
+So, here you can see, this binary itself is 1.35 MB. OK?
+
+The total size is 1.4 MB.
+
+So, this is a huge file which actually consists of support for all the Linux commands.
+
+OK?
+
+And you are seeing 1.3 MB, because this is statically linked.
+
+OK?
+
+So, that's what we actually chosen when we run the menuconfig on the busybox source, isn't it?
+
+So, for example if I run the command file busybox, you can see that this is a 32 bit elf executable for arm
+
+and it is statically linked.
+
+OK? If it is dynamically linked, then you'd not be seeing this much of bytes.
+
+OK? so, it will be very less.
+
+All right?
+
+Great.
+
+So, the total size of the file system is this much and out of that 1.35 MB itself consumed by the
+
+busybox binary.
+
+So, now our next step is to install all the modules onto this file system, isn't it?
+
+So, now let's run this command. OK? Let's copy this
+
+and let's go to download Linux and here we'll paste it.
+
+And we have to give the path of the root file system.
+
+So, we have now root file system, isn't it? which is present in my working directory RFS_static. Press
+
+Enter.
+
+OK? So, now it is installing all the kernel modules to the Root file system.
+
+Great.
+
+So, it just finished installing.
+
+Now, let's go to the root file system
+
+static, OK? Here you can see that a new folder is created, that is lib, OK?
+
+And under this, there are 2 more folders are created.
+
+One is firmware
+
+and another one is modules.
+
+So, just go inside this folder modules.
+
+And here you can see the kernel version folder is created,
+
+go inside that. And here you can see that under kernel,
+
+OK?
+
+you will find lots of subsystems and their respective drivers.
+
+OK? For example, if I go under drivers here,
+
+OK? so, these are all the drivers subsystem.
+
+And if I go under, let's say USB, OK? and it shows that USB related subsystems
+
+and if I go under let's say class.
+
+OK?
+
+So, here you can see these are the kernel modules related to the USB class.
+
+OK?
+
+And if I go under serial, then you can see that these are the kernel modules related to
+
+the USB to serial converters.
+
+OK? Great.
+
+So, that means, this path actually consists of all the loadable kernel modules.
+
+OK?
+
+Here you can see, there are lots of other modules information related files are generated.
+
+OK?
+
+So, for example, if I open the file modules builtin file, here you can see that all this kernel modules
+
+are actually builtin to the Linux kernel.
+
+OK? So, this file list out all the builtin modules.
+
+OK?
+
+And also if you open a file moules.def, then this file will list out all the dynamically loadable
+
+kernel modules and its dependencies.
+
+OK?
+
+So, let's take an example, let's search for cdc_eem
+
+which actually a driver to enumerate Ethernet over USB.
+
+OK? So, to install this driver successfully,
+
+OK.
+
+there is two dependencies; one is usbnet.ko and another dependency is mii.ko
+
+OK? So, that means you have to first install the mii.ko
+
+and then you have to install the usbnet.ko, then you have to install cdc_eem.ko
+
+otherwise, if you just try to install cdc_eem.ko without installing these dependencies, then
+
+the installation or you can say the kernel loading will not be successful.
+
+And let's see, in which modules mii.ko is depending upon. Just search for mii.ko and
+
+here you can see, the mii.ko is actually not depending upon anything.
+
+OK.
+
+If it is depending upon something, then there will be a colon and this file will mention the dependencies.
+
+And you can see that this kernel module is not depending upon anything. usbnet
+
+is actually depending upon the mii.ko
+
+Okay?
+
+So, that's how this file is a very important file, which actually list out all the dependencies
+
+between the kernel modules.
+
+Okay?
+
+And this file is very important for the command
+
+modprobe. So, the modprobe is a command
+
+Sorry, modprobe
+
+OK?
+
+The modprobe is a command which is used to add and remove modules from the Linux
+
+kernel. So, but the interesting thing about modprobe is it's very intelligent.
+
+So, the moment you mention something like this modprobe lets say cdc_eem.ko, it will not load
+
+this kernel mode immediately.
+
+It will go and read this file called modules.dep and it will understand the dependencies from
+
+this file.
+
+OK?
+
+And it will come to know that,
+
+.
+
+the cdc_eem is actually depending upon 2 more kernel modules.
+
+So,the modprobe will first load those modules.
+
+OK?
+
+And then it will load this module.
+
+So, it's a very smart command which actually takes help from the modules.dep
+
+OK?
+
+So, there is another command called insmod
+
+The insmod is actually not as smart has modprobe.
+
+OK?
+
+It will not read this file to understand the dependencies, it will just try to insert the module and if
+
+it is successful, then it will return success.
+
+Otherwise it will return failure.
+
+OK?
+
+So, always use modprobe to insert or remove the kernel modules.
+
+Great.
+
+So, that's about the modules.dep
+
+file.
+
+OK? Great.
+
+So, now it's a testing time.
+
+Now, let's use this file system to boot our Linux kernel.
+
+OK? So, that I'll take up in the next lecture.

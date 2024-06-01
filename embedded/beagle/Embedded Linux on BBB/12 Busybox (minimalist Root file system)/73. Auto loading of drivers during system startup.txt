@@ -1,0 +1,332 @@
+
+All right. So, now let's automate the task of bringing up this usb0 interface on the beaglebone
+
+black hardware.
+
+OK?
+
+As I said previously, the best place to bring up the various services is through the startup scripts,
+
+right?
+
+Let's go back to our startup scripts. Here,
+
+we have already the network script. Right?
+
+So, let's open this.
+
+And in this script, what we are doing is, we are actually executing this one, right?
+
+ifup
+
+command
+
+OK?
+
+And as we know, when we execute ifup command, it actually looks for this file.
+
+So, that means, we have to now create this file.
+
+OK? So, let's create that. Let's go to /etc/ and let's create mkdir network
+
+OK?
+
+And here let's go under network and lets create interfaces.
+
+Okay? Great.
+
+So, now open the file interfaces and here you have to
+
+.
+
+Copy and paste these lines.
+
+OK? Here
+
+so, these are the commands actually to bring up the various interfaces.
+
+The first one is to bring up the loopback interface.
+
+The second one is actually bring up the eth0.
+
+That is actually Etheret.
+
+And the third one is to bring up the usb0. Here
+
+the usb0 is
+
+actually, this is actually Ethernet over USB.
+
+OK?
+
+And I'm assigning the IP statically, OK? and this is the IP address for Ethernet
+
+and this is the address for usb0 interface.
+
+OK?
+
+All right.
+
+And this is the netmask and this is the gateway address.
+
+OK?
+
+So, now just copy this and let's paste here.
+
+OK?
+
+Great.
+
+OK.
+
+Now let's save this.
+
+OK?
+
+And now, you know that before bringing up the usb0 interface,
+
+we have to first load the driver, isn't it?
+
+Now, what we'll do is, we'll write one script to load the kernel modules dynamically.
+
+OK?
+
+So, for that, we'll use one among these as a reference.
+
+OK?
+
+Let me copy this.
+
+OK? Paste here.
+
+OK? And let's give the name as, let's say module. Okay?
+
+And we want this to be executed before this.
+
+Right?
+
+So, let me give the number as let's say 02.
+
+OK?
+
+So, first this will execute, then this will execute. OK?
+
+So, once we load the module, then this will execute. OK?
+
+Now let's edit this file.
+
+OK? So, this is actually not to start the network; it is to load the kernel modules at startup. OK?
+
+.
+
+And it is doing some mkdir here.
+
+OK? So, now let's remove this.
+
+OK? And when start, OK? I'll just say loading kernel modules, loading kernel modules and the command is
+
+'modprope'.
+
+Right? So, modprobe.
+
+So, what's the driver name?
+
+g_ether
+
+OK?
+
+And if this returns 0, then it displays OK.
+
+otherwise FAIL.
+
+OK.
+
+That we can keep, right?
+
+So, now here, unloading kernel modules.
+
+OK?
+
+And here you can do rmmode.
+
+OK?
+
+The driver name, let's say g_ether.
+
+OK?
+
+If you have any other kernel modules to be loaded, then you can list them here.
+
+OK? You can give a second one, third one, fourth one like that.
+
+So, now I'm just including only one driver.
+
+OK?
+
+That's it. Right? Now let's save this.
+
+OK?
+
+And now let's save this.
+
+OK? Now, let me go to my
+
+OK? So, that script is actually here.
+
+OK? module
+
+So, let me transfer that to my nfs
+
+file system, /etc/init.d
+
+OK?
+
+Awesome.
+
+Now let's
+
+So, now let's reboot our board. OK, I'm just rebooting the board.
+
+Just wait.
+
+OK?
+
+Yes.
+
+The usb0 is up.
+
+Here you can see, it has loaded the drivers that you can see here. First,
+
+it actually started this script after that.
+
+OK?
+
+This is the log of loading kernel module.
+
+Here you can see, loading kernel module.
+
+OK? Great. So, press Enter,
+
+and do ifconfig.
+
+But the interface is not up. Right?
+
+OK? So, that means, so if you do cat /network/interfaces,
+
+actually we have these settings, right?
+
+So, our script is not behaving properly.
+
+I mean this script.
+
+Okay? This script is actually not doing
+
+ifup - a.
+
+So, let's do that manually.
+
+There is a error.
+
+So, you have to solve this error.
+
+OK?
+
+OK.
+
+It is actually expecting these 2 files at these location.
+
+OK? Let's create that.
+
+OK?
+
+Let's do touch /etc/network/
+
+if-pre-up.d
+
+OK?
+
+And do touch /var
+
+OK?
+
+There is no var folder. Lets create that.
+
+OK.
+
+mkdir var.
+
+OK, let's get into var and let's create run and let's get into run and touch ifstate.new
+
+OK?
+
+I'm just manually creating these files. OK?
+
+Great.
+
+Now do ifup -a
+
+.
+
+And it says that something is exists.
+
+But here you can see that the usb0 interface is now up.
+
+OK? Great.
+
+So, now let's again reboot. Let's see whether it comes up or not
+
+after the boot.
+
+OK.
+
+Press Enter and just do ifconfig.
+
+And yes, the usb0 interface has come up now and here
+
+also you can see that we have got the connection.
+
+OK?
+
+A wired connection which actually corresponds to this interface. OK?
+
+Great.
+
+So, that's how you can create your own scripts to launch the services.
+
+OK?
+
+Or you can use it to autoload the modules.
+
+OK?
+
+You can use this script as a template to add different services.
+
+OK?
+
+or to launch different services.
+
+Okay? Great.
+
+So, now what we'll do is, now we will give ssh support to this file system,
+
+what we have created using busybox.
+
+OK? Because, giving a ssh support is really important.
+
+Let's say, you deployed this file system to a copy machine tomorrow.
+
+OK?
+
+as an application and let's say you want to login to your copy machine using ssh
+
+to do some settings or etc..
+
+So, then, we actually need at least one remote connectivity either Telnet or ssh or TFTP
+
+etc..
+
+OK? So, now let's give a ssh support for this file system.
+
+OK?
+
+All right. So, that'll cover in the next lecture.

@@ -1,0 +1,316 @@
+
+Hey, welcome back.
+
+So, in our previous videos,
+
+.
+
+when we were compiling the Linux kernel, we actually executed these steps, right?
+
+We actually ran this command to compile the kernel, right?
+
+And after that, what we did was, we actually ran this command to build all the loadable kernel modules,
+
+isn't it?
+
+After that, we didn't run this command.
+
+OK?
+
+That is modules install. This modules install,
+
+you have to run in order to install all the generated kernel modules into your root file system.
+
+OK?
+
+So, now our root file system is ready.
+
+We created using the busybox, isn't it?
+
+OK? So, now we run this command.
+
+.
+
+in order to install all the loadable modules onto our root file system.
+
+OK? So, then we can use those loadable modules to talk to any devices.
+
+Right?
+
+Great.
+
+So, now let's run this
+
+command. For that, you have to go to Linux kernel source directory in which you compiled the Linux kernel.
+
+OK? So, let me go there.
+
+OK?
+
+/Downloads/linux
+
+OK?
+
+So, this is a place where I compiled my kernel.
+
+OK? So, now let me paste that
+
+command and replace this path of the RFS. OK?
+
+So, this is my RFS is actually NFS mountable, right?
+
+So, which is at this location.
+
+OK? So, now let's hit enter and you can see that it is installing all the drivers to the root file
+
+system.
+
+OK? So, now let's go to
+
+/srv/nfs/bbb/ and we can see that there is one folder created, that is lib.
+
+OK?
+
+So, if you go inside that folder, you can see that there are 2 more folders.
+
+OK?
+
+And under modules, you can locate a folder with a kernel version that is 4.4.62
+
+And if you go inside that, you will see another folder called kernel
+
+OK?
+
+And inside that, you'll see various subsystems and inside that you will see all the drivers.
+
+OK? For example, if I want to locate the bluetooth driver let's say, OK? I can find it here.
+
+OK? Great.
+
+So, now we transferred all the dynamically loadable kernel modules to our root file system.
+
+So, now, what we have to do is, now we have to load that Ethernet over USB driver in order to get USB over Ethernet
+
+functionality.
+
+OK?
+
+All right. So, now let's go to our beaglebone black terminal.
+
+And here, if I do 'lsmod', and here we can see that there is no output.
+
+OK?
+
+That means, no dynamically loadable kernel modules are present, OK? Because, we have not loaded anything.
+
+Right?
+
+OK? So, now let's load the driver,
+
+OK?
+
+which actually enables the Ethernet over USB functionality.
+
+So, if I do ifconfig, let's say usb0, then
+
+I will get a error like device not found.
+
+OK?
+
+Because, the driver is not present.
+
+OK? So, now our next job is to load the driver.
+
+So, we know that all the drivers are now present at lib modules
+
+.
+
+in the 4.4.62 folder here.
+
+OK?
+
+And here you will see a file called modules.dep
+
+OK? Just open that modules.dep
+
+OK?
+
+And here, search for the word 'g_ether'
+
+OK?
+
+Here it is, g_ether
+
+OK? So, this is the driver we have to load in order to activate the Ethernet over USB functionality.
+
+OK?
+
+And you can see that, this driver is actually dependent on some more drivers like this driver.
+
+OK?
+
+So, this depends on this driver and this also depends on this driver.
+
+And this also depends on this driver.
+
+OK?
+
+So, g_ether actually depends on 3 different drivers.
+
+OK?
+
+That means, before loading this driver, you have to load these three drivers first.
+
+OK?
+
+So, for that, you have to use the command 'modprobe'.
+
+OK?
+
+Now let's go to our beaglebone terminal and here you have to use the command modprobe. OK? modprobe
+
+g_ether. OK? Just type this and modprobe as I said in the previous videos,
+
+it's a very smart
+
+command
+
+OK?
+
+It will first to load all the dependencies
+
+and after that it will load g_ether.
+
+OK?
+
+So, now hit enter and here you'll get some messages.
+
+OK?
+
+And now, if you do lsmod, you can see that
+
+.
+
+there are 4 different drivers are present.
+
+OK?
+
+OK.
+
+I think actually this depends on 4 drivers.
+
+OK?
+
+All right?
+
+And on the top of that you can see the g_ether
+
+OK?
+
+So, now if you do ifconfig
+
+OK?
+
+ifconfig usb0, let's say 192.168.
+
+Let's say, I'll give the IP address as 6.2
+
+OK?
+
+And if you do up, OK? you can see that the command returned successfully.
+
+That means, if you now do ifconfig,
+
+you can see that the usb0 interface is created.
+
+And look at here in your host PC there is a activity detected.
+
+That means, our host PC is actually detected that Ethernet over USB functionality on the
+
+Beaglebone hardware.
+
+That's why, I got this wired connection 1 option over here.
+
+OK?
+
+And it is already connected.
+
+That means my PC is already connected.
+
+OK? So, suppose if I do ifconfig down, OK?
+
+you can see that it is disconnected.
+
+OK?
+
+It went off.
+
+OK? So, now let me again do ifconfig up,
+
+and here you can see that it is
+
+it again reappeared. And in your host PC also
+
+if you do ifconfig now, you will detect one more interface.
+
+OK? So, one more interface will be enumerated.
+
+OK?
+
+which actually resembles your beaglebone black's usb0 interface. OK?
+
+Here it is.
+
+OK? So, now you can configure IP address for this.
+
+OK?
+
+Let me do, so let's say, I will do ifconfig.
+
+OK? I'll just copy paste that interface name and I'll give you IP address such 7.2
+
+So, what's the IP address I gave for this one is actually 6.2.
+
+So, I'll give 6.1, OK? and do up.
+
+And now you can ping to your beaglebone black hardware from the host PC.
+
+So, you can see it's pinging.
+
+OK? It's pinging over your USB cable.
+
+OK?
+
+OK? So, I can even ping from here
+
+also, OK? 192.168.6., what's the IP address? IP address of this interface is...so, just reconfigure
+
+the IP address is actually 6.1.
+
+Right?
+
+So, I can ping from Beaglebone black hardware also.
+
+That means, we actually are successful in enumerating the usb0 interface by loading the
+
+driver.
+
+OK/
+
+So, now whenever you reboot,
+
+so, all these drivers will be removed.
+
+Isn't it? Because they are dynamically loadable kernel module.
+
+So, now, how to automate this?
+
+OK?
+
+That means, how to bring up this interface
+
+.
+
+during the system booting itself? So, that I will cover in the next lecture autoloading of drivers
+
+during system start up.

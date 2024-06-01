@@ -1,0 +1,100 @@
+
+Hey, welcome back to the course.
+
+So, in this lecture, let's understand what is Busybox.
+
+OK?
+
+So, Busybox is nothing but a software tool, that enables you to create your customized root file system
+
+for your embedded Linux products.
+
+OK?
+
+You can create very basic file system or you can create a much advanced one, all according to your requirements
+
+by using busybox configuration utilities. In the past couple of videos, we have used ready made file
+
+systems from Angstrom and TI
+
+Right?
+
+So, from this lecture onwards, let's create our own file system using a busybox tool.
+
+So, what are the advantages of using busybox tool?
+
+It enables you to create customized file system that meets your resource requirements.
+
+That means, if your product is a resource limited in terms of memory, then you can customize the file
+
+system such a way that, it can fit into your project with limited memory.
+
+You can use this tool to remove all unwanted features which your product doesn't need, like
+
+you can remove unwanted Linux commands, directories, etc. using the customization options. Busybox
+
+has the potential to significantly reduce the memory consumed by various Linux commands by merging
+
+all the Linux commands into one single executable binary. So, this last point is very important and let's
+
+understand that.
+
+So, your Linux PC such as Ubuntu has around 350+ commands
+
+if you only consider the '/bin' and '/sbin' directories. You will find more commands
+
+if you count in /user/bin and /user/sbin directories. Now, the memory consumed by the /bin/directory
+
+of your PC is about approximately 13 MB and the memory consumed by the /sbin/directory of your PC is
+
+about 14 MB. And the total memory consumed by /user/bin and /user/sbin directories is around 200 MB
+
+approximately.
+
+There's a lot of memory, right?
+
+The embedded domain just can't afford to lose so much storage space just to store all these commands.
+
+Here is where the busybox comes to your rescue.
+
+It supports most of the commands that you can find in /bin and /sbin directories of your PC but with
+
+very minimal memory footprint. It saves the memory by removing various functionalities of the Linux commands
+
+which don't suit to your requirements.
+
+Now, in the previous slide, I said that, it merges all the Linux commands into one single executable binary
+
+that single executable binary is called as busy box and it is one single executable binary which
+
+supports all the Linux commands, like ls, cat, ifconfig, copy, etc..
+
+You'll get this binary when you build the Busybox source code that we'll see from the next lecture
+
+onwards.
+
+OK? So, this single busybox binary is implemented like a big switch case of C programming, where each
+
+case is a linux command like ls, rcp or ifconfig etc..
+
+When you execute this binary with standard Linux command name as an argument,
+
+OK? as an command line argument,
+
+the respective command's output will be achieved. Great. So, let's quickly conclude this intro session. Busy
+
+box is a tool to generate your own customized, memory friendly or resource friendly file system and
+
+it doesn't generate individual Linux command binaries.
+
+OK? so, there is only one executable binary will be generated,
+
+that's called busy box, which implements all the required Linux command functionalities.
+
+OK? Great.
+
+Now, in the next lecture,
+
+Let's download the busybox, configure it and we'll build the busybox source code.
+
+I'll see you in the next lecture.
