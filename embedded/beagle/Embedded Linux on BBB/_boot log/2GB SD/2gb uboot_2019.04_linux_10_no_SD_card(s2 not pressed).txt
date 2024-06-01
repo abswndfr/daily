@@ -1,0 +1,259 @@
+U-Boot SPL 2019.04-00002-g07d5700e21 (Mar 06 2020 - 11:24:55 -0600)
+Trying to boot from MMC2
+Loading Environment from EXT4... Card did not respond to voltage select!
+
+
+U-Boot 2019.04-00002-g07d5700e21 (Mar 06 2020 - 11:24:55 -0600), Build: jenkins-github_Bootloader-Builder-137
+
+CPU  : AM335X-GP rev 2.1
+I2C:   ready
+DRAM:  512 MiB
+No match for driver 'omap_hsmmc'
+No match for driver 'omap_hsmmc'
+Some drivers were not found
+Reset Source: Power-on reset has occurred.
+RTC 32KCLK Source: External.
+MMC:   OMAP SD/MMC: 0, OMAP SD/MMC: 1
+Loading Environment from EXT4... Card did not respond to voltage select!
+Board: BeagleBone Black
+<ethaddr> not set. Validating first E-fuse MAC
+BeagleBone Black:
+BeagleBone: cape eeprom: i2c_probe: 0x54:
+BeagleBone: cape eeprom: i2c_probe: 0x55:
+BeagleBone: cape eeprom: i2c_probe: 0x56:
+BeagleBone: cape eeprom: i2c_probe: 0x57:
+Net:   eth0: MII MODE
+cpsw, usb_ether
+Press SPACE to abort autoboot in 0 seconds
+board_name=[A335BNLT] ...
+board_rev=[000C] ...
+Card did not respond to voltage select!
+Card did not respond to voltage select!
+Card did not respond to voltage select!
+gpio: pin 56 (gpio 56) value is 0
+gpio: pin 55 (gpio 55) value is 0
+gpio: pin 54 (gpio 54) value is 0
+gpio: pin 53 (gpio 53) value is 1
+Card did not respond to voltage select!
+Card did not respond to voltage select!
+switch to partitions #0, OK
+mmc1(part 0) is current device
+Scanning mmc 1:1...
+gpio: pin 56 (gpio 56) value is 0
+gpio: pin 55 (gpio 55) value is 0
+gpio: pin 54 (gpio 54) value is 0
+gpio: pin 53 (gpio 53) value is 1
+switch to partitions #0, OK
+mmc1(part 0) is current device
+gpio: pin 54 (gpio 54) value is 1
+Checking for: /uEnv.txt ...
+Checking for: /boot.scr ...
+Checking for: /boot/boot.scr ...
+Checking for: /boot/uEnv.txt ...
+gpio: pin 55 (gpio 55) value is 1
+2063 bytes read in 14 ms (143.6 KiB/s)
+Loaded environment from /boot/uEnv.txt
+Checking if uname_r is set in /boot/uEnv.txt...
+gpio: pin 56 (gpio 56) value is 1
+Running uname_boot ...
+loading /boot/vmlinuz-4.19.94-ti-r42 ...
+10095592 bytes read in 653 ms (14.7 MiB/s)
+debug: [enable_uboot_overlays=1] ...
+debug: [enable_uboot_cape_universal=1] ...
+debug: [uboot_base_dtb_univ=am335x-boneblack-uboot-univ.dtb] ...
+uboot_overlays: [uboot_base_dtb=am335x-boneblack-uboot-univ.dtb] ...
+uboot_overlays: Switching too: dtb=am335x-boneblack-uboot-univ.dtb ...
+loading /boot/dtbs/4.19.94-ti-r42/am335x-boneblack-uboot-univ.dtb ...
+162266 bytes read in 45 ms (3.4 MiB/s)
+uboot_overlays: [fdt_buffer=0x60000] ...
+uboot_overlays: loading /lib/firmware/BB-ADC-00A0.dtbo ...
+867 bytes read in 251 ms (2.9 KiB/s)
+uboot_overlays: loading /lib/firmware/BB-BONE-eMMC1-01-00A0.dtbo ...
+1584 bytes read in 395 ms (3.9 KiB/s)
+uboot_overlays: loading /lib/firmware/BB-HDMI-TDA998x-00A0.dtbo ...
+4915 bytes read in 168 ms (28.3 KiB/s)
+uboot_overlays: loading /lib/firmware/AM335X-PRU-RPROC-4-19-TI-00A0.dtbo ...
+3801 bytes read in 242 ms (14.6 KiB/s)
+loading /boot/initrd.img-4.19.94-ti-r42 ...
+6589689 bytes read in 432 ms (14.5 MiB/s)
+debug: [console=ttyO0,115200n8 bone_capemgr.uboot_capemgr_enabled=1 root=/dev/mmcblk1p1 ro rootfstype=ext4 rootwait coherent_pool=1M net.ifnames=0 lpj=1990656 rng_core.default_quality=100 quiet] ...
+debug: [bootz 0x82000000 0x88080000:648cf9 88000000] ...
+## Flattened Device Tree blob at 88000000
+   Booting using the fdt blob at 0x88000000
+   Loading Ramdisk to 8f9b7000, end 8ffffcf9 ... OK
+   Loading Device Tree to 8f92b000, end 8f9b6fff ... OK
+
+Starting kernel ...
+
+[    0.002165] timer_probe: no matching timers found
+[    0.195651] l4_wkup_cm:clk:0010:0: failed to disable
+[    1.415843] omap_voltage_late_init: Voltage driver support not added
+
+
+
+
+Debian GNU/Linux 10 beaglebone ttyS0
+
+BeagleBoard.org Debian Buster IoT Image 2020-04-06
+
+Support: http://elinux.org/Beagleboard:BeagleBoneBlack_Debian
+
+default username:password is [debian:temppwd]
+
+beaglebone login: debian
+Password:
+Last login: Wed May 29 00:53:14 UTC 2024 on ttyS0
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+debian@beaglebone:~$
+debian@beaglebone:~$
+debian@beaglebone:~$ ls
+bin
+debian@beaglebone:~$
+debian@beaglebone:~$
+debian@beaglebone:~$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+udev            215M     0  215M   0% /dev
+tmpfs            49M  1.6M   47M   4% /run
+/dev/mmcblk1p1  3.5G  1.9G  1.5G  56% /
+tmpfs           242M     0  242M   0% /dev/shm
+tmpfs           5.0M     0  5.0M   0% /run/lock
+tmpfs           242M     0  242M   0% /sys/fs/cgroup
+tmpfs            49M     0   49M   0% /run/user/1000
+debian@beaglebone:~$
+debian@beaglebone:~$ cd /
+debian@beaglebone:/$ ls
+bbb-uEnv.txt  dev   ID.txt      media         opt   run   sys  var
+bin           etc   lib         mnt           proc  sbin  tmp
+boot          home  lost+found  nfs-uEnv.txt  root  srv   usr
+debian@beaglebone:/$
+debian@beaglebone:/$  cd dev
+debian@beaglebone:/dev$ ls
+apm_bios         mapper              spidev1.1  tty30  tty57     vcs1
+autofs           mem                 stderr     tty31  tty58     vcs2
+block            memory_bandwidth    stdin      tty32  tty59     vcs3
+btrfs-control    mmcblk1             stdout     tty33  tty6      vcs4
+bus              mmcblk1boot0        tty        tty34  tty60     vcs5
+char             mmcblk1boot1        tty0       tty35  tty61     vcs6
+console          mmcblk1p1           tty1       tty36  tty62     vcsa
+cpu_dma_latency  mmcblk1rpmb         tty10      tty37  tty63     vcsa1
+cuse             mqueue              tty11      tty38  tty7      vcsa2
+disk             net                 tty12      tty39  tty8      vcsa3
+dri              network_latency     tty13      tty4   tty9      vcsa4
+fd               network_throughput  tty14      tty40  ttyGS0    vcsa5
+full             null                tty15      tty41  ttyO0     vcsa6
+fuse             ppp                 tty16      tty42  ttyO1     vcsu
+gpiochip0        ptmx                tty17      tty43  ttyO2     vcsu1
+gpiochip1        ptp0                tty18      tty44  ttyO3     vcsu2
+gpiochip2        pts                 tty19      tty45  ttyO4     vcsu3
+gpiochip3        pwm                 tty2       tty46  ttyO5     vcsu4
+hwrng            random              tty20      tty47  ttyS0     vcsu5
+i2c-0            rfkill              tty21      tty48  ttyS1     vcsu6
+i2c-1            rtc                 tty22      tty49  ttyS2     vhci
+i2c-2            rtc0                tty23      tty5   ttyS3     watchdog
+iio:device0      shm                 tty24      tty50  ttyS4     watchdog0
+initctl          snapshot            tty25      tty51  ttyS5     watchdog1
+input            snd                 tty26      tty52  ubi_ctrl  zero
+ion              spi                 tty27      tty53  uhid
+kmsg             spidev0.0           tty28      tty54  uinput
+log              spidev0.1           tty29      tty55  urandom
+loop-control     spidev1.0           tty3       tty56  vcs
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$ lsblk
+NAME         MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+mmcblk1      179:0    0  3.6G  0 disk
+mqmmcblk1p1  179:1    0  3.6G  0 part /
+mmcblk1boot0 179:8    0    2M  1 disk
+mmcblk1boot1 179:16   0    2M  1 disk
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$ ls mmcblk1boot0
+mmcblk1boot0
+debian@beaglebone:/dev$ ls
+apm_bios         mapper              spidev1.1  tty30  tty57     vcs1
+autofs           mem                 stderr     tty31  tty58     vcs2
+block            memory_bandwidth    stdin      tty32  tty59     vcs3
+btrfs-control    mmcblk1             stdout     tty33  tty6      vcs4
+bus              mmcblk1boot0        tty        tty34  tty60     vcs5
+char             mmcblk1boot1        tty0       tty35  tty61     vcs6
+console          mmcblk1p1           tty1       tty36  tty62     vcsa
+cpu_dma_latency  mmcblk1rpmb         tty10      tty37  tty63     vcsa1
+cuse             mqueue              tty11      tty38  tty7      vcsa2
+disk             net                 tty12      tty39  tty8      vcsa3
+dri              network_latency     tty13      tty4   tty9      vcsa4
+fd               network_throughput  tty14      tty40  ttyGS0    vcsa5
+full             null                tty15      tty41  ttyO0     vcsa6
+fuse             ppp                 tty16      tty42  ttyO1     vcsu
+gpiochip0        ptmx                tty17      tty43  ttyO2     vcsu1
+gpiochip1        ptp0                tty18      tty44  ttyO3     vcsu2
+gpiochip2        pts                 tty19      tty45  ttyO4     vcsu3
+gpiochip3        pwm                 tty2       tty46  ttyO5     vcsu4
+hwrng            random              tty20      tty47  ttyS0     vcsu5
+i2c-0            rfkill              tty21      tty48  ttyS1     vcsu6
+i2c-1            rtc                 tty22      tty49  ttyS2     vhci
+i2c-2            rtc0                tty23      tty5   ttyS3     watchdog
+iio:device0      shm                 tty24      tty50  ttyS4     watchdog0
+initctl          snapshot            tty25      tty51  ttyS5     watchdog1
+input            snd                 tty26      tty52  ubi_ctrl  zero
+ion              spi                 tty27      tty53  uhid
+kmsg             spidev0.0           tty28      tty54  uinput
+log              spidev0.1           tty29      tty55  urandom
+loop-control     spidev1.0           tty3       tty56  vcs
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$ ls mmcblk1boot0
+mmcblk1boot0
+debian@beaglebone:/dev$ cd mmcblk1boot0
+-bash: cd: mmcblk1boot0: Not a directory
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$ ls
+apm_bios         mapper              spidev1.1  tty30  tty57     vcs1
+autofs           mem                 stderr     tty31  tty58     vcs2
+block            memory_bandwidth    stdin      tty32  tty59     vcs3
+btrfs-control    mmcblk1             stdout     tty33  tty6      vcs4
+bus              mmcblk1boot0        tty        tty34  tty60     vcs5
+char             mmcblk1boot1        tty0       tty35  tty61     vcs6
+console          mmcblk1p1           tty1       tty36  tty62     vcsa
+cpu_dma_latency  mmcblk1rpmb         tty10      tty37  tty63     vcsa1
+cuse             mqueue              tty11      tty38  tty7      vcsa2
+disk             net                 tty12      tty39  tty8      vcsa3
+dri              network_latency     tty13      tty4   tty9      vcsa4
+fd               network_throughput  tty14      tty40  ttyGS0    vcsa5
+full             null                tty15      tty41  ttyO0     vcsa6
+fuse             ppp                 tty16      tty42  ttyO1     vcsu
+gpiochip0        ptmx                tty17      tty43  ttyO2     vcsu1
+gpiochip1        ptp0                tty18      tty44  ttyO3     vcsu2
+gpiochip2        pts                 tty19      tty45  ttyO4     vcsu3
+gpiochip3        pwm                 tty2       tty46  ttyO5     vcsu4
+hwrng            random              tty20      tty47  ttyS0     vcsu5
+i2c-0            rfkill              tty21      tty48  ttyS1     vcsu6
+i2c-1            rtc                 tty22      tty49  ttyS2     vhci
+i2c-2            rtc0                tty23      tty5   ttyS3     watchdog
+iio:device0      shm                 tty24      tty50  ttyS4     watchdog0
+initctl          snapshot            tty25      tty51  ttyS5     watchdog1
+input            snd                 tty26      tty52  ubi_ctrl  zero
+ion              spi                 tty27      tty53  uhid
+kmsg             spidev0.0           tty28      tty54  uinput
+log              spidev0.1           tty29      tty55  urandom
+loop-control     spidev1.0           tty3       tty56  vcs
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$ ls -al mmcblk1boot0
+brw-rw---- 1 root disk 179, 8 May 29 01:02 mmcblk1boot0
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$ ls -al mmcblk1boot1
+brw-rw---- 1 root disk 179, 16 May 29 01:02 mmcblk1boot1
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$
+debian@beaglebone:/dev$

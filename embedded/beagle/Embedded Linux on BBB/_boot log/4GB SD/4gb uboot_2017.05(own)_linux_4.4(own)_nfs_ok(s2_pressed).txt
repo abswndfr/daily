@@ -1,0 +1,310 @@
+U-Boot SPL 2017.05-rc2 (May 28 2024 - 23:31:26)
+Trying to boot from MMC1
+*** Warning - bad CRC, using default environment
+
+reading u-boot.img
+reading u-boot.img
+
+
+U-Boot 2017.05-rc2 (May 28 2024 - 23:31:26 -0700)
+
+CPU  : AM335X-GP rev 2.1
+I2C:   ready
+DRAM:  512 MiB
+MMC:   OMAP SD/MMC: 0, OMAP SD/MMC: 1
+*** Warning - bad CRC, using default environment
+
+<ethaddr> not set. Validating first E-fuse MAC
+Net:   cpsw, usb_ether
+Press SPACE to abort autoboot in 2 seconds
+switch to partitions #0, OK
+mmc0 is current device
+SD/MMC found on device 0
+reading boot.scr
+** Unable to read file boot.scr **
+reading uEnv.txt
+610 bytes read in 5 ms (119.1 KiB/s)
+Loaded env from uEnv.txt
+Importing environment from mmc0 ...
+Running uenvcmd ...
+Booting from network ...
+link up on port 0, speed 100, full duplex
+Using cpsw device
+TFTP from server 192.168.1.13; our IP address is 192.168.1.15
+Filename 'uImage'.
+Load address: 0x82000000
+Loading: #################################################################
+         #################################################################
+         #################################################################
+         #################################################################
+         #################################################################
+         #################################################################
+         #################################################################
+         #################################################################
+         #################################################################
+         #################################################################
+         ################################################################
+         1.5 MiB/s
+done
+Bytes transferred = 3654136 (37c1f8 hex)
+link up on port 0, speed 100, full duplex
+Using cpsw device
+TFTP from server 192.168.1.13; our IP address is 192.168.1.15
+Filename 'am335x-boneblack.dtb'.
+Load address: 0x88000000
+Loading: #######
+         1.1 MiB/s
+done
+Bytes transferred = 30732 (780c hex)
+## Booting kernel from Legacy Image at 82000000 ...
+   Image Name:   Linux-4.4.62
+   Created:      2024-05-29  14:39:10 UTC
+   Image Type:   ARM Linux Kernel Image (uncompressed)
+   Data Size:    3654072 Bytes = 3.5 MiB
+   Load Address: 80008000
+   Entry Point:  80008000
+   Verifying Checksum ... OK
+## Flattened Device Tree blob at 88000000
+   Booting using the fdt blob at 0x88000000
+   Loading Kernel Image ... OK
+   Loading Device Tree to 8fff5000, end 8ffff80b ... OK
+
+Starting kernel ...
+
+[    0.000000] Booting Linux on physical CPU 0x0
+[    0.000000] Initializing cgroup subsys cpuset
+[    0.000000] Initializing cgroup subsys cpu
+[    0.000000] Initializing cgroup subsys cpuacct
+[    0.000000] Linux version 4.4.62 (scott@VirtualBox) (gcc version 6.3.1 20170109 (Linaro GCC 6.3-2017.02) ) #1 SMP Wed May 29 07:38:52 PDT 2024
+[    0.000000] CPU: ARMv7 Processor [413fc082] revision 2 (ARMv7), cr=10c5387d
+[    0.000000] CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+[    0.000000] Machine model: TI AM335x BeagleBone
+[    0.000000] cma: Reserved 16 MiB at 0x9e800000
+[    0.000000] Memory policy: Data cache writeback
+[    0.000000] CPU: All CPU(s) started in SVC mode.
+[    0.000000] AM335X ES2.1 (sgx neon )
+[    0.000000] PERCPU: Embedded 14 pages/cpu @df917000 s24936 r8192 d24216 u57344
+[    0.000000] Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 129408
+[    0.000000] Kernel command line: console=ttyO0,115200n8 root=/dev/nfs rw rootfstype=nfs ip=192.168.1.15 nfsroot=192.168.1.13:/srv/nfs/bbb,nfsvers=3,tcp ip=dhcp,nolock,wsize=1024,rsize=1024 rootwait rootdelay=5
+[    0.000000] PID hash table entries: 2048 (order: 1, 8192 bytes)
+[    0.000000] Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+[    0.000000] Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+[    0.000000] Memory: 481920K/522240K available (6752K kernel code, 747K rwdata, 2248K rodata, 452K init, 8263K bss, 23936K reserved, 16384K cma-reserved, 0K highmem)
+[    0.000000] Virtual kernel memory layout:
+[    0.000000]     vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+[    0.000000]     fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
+[    0.000000]     vmalloc : 0xe0800000 - 0xff800000   ( 496 MB)
+[    0.000000]     lowmem  : 0xc0000000 - 0xe0000000   ( 512 MB)
+[    0.000000]     pkmap   : 0xbfe00000 - 0xc0000000   (   2 MB)
+[    0.000000]     modules : 0xbf000000 - 0xbfe00000   (  14 MB)
+[    0.000000]       .text : 0xc0008000 - 0xc08d2648   (9002 kB)
+[    0.000000]       .init : 0xc08d3000 - 0xc0944000   ( 452 kB)
+[    0.000000]       .data : 0xc0944000 - 0xc09feff8   ( 748 kB)
+[    0.000000]        .bss : 0xc0a01000 - 0xc1212c98   (8264 kB)
+[    0.000000] Running RCU self tests
+[    0.000000] Hierarchical RCU implementation.
+[    0.000000]  RCU lockdep checking is enabled.
+[    0.000000]  Build-time adjustment of leaf fanout to 32.
+[    0.000000]  RCU restricting CPUs from NR_CPUS=2 to nr_cpu_ids=1.
+[    0.000000] RCU: Adjusting geometry for rcu_fanout_leaf=32, nr_cpu_ids=1
+[    0.000000] NR_IRQS:16 nr_irqs:16 16
+[    0.000000] IRQ: Found an INTC at 0xfa200000 (revision 5.0) with 128 interrupts
+[    0.000000] OMAP clockevent source: timer2 at 24000000 Hz
+[    0.000014] sched_clock: 32 bits at 24MHz, resolution 41ns, wraps every 89478484971ns
+[    0.000035] clocksource: timer1: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 79635851949 ns
+[    0.000077] OMAP clocksource: timer1 at 24000000 Hz
+[    0.000928] Console: colour dummy device 80x30
+[    0.000984] Lock dependency validator: Copyright (c) 2006 Red Hat, Inc., Ingo Molnar
+[    0.000993] ... MAX_LOCKDEP_SUBCLASSES:  8
+[    0.001001] ... MAX_LOCK_DEPTH:          48
+[    0.001008] ... MAX_LOCKDEP_KEYS:        8191
+[    0.001016] ... CLASSHASH_SIZE:          4096
+[    0.001023] ... MAX_LOCKDEP_ENTRIES:     32768
+[    0.001030] ... MAX_LOCKDEP_CHAINS:      65536
+[    0.001037] ... CHAINHASH_SIZE:          32768
+[    0.001045]  memory used by lock dependency info: 5167 kB
+[    0.001052]  per task-struct memory footprint: 1536 bytes
+[    0.001078] Calibrating delay loop... 996.14 BogoMIPS (lpj=4980736)
+[    0.078857] pid_max: default: 32768 minimum: 301
+[    0.079258] Security Framework initialized
+[    0.079375] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes)
+[    0.079389] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes)
+[    0.082328] Initializing cgroup subsys io
+[    0.082430] Initializing cgroup subsys memory
+[    0.082521] Initializing cgroup subsys devices
+[    0.082643] Initializing cgroup subsys freezer
+[    0.082720] Initializing cgroup subsys perf_event
+[    0.082787] CPU: Testing write buffer coherency: ok
+[    0.084220] CPU0: thread -1, cpu 0, socket -1, mpidr 0
+[    0.084339] Setting up static identity map for 0x80008280 - 0x800082f0
+[    0.087945] Brought up 1 CPUs
+[    0.087969] SMP: Total of 1 processors activated (996.14 BogoMIPS).
+[    0.087979] CPU: All CPU(s) started in SVC mode.
+[    0.092089] devtmpfs: initialized
+[    0.123903] VFP support v0.3: implementor 41 architecture 3 part 30 variant c rev 3
+[    0.164077] omap_hwmod: tptc0 using broken dt data from edma
+[    0.164517] omap_hwmod: tptc1 using broken dt data from edma
+[    0.164934] omap_hwmod: tptc2 using broken dt data from edma
+[    0.173398] omap_hwmod: debugss: _wait_target_disable failed
+[    0.228733] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+[    0.228884] futex hash table entries: 256 (order: 2, 16384 bytes)
+[    0.231350] pinctrl core: initialized pinctrl subsystem
+[    0.236462] NET: Registered protocol family 16
+[    0.242217] DMA: preallocated 256 KiB pool for atomic coherent allocations
+[    0.244262] cpuidle: using governor ladder
+[    0.244288] cpuidle: using governor menu
+[    0.253787] OMAP GPIO hardware version 0.1
+[    0.272963] No ATAGs?
+[    0.272998] hw-breakpoint: debug architecture 0x4 unsupported.
+[    0.273537] omap4_sram_init:Unable to allocate sram needed to handle errata I688
+[    0.273554] omap4_sram_init:Unable to get sram pool needed to handle errata I688
+[    0.297914] edma 49000000.edma: Legacy memcpy is enabled, things might not work
+[    0.314112] edma 49000000.edma: TI EDMA DMA engine driver
+[    0.317917] SCSI subsystem initialized
+[    0.319936] omap_i2c 44e0b000.i2c: could not find pctldev for node /ocp/l4_wkup@44c00000/scm@210000/pinmux@800/pinmux_i2c0_pins, deferring probe
+[    0.320045] omap_i2c 4819c000.i2c: could not find pctldev for node /ocp/l4_wkup@44c00000/scm@210000/pinmux@800/pinmux_i2c2_pins, deferring probe
+[    0.320274] pps_core: LinuxPPS API ver. 1 registered
+[    0.320285] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.320339] PTP clock support registered
+[    0.324354] clocksource: Switched to clocksource timer1
+[    0.463182] NET: Registered protocol family 2
+[    0.465400] TCP established hash table entries: 4096 (order: 2, 16384 bytes)
+[    0.465496] TCP bind hash table entries: 4096 (order: 5, 147456 bytes)
+[    0.466680] TCP: Hash tables configured (established 4096 bind 4096)
+[    0.466871] UDP hash table entries: 256 (order: 2, 20480 bytes)
+[    0.467044] UDP-Lite hash table entries: 256 (order: 2, 20480 bytes)
+[    0.467911] NET: Registered protocol family 1
+[    0.469618] RPC: Registered named UNIX socket transport module.
+[    0.469642] RPC: Registered udp transport module.
+[    0.469652] RPC: Registered tcp transport module.
+[    0.469662] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.472293] hw perfevents: enabled with armv7_cortex_a8 PMU driver, 5 counters available
+[    0.476980] audit: initializing netlink subsys (disabled)
+[    0.477236] audit: type=2000 audit(0.470:1): initialized
+[    0.481788] VFS: Disk quotas dquot_6.6.0
+[    0.481971] VFS: Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
+[    0.484662] NFS: Registering the id_resolver key type
+[    0.485041] Key type id_resolver registered
+[    0.485056] Key type id_legacy registered
+[    0.485265] jffs2: version 2.2. (NAND) (SUMMARY)  © 2001-2006 Red Hat, Inc.
+[    0.490585] io scheduler noop registered
+[    0.490619] io scheduler deadline registered
+[    0.490673] io scheduler cfq registered (default)
+[    0.492602] pinctrl-single 44e10800.pinmux: 142 pins at pa f9e10800 size 568
+[    0.495175] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    0.500634] omap_uart 44e09000.serial: no wakeirq for uart0
+[    0.501227] 44e09000.serial: ttyO0 at MMIO 0x44e09000 (irq = 155, base_baud = 3000000) is a OMAP UART0
+[    1.256056] console [ttyO0] enabled
+[    1.296543] brd: module loaded
+[    1.322276] loop: module loaded
+[    1.328123] mtdoops: mtd device (mtddev=name/number) must be supplied
+[    1.394326] davinci_mdio 4a101000.mdio: davinci mdio revision 1.6
+[    1.400711] davinci_mdio 4a101000.mdio: detected phy mask fffffffe
+[    1.410935] libphy: 4a101000.mdio: probed
+[    1.415294] davinci_mdio 4a101000.mdio: phy[0]: device 4a101000.mdio:00, driver SMSC LAN8710/LAN8720
+[    1.426193] cpsw 4a100000.ethernet: Detected MACID = d0:39:72:6b:b0:ce
+[    1.438005] mousedev: PS/2 mouse device common for all mice
+[    1.443858] i2c /dev entries driver
+[    1.449231] omap_hsmmc 48060000.mmc: Got CD GPIO
+[    1.456593] ledtrig-cpu: registered to indicate activity on CPUs
+[    1.463993] oprofile: using arm/armv7
+[    1.468698] Initializing XFRM netlink socket
+[    1.473544] NET: Registered protocol family 10
+[    1.481704] sit: IPv6 over IPv4 tunneling driver
+[    1.489014] NET: Registered protocol family 17
+[    1.493751] NET: Registered protocol family 15
+[    1.498892] Key type dns_resolver registered
+[    1.503582] omap_voltage_late_init: Voltage driver support not added
+[    1.510307] sr_dev_init: No voltage domain specified for smartreflex0. Cannot initialize
+[    1.518788] sr_dev_init: No voltage domain specified for smartreflex1. Cannot initialize
+[    1.528351] ThumbEE CPU extension supported.
+[    1.532856] Registering SWP/SWPB emulation handler
+[    1.537962] SmartReflex Class3 initialized
+[    1.580231] tps65217 0-0024: TPS65217 ID 0xe version 1.2
+[    1.586416] omap_i2c 44e0b000.i2c: bus 0 rev0.11 at 400 kHz
+[    1.596453] omap_i2c 4819c000.i2c: bus 2 rev0.11 at 100 kHz
+[    1.603342] omap_hsmmc 48060000.mmc: Got CD GPIO
+[    1.647474] hctosys: unable to open rtc device (rtc0)
+[    1.652777] sr_init: No PMIC hook to init smartreflex
+[    1.658380] sr_init: platform driver register failed for SR
+[    1.685551] net eth0: initializing cpsw version 1.12 (0)
+[    1.693534] net eth0: phy found : id is : 0x7c0f1
+[    1.698655] libphy: PHY 4a101000.mdio:01 not found
+[    1.703661] net eth0: phy 4a101000.mdio:01 not found on slave 1
+[    1.718507] IPv6: ADDRCONF(NETDEV_UP): eth0: link is not ready
+[    1.762357] mmc0: host does not support reading read-only switch, assuming write-enable
+[    1.773235] mmc0: new high speed SDHC card at address 0002
+[    1.781826] mmcblk0: mmc0:0002 MSD 3.73 GiB
+[    1.790261]  mmcblk0: p1 p2
+[    4.704981] cpsw 4a100000.ethernet eth0: Link is Up - 100Mbps/Full - flow control rx/tx
+[    4.724409] IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+[    4.744290] IP-Config: Guessing netmask 255.255.255.0
+[    4.749938] IP-Config: Complete:
+[    4.753320]      device=eth0, hwaddr=d0:39:72:6b:b0:ce, ipaddr=192.168.1.15, mask=255.255.255.0, gw=255.255.255.255
+[    4.764469]      host=192.168.1.15, domain=, nis-domain=(none)
+[    4.770568]      bootserver=255.255.255.255, rootserver=192.168.1.13, rootpath=
+[    4.778448] vmmcsd_fixed: disabling
+[    4.785202] Waiting 5 sec before mounting root device...
+[    9.845124] VFS: Mounted root (nfs filesystem) on device 0:15.
+[    9.853522] devtmpfs: mounted
+[    9.857531] Freeing unused kernel memory: 452K (c08d3000 - c0944000)
+Mounting proc
+Starting logging: OK
+Loading kernel modules : modprobe: can't change directory to '4.4.62': No such file or directory
+FAIL
+Jan  1 00:00:10 192 syslog.info syslogd started: BusyBox v1.26.2
+Jan  1 00:00:10 192 user.notice kernel: klogd started: BusyBox v1.26.2 (2024-04-10 19:45:23 PDT)
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] Booting Linux on physical CPU 0x0
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] Initializing cgroup subsys cpuset
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] Initializing cgroup subsys cpu
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] Initializing cgroup subsys cpuacct
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000] Linux version 4.4.62 (scott@VirtualBox) (gcc version 6.3.1 20170109 (Linaro GCC 6.3-2017.02) ) #1 SMP Wed May 29 07:38:52 PDT 2024
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] CPU: ARMv7 Processor [413fc082] revision 2 (ARMv7), cr=10c5387d
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] Machine model: TI AM335x BeagleBone
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] cma: Reserved 16 MiB at 0x9e800000
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] Memory policy: Data cache writeback
+Jan  1 00:00:10 192 user.debug kernel: [    0.000000] On node 0 totalpages: 130560
+Jan  1 00:00:10 192 user.debug kernel: [    0.000000] free_area_init_node: node 0, pgdat c09f9000, node_mem_map df971000
+Jan  1 00:00:10 192 user.debug kernel: [    0.000000]   Normal zone: 1152 pages used for memmap
+Jan  1 00:00:10 192 user.debug kernel: [    0.000000]   Normal zone: 0 pages reserved
+Jan  1 00:00:10 192 user.debug kernel: [    0.000000]   Normal zone: 130560 pages, LIFO batch:31
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] CPU: All CPU(s) started in SVC mode.
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] AM335X ES2.1 (sgx neon )
+Starting network: Jan  1 00:00:10 192 user.info kernel: [    0.000000] PERCPU: Embedded 14 pages/cpu @df917000 s24936 r8192 d24216 u57344
+Jan  1 00:00:10 192 user.debug kernel: [    0.000000] pcpu-alloc: s24936 r8192 d24216 u57344 alloc=14*4096
+Jan  1 00:00:10 192 user.debug kernel: [    0.000000] pcpu-alloc: [0] 0
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 129408
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000] Kernel command line: console=ttyO0,115200n8 root=/dev/nfs rw rootfstype=nfs ip=192.168.1.15 nfsroot=192.168.1.13:/srv/nfs/bbb,nfsvers=3,tcp ip=dhcp,nolock,wsize=1024,rsize=1024 rootwait rootdelay=5
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] PID hash table entries: 2048 (order: 1, 8192 bytes)
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] Memory: 481920K/522240K available (6752K kernel code, 747K rwdata, 2248K rodata, 452K init, 8263K bss, 23936K reserved, 16384K cma-reserved, 0K highmem)
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000] Virtual kernel memory layout:
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000]     vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000]     fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000]     vmalloc : 0xe0800000 - 0xff800000   ( 496 MB)
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000]     lowmem  : 0xc0000000 - 0xe0000000   ( 512 MB)
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000]     pkmap   : 0xbfe00000 - 0xc0000000   (   2 MB)
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000]     modules : 0xbf000000 - 0xbfe00000   (  14 MB)
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000]       .text : 0xc0008000 - 0xc08d2648   (9002 kB)
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000]       .init : 0xc08d3000 - 0xc0944000   ( 452 kB)
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000]       .data : 0xc0944000 - 0xc09feff8   ( 748 kB)
+Jan  1 00:00:10 192 user.notice kernel: [    0.000000]        .bss : 0xc0a01000 - 0xc1212c98   (8264 kB)
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] Running RCU self tests
+Jan  1 00:00:10 192 user.info kernel: [    0.000000] Hierarchical RCU implementation.
+Jan  1 00:00:10 192 user.info kernel: [    0.000000]    RCU lockdep checking is enabled.
+Jan  1 00:00:10 192 user.info kernel: [    0.000000]    Build-time adjustment of leaf fanout to 32.
+Jan  1 00:00:10 192 user.info kernel: [    0.000000]    RCU restricting CPUs from NR_CPUS=2 to nr_cpu_ids=1.
+Jan  1 00:00:10 192 user.info kernel: [ Jan  1 00:00:10 192 user.info keJan  1 00:00:10 Jan  1 00:00:10 192 user.info keJan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 192 user.warn keJan  1 00:00:10 Jan  1 00:00:10 192 user.warn keJan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 192 user.info keJan  1 00:00:10 192 user.info keJan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 192 user.warn keJan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 192 user.info kernel: [    0.320Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 192 user.info keJan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 192 user.info keJan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 Jan  1 00:00:10 192 user.info keJan  1 00:00:10 ip: RTNETLINK answers: File exists
+FAIL
+
+Please press Enter to activate this console.
+Jan  1 00:00:13 192 daemon.info : starting pid 92, tty '': '-/bin/sh'
+/ #
+/ #
+/ #
+/ #
+/ #
+/ #
+/ #
