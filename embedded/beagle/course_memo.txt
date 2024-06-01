@@ -1,0 +1,2476 @@
+FASTWEBAPR24
+
+
+Angstrom  - 04/29/2013	version 3.8.10 Mon Apr 29 19:52:49 UTC 2013			id:root, pwd: (none)
+AgrowSoft - 05/14/2014
+emb video - 01/26/2017							
+own built - 03/26/2024	version 4.14.108  Mar 26 19:15:38 PDT 2024	->  src base : 03/19/2017
+prebuilt  - 08/03/2019
+
+012345
+ GP  B
+
+
+teraterm : uart to BBB over serial to USB
+web      : 192.168.7.2 by web via USB
+ssh      : ssh to demian@192.168.7.2
+eclipse  : ...
+
+
+													
+Section 1
+
+	1. About the instructor													
+	
+	2. Important Note														
+	
+	3. overview																
+	
+	4. FAQ												
+						
+	5. Additional components list											
+	
+	6. Download Course materials  (recorded in 8/16/2014)											
+	
+		https://github.com/niekiran/EmbeddedLinuxBBB	Add uEnvs		fastbiteba 		committed on Aug 16, 2017	5a0d621
+																									
+		
+	7. BeagleBone Black(BBB) Board Introduction								
+	
+		http://beagleboard.org/black		=> https://www.beagleboard.org/boards/beaglebone-black (current)
+	
+		system reference manual : hardware specs and materials (BOM,PDF,OrCAD,PCB,MFG, & SRM in beagleboard black wiki) 
+								->  https://elinux.org/Beagleboard:BeagleBoneBlack#LATEST_PRODUCTION_FILES_.28C.29
+		
+			https://github.com/beagleboard/beaglebone-black/wiki/System-Reference-Manual -> not working only showing rttrt
+		
+			https://github.com/beagleboard/beaglebone-black/wiki						 -> working 	
+		
+			https://docs.beagleboard.org/latest/boards/beaglebone/black/index.html		 -> SRM online version	
+		
+		
+	8. BeagleBone Black(BBB) Board Introduction contd.		
+	
+			START.html on BBB is 26/01/2017							my BBB is 8/3/2019 (BeagleBoard.org Debian Image 2019-08-03)
+				
+	9. Connecting BBB to PC using external USB TO UART Converter			
+	
+	10. Using Minicom														
+	
+		dmesg to find out pl2303 converter attached to ttyUSB0
+	
+		$ sudo minicom -s
+		
+		U-Boot SPL 2013.10-dirty (Nov 14 2013 - 12:59:11) 
+		
+	11. Using Teraterm and Putty											
+	
+	12. Getting started with BBB and initial Setup							
+	
+			RNDIS network after install device driver in Win7. Installing device driver failed in Win10
+	
+	13. BBB Web interface 													
+
+		BBB Debian OS running on BBB already has a web server ready.
+		-> running BoneScript 0.6.1 at 192.168.7.2 for Windows 7 : http://192.168.7.2/bone101/support/bone101    
+				
+		update firmware via web and run demos: need to revisit, can't connect for now. (cloud9 still works)
+
+
+		... 
+
+		
+		sysfs :  a file system on the fly existing in RAM, a kind of window for the user space to peek into various subsystems 
+   		         of linux 
+		
+		debian@beaglebone:~$ ls /sys
+		 block  bus  class  dev  devices  firmware  fs  kernel  module  power
+
+		debian@beaglebone:/sys/class$ ls
+		 ata_device     dma          input     phy           scsi_disk     typec
+		 ata_link       drm          iommu     power_supply  scsi_generic  ubi
+		 ata_port       extcon       leds      pps           scsi_host     udc
+		 backlight      firmware     mbox      ptp           sound         uio
+		 bdi            gpio         mdio_bus  pwm           spidev        vc
+		 block          graphics     mem       regulator     spi_master    vtconsole
+		 bsg            hidraw       misc      remoteproc    thermal       watchdog
+		 devcoredump    hwmon        mmc_host  rfkill        tpm
+		 devfreq        i2c-adapter  mtd       rtc           tpmrm
+		 devfreq-event  i2c-dev      net       scsi_device   tty
+
+		debian@beaglebone:~$ ls /dev  (serial_devices, parallel_devices, display subsystem, networking, usb, memory, bus, & io)
+		 apm_bios         mapper              snapshot  tty27  tty50   ubi_ctrl
+		 autofs           mem                 snd       tty28  tty51   uhid
+		 block            memory_bandwidth    stderr    tty29  tty52   uinput
+		 btrfs-control    mmcblk0             stdin     tty3   tty53   urandom
+		 bus              mmcblk0p1           stdout    tty30  tty54   vcs
+		 char             mmcblk0p2           tty       tty31  tty55   vcs1
+		 console          mmcblk1             tty0      tty32  tty56   vcs2
+		 cpu_dma_latency  mmcblk1boot0        tty1      tty33  tty57   vcs3
+		 cuse             mmcblk1boot1        tty10     tty34  tty58   vcs4
+		 disk             mmcblk1p1           tty11     tty35  tty59   vcs5
+		 dri              mmcblk1p2           tty12     tty36  tty6    vcs6
+		 fd               mmcblk1rpmb         tty13     tty37  tty60   vcsa
+		 full             mqueue              tty14     tty38  tty61   vcsa1
+		 fuse             net                 tty15     tty39  tty62   vcsa2
+		 gpiochip0        network_latency     tty16     tty4   tty63   vcsa3
+		 gpiochip1        network_throughput  tty17     tty40  tty7    vcsa4
+		 gpiochip2        null                tty18     tty41  tty8    vcsa5
+		 gpiochip3        ppp                 tty19     tty42  tty9    vcsa6
+		 hwrng            ptmx                tty2      tty43  ttyGS0  vhci
+		 i2c-0            ptp0                tty20     tty44  ttyO0   watchdog
+		 i2c-2            pts                 tty21     tty45  ttyS0   watchdog0
+		 initctl          random              tty22     tty46  ttyS1   watchdog1
+		 kmem             rfkill              tty23     tty47  ttyS2   zero
+		 kmsg             rtc                 tty24     tty48  ttyS3
+		 log              rtc0                tty25     tty49  ttyS4
+		 loop-control     shm                 tty26     tty5   ttyS5		
+
+
+		debian@beaglebone:/sys/class/leds$ ls
+		 beaglebone:green:usr0  beaglebone:green:usr2 beaglebone:green:usr1  beaglebone:green:usr3
+		
+		debian@beaglebone:/sys/class/leds$ ls beaglebone\:green\:usr0
+		 brightness  device  max_brightness  power  subsystem  trigger  uevent
+
+
+			writeTextFile(fn, data, [cb])
+				var b = require('bonescript');
+				var file = '/sys/class/leds/beaglebone:green:usr3/trigger';		!!!
+				
+				b.writeTextFile(file, 'heartbeat', readStatus);					// heartbeat 
+				
+				function readStatus(x) {
+					console.log(JSON.stringify(x));
+					b.readTextFile(file, printStatus);
+				}
+				
+				function printStatus(x) {
+					console.log(JSON.stringify(x));
+
+
+		debian@beaglebone:/sys/class/leds/beaglebone:green:usr2$ cat trigger
+		 none rfkill-any kbd-scrolllock kbd-numlock kbd-capslock kbd-kanalock kbd-shiftlock kbd-altgrlock kbd-ctrllock kbd-altlock kbd-shiftllock kbd-shiftrlock kbd-ctrlllock kbd-ctrlrlock mmc0 mmc1 usb-gadget usb-host timer oneshot disk-activity ide-disk mtd nand-disk [heartbeat] backlight gpio cpu cpu0 activity default-on panic netdev
+
+		  => [heartbeat] is the default
+		  
+		  echo 'default-on' > trigger 			: keep on
+		  
+		  
+		  
+		  
+Section 2
+
+	14. Using virtual machine												
+	15. Installing “Ubuntu-16” on virtual box –Part 1						
+	16. Installing “Ubuntu-16” on virtual box –Part 2						
+	17. communicating with BBB												
+
+	  
+	  Ubuntu 18.04
+		[   79.624268] usbserial: USB Serial support registered for pl2303
+		[   79.624318] pl2303 2-2:1.0: pl2303 converter detected
+		[   79.630601] usb 2-2: pl2303 converter now attached to ttyUSB0		
+
+	  Ubuntu 16.04.2, 16.04.7	=> no ttyUSB0
+
+		ssh -l debian 192.168.7.2
+		
+	
+
+
+Section 3	
+
+	18. AM335x Functional block Overview Part 1								
+	19. AM335x Functional block Overview Part 2								
+
+
+Section 4	
+
+	20. What do we need to successfully boot linux on BBB ?				
+
+		RBL 	: ROM boot loader. tiny and limited. written by the vendor (Ti for AM335x)
+		SPL/MLO : Secondary Program Loader / Memory LOader derived from U-Boot. Load and execute 3rd stage boot loader, U-Boot.  
+		U-Boot  : load linux kernel
+		Linux K : load file system
+		RFS		:	/SD/Flash/Network/RAM/e-MMC
+		
+	21. BBB boot options													
+	
+	
+	
+	22. BBB Linux boot sequence discussion: ROM and SPL						
+	
+		RBL : SYSBOOT[15:14] -> choose external clock source
+	
+	23. BBB Linux boot sequence discussion-MLO/SPL job					
+	
+	
+	
+	
+	24. Why AM335x RBL cannot load the Uboot directly to DDR?	
+
+
+	25. Booting RBL and MLO on BBB											
+	
+		. used Angstrom prebuilt images for test	
+	
+	
+	
+	26. Testing MLO image on BBB											
+
+		MLO
+
+		  U-Boot SPL 2013.04-dirty (Jun 19 2013 - 09:57:14)
+		  musb-hdrc: ConfigData=0xde (UTMI-8, dyn FIFOs, HB-ISO Rx, HB-ISO Tx, SoftConn)
+		  musb-hdrc: MHDRC RTL version 2.0
+		  musb-hdrc: setup fifo_mode 4
+		  musb-hdrc: 28/31 max ep, 16384/16384 memory
+		  USB Peripheral mode controller at 47401000 using PIO, IRQ 0
+		  musb-hdrc: ConfigData=0xde (UTMI-8, dyn FIFOs, HB-ISO Rx, HB-ISO Tx, SoftConn)
+		  musb-hdrc: MHDRC RTL version 2.0
+		  musb-hdrc: setup fifo_mode 4
+		  musb-hdrc: 28/31 max ep, 16384/16384 memory
+		  USB Host mode controller at 47401800 using PIO, IRQ 0
+		  OMAP SD/MMC: 0
+		  reading u-boot.img		  
+		  spl: error reading image u-boot.img, err - -1				<= !!
+		  ### ERROR ### Please RESET the board ###
+
+
+	27. Testing U-boot image on BBB											
+	
+		MLO, u-boot.img -> 	media/scott/BOOT/u-boot.img		
+		
+		
+		  
+
+		  U-Boot SPL 2013.04-dirty (Jun 19 2013 - 09:57:14)
+		  musb-hdrc: ConfigData=0xde (UTMI-8, dyn FIFOs, HB-ISO Rx, HB-ISO Tx, SoftConn)
+		  musb-hdrc: MHDRC RTL version 2.0 
+		  musb-hdrc: setup fifo_mode 4
+		  musb-hdrc: 28/31 max ep, 16384/16384 memory
+		  USB Peripheral mode controller at 47401000 using PIO, IRQ 0
+		  musb-hdrc: ConfigData=0xde (UTMI-8, dyn FIFOs, HB-ISO Rx, HB-ISO Tx, SoftConn)
+		  musb-hdrc: MHDRC RTL version 2.0 
+		  musb-hdrc: setup fifo_mode 4
+		  musb-hdrc: 28/31 max ep, 16384/16384 memory
+		  USB Host mode controller at 47401800 using PIO, IRQ 0
+		  OMAP SD/MMC: 0
+		  reading u-boot.img										<= !!
+		  reading u-boot.img
+		  
+		  
+		  U-Boot 2013.04-dirty (Jun 19 2013 - 09:57:14)
+		  
+		  I2C:   ready
+		  DRAM:  512 MiB
+		  WARNING: Caches not enabled
+		  NAND:  No NAND device found!!!
+		  0 MiB
+		  MMC:   OMAP SD/MMC: 0, OMAP SD/MMC: 1
+		  *** Warning - readenv() failed, using default environment
+		  
+		  musb-hdrc: ConfigData=0xde (UTMI-8, dyn FIFOs, HB-ISO Rx, HB-ISO Tx, SoftConn)
+		  musb-hdrc: MHDRC RTL version 2.0 
+		  musb-hdrc: setup fifo_mode 4
+		  musb-hdrc: 28/31 max ep, 16384/16384 memory
+		  USB Peripheral mode controller at 47401000 using PIO, IRQ 0
+		  musb-hdrc: ConfigData=0xde (UTMI-8, dyn FIFOs, HB-ISO Rx, HB-ISO Tx, SoftConn)
+		  musb-hdrc: MHDRC RTL version 2.0 
+		  musb-hdrc: setup fifo_mode 4
+		  musb-hdrc: 28/31 max ep, 16384/16384 memory
+		  USB Host mode controller at 47401800 using PIO, IRQ 0
+		  Net:   <ethaddr> not set. Validating first E-fuse MAC
+		  cpsw, usb_ether
+		  Hit any key to stop autoboot:  0 
+		  gpio: pin 53 (gpio 53) value is 1
+		  mmc0 is current device
+		  micro SD card found
+		  mmc0 is current device
+		  gpio: pin 54 (gpio 54) value is 1
+		  SD/MMC found on device 0
+		  reading uEnv.txt
+		  ** Unable to read file uEnv.txt **
+		  gpio: pin 55 (gpio 55) value is 1
+		  ** File not found /boot/uImage **
+		  U-Boot# 
+		
+
+			
+	
+	28. BBB Linux boot sequence discussion-uboot							
+		
+		media/scott/ROOTFS/boot/uImage		
+		media/scott/ROOTFS/				<= XXXXXXXX-2013.09.12.-rootfs$ sudo cp -r * /media/scott/ROOTFS; sync
+		media/scott/ROOTFS/boot/uEnv.txt
+		
+		Angstrom 	id:root
+	
+		uEnv.txt   		
+		  console=tyO0, 115200n8
+		  ipaddr=192.168.7.2
+		  serverip=192.168.7.1
+		  loadaddr=0x82000000
+		  fdtaddr=0x88000000
+		  loadfromsd\load mmc 0:2 ${loadaddr} /boot/uImage;load mmc 0:2 ${fdtaddr} /boot/am335x-boneblack.dtb 		<= uImage & dtb are in 2nd partition/boot/, not 1st partition.
+		  linuxbootargs=setenv bootargs console=${console} root=/dev/mmcblk0p2 rw									<= rootfs is also specified in 2nd partition
+		  uenvcmd=setenv autoload no; run loadfromsd; run linuxbootargs; bootm ${loadaddr} - ${fdtaddr}
+	
+		starting kernel ...
+
+		...
+		
+		  The Angstrom Distribution beagleboard ttyO0
+		  
+		  Angstrom v2012.12 - Kernel 3.8.10
+		  
+		  beagleboard login: [   15.792888] net eth0: initializing cpsw version 1.12 (0)
+		  [  OK  ] Started WPA supplicant.
+		  [   15.807364] net eth0: phy found : id is : 0x7c0f1
+		  [   15.819861] libphy: PHY 4a101000.mdio:01 not found
+		  [   15.824988] net eth0: phy 4a101000.mdio:01 not found on slave 1
+		  [   18.883423] libphy: 4a101000.mdio:00 - Link is Up - 100/Full
+		  
+		  .---O---.                                           
+		  |       |                  .-.           o o        
+		  |   |   |-----.-----.-----.| |   .----..-----.-----.
+		  |       |     | __  |  ---'| '--.|  .-'|     |     |
+		  |   |   |  |  |     |---  ||  --'|  |  |  '  | | | |
+		  '---'---'--'--'--.  |-----''----''--'  '-----'-'-'-'
+		  				-'  |
+		  				'---'
+		  
+		  The Angstrom Distribution beagleboard ttyO0
+		  
+		  Angstrom v2012.12 - Kernel 3.8.10
+		  
+		...
+		
+		 root@beagleboard:~# ifconfig
+		 eth0      Link encap:Ethernet  HWaddr D0:39:72:6B:B0:CE  
+		 		inet addr:192.168.1.18  Bcast:192.168.1.255  Mask:255.255.255.0			<= not 192.168.7.2  !!
+
+
+
+
+	29. Decoding U-boot Header of uImage Manually		
+
+		U-Boot# help load
+		load - load binary file from a filesystem
+		
+		Usage:
+		load <interface> [<dev[:part]> [<addr> [<filename> [bytes [pos]]]]]
+			- Load binary file 'filename' from partition 'part' on device type 'interface' instance 'dev' to address 'addr' in memory. 'bytes' gives the size to load in bytes.
+			If 'bytes' is 0 or omitted, the file is read until the end. 'pos' gives the file byte position to start reading from.
+			If 'pos' is 0 or omitted, the file is read from the start. All numeric parameters are assumed to be decimal, unless specified otherwise using a leading "0x".
+
+		U-Boot#
+		U-Boot# load mmc 0:2 0x82000000 /boot/uImage
+		4002080 bytes read in 486 ms (7.9 MiB/s)
+		U-Boot#
+
+		U-Boot# help md
+		md - memory display
+		
+		Usage:
+		md [.b, .w, .l] address [# of objects]
+		U-Boot#
+		U-Boot# md 0x82000000 4
+		82000000: 56190527 62153da1 50d07e51 e0103d00    '..V.=.bQ~.P.=..	
+		U-Boot#	
+	
+				56190527 is little endian magic number -> 0x27051956
+	
+	
+		   https://github.com/EmcraftSystems/u-boot/blob/master/include/image.h	
+	
+				typedef struct image_header {
+					uint32_t	ih_magic;	/* Image Header Magic Number	*/		0x27051956
+					uint32_t	ih_hcrc;	/* Image Header CRC Checksum	*/
+		
+		uint32_t	ih_time;	/* Image Creation Timestamp	*/			!
+					uint32_t	ih_size;	/* Image Data Size		*/				e0103d00 -> 4002016 + 64(header size) 
+
+					uint32_t	ih_load;	/* Data	 Load  Address		*/
+					uint32_t	ih_ep;		/* Entry Point Address		*/
+					uint32_t	ih_dcrc;	/* Image Data CRC Checksum	*/			d58b5329
+					uint8_t		ih_os;		/* Operating System		*/
+					uint8_t		ih_arch;	/* CPU architecture		*/
+					uint8_t		ih_type;	/* Image Type			*/
+					uint8_t		ih_comp;	/* Compression Type		*/
+
+					uint8_t		ih_name[IH_NMLEN];	/* Image Name		*/			Angstrom/3.8.10/beaglebone......
+				} image_header_t;
+			
+		U-Boot#
+		U-Boot# md 0x82000000 10
+		82000000: 56190527 62153da1 50d07e51 e0103d00    '..V.=.bQ~.P.=..
+		82000010: 00800080 00800080 d58b5329 00020205    ........)S......
+		82000020: 73676e41 6d6f7274 382e332f 2f30312e    Angstrom/3.8.10/			ih_name
+		82000030: 67616562 6f62656c 0000656e 00000000    beaglebone......
+		U-Boot#
+	
+		U-Boot#
+		U-Boot# help imi
+		iminfo - print header information for application image
+		
+		Usage:
+		iminfo addr [addr ...]
+			- print header information for application image starting at
+			address 'addr' in memory; this includes verification of the
+			image contents (magic number, header and payload checksums)
+		U-Boot#
+		U-Boot#
+		U-Boot# imi 0x82000000
+		
+		## Checking Image at 82000000 ...
+		Legacy image found
+		Image Name:   Angstrom/3.8.10/beaglebone
+		Image Type:   ARM Linux Kernel Image (uncompressed)
+		Data Size:    4002016 Bytes = 3.8 MiB
+		Load Address: 80008000
+		Entry Point:  80008000
+		Verifying Checksum ... OK
+		U-Boot#		
+	
+	30. Linux boot sequence discussion-Boot strap loader part 1				
+	
+		boot loader: U-boot --> bootm.c 								kernel_entry()									 		
+		
+		BS loader : head.s <----> misc.c								Start:
+		
+		kernel	  : head.s ---> head-command.c ----> main.c  => init 		
+
+
+		>> u-boot-2017.05-rc2 : src in the lecture
+	
+		https://github.com/ARM-software/u-boot/blob/master/arch/arm/lib/bootm.c
+	
+
+		1.	static void announce_and_cleanup(int fake)
+			{
+				printf("\nStarting kernel ...%s\n\n", fake ? "(fake run for tracing)" : "");
+				bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kerel");		
+				bootstage_fdt_add_report();				// #ifdef CONFIG_BOOTSTAGE_FDT		
+				bootstage_report();						// #ifdef CONFIG_BOOTSTAGE_REPORT
+				udc_disconnect();						// #ifdef CONFIG_USB_DEVICE
+				board_quiesce_devices();
+				dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
+				cleanup_before_linux();
+			}
+		
+		2.1
+			$ grep -r "bootm_headers_t" *	-> include/image.h  
+			
+				https://github.com/ARM-software/u-boot/blob/master/include/image.h
+			
+				typedef struct bootm_headers {
+					image_header_t	*legacy_hdr_os;		/* image header pointer */
+					image_header_t	legacy_hdr_os_copy;	/* header copy */
+					ulong		legacy_hdr_valid;
+
+					image_info_t	os;		/* os image info */
+					ulong		ep;		/* entry point of OS */
+
+					...
+				
+		2.2 static void boot_jump_linux(bootm_headers_t *images, int flag)
+
+			void (*kernel_entry)(void *fdt_addr, void *res0, void *res1, void *res2);
+			int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
+			kernel_entry = (void (*)(void *fdt_addr, void *res0, void *res1, void *res2))images->ep;	// fdt_addr
+																										// ep means entry point	
+			...
+
+			kernel_entry = (void (*)(int, int, uint))images->ep;	// Entry point to Linux, 0x88000040
+
+			...
+
+			if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len)
+				r2 = (unsigned long)images->ft_addr;		// ft_addr is holding the addr at which the device tree binary is present in DDR
+			else
+				r2 = gd->bd->bi_boot_params;
+
+
+				if (!fake) {
+			ifdef CONFIG_ARMV7_NONSEC
+					if (armv7_boot_nonsec()) {
+						armv7_init_nonsec();
+						secure_ram_addr(_do_nonsec_entry)(kernel_entry, 0, machid, r2);
+					} else
+			endif
+						kernel_entry(0, machid, r2);	// this code hands off control to the linux.
+				}										// the "entry point" address is dereferencd.
+														// u-boot sends machin id to kernel												
+			endif										// r2 has fdt address	
+			
+	
+	31. linux boot sequence discussion-Boot strap loader-part 2					
+	
+			arch/arm/boot/compressed/head.s			
+
+					.section ".start", #alloc, #execinstr
+			/*
+			 *  sort out different calling conventions
+			 */
+					.align
+			start:
+					.type	start,#function
+					.rept	8
+					mov	r0, r0
+					.endr
+			
+					b	1f
+					.word	0x016f2818		@ Magic numbers to help the loader
+					.word	start			@ absolute load/run zImage address
+					.word	_edata			@ zImage end address
+			1:		mov	r7, r1				@ save architecture ID
+					mov	r8, r2				@ save atags pointer
+					mov	r9, r3				@ save phys_offset
+
+					...
+
+					mov	r5, r2			@ decompress after malloc space
+					mov	r0, r5
+					mov	r3, r7
+					bl	decompress_kernel		@ arch/ar/boot/compressed/misc.c
+	
+	
+			arch/arm/kernel/head.s			
+
+
+	
+	32. linux boot sequence discussion - Kernel Entry						
+	
+			arch/arm/kernel/head.s 		& 		arch/arm/mm/proc-v7.s
+	
+				/*
+				* Kernel startup entry point.
+				* ---------------------------
+				* This is normally called from the decompressor code.  * The requirements are: 
+				*     MMU = off, D-cache = off, I-cache = dont care, 
+				*	  r0 = 0, r1 = machine nr, r2 = atags pointer.
+				* This code is mostly position independent, so if you link the kernel at 0xc0008000, you call this at __pa(0xc0008000).
+				* See linux/arch/arm/tools/mach-types for the complete list of machine numbers for r1.
+				* We're trying to keep crap to a minimum; DO NOT add any machine specific crap here - that's what the boot loader (or in extreme, well justified circumstances, zImage) is for.
+				*/
+					__HEAD
+				ENTRY(stext)
+					setmode	PSR_F_BIT | PSR_I_BIT | SVC_MODE, r9 @ ensure svc mode
+																@ and irqs disabled
+					mrc	p15, 0, r9, c0, c0						 @ get processor id
+					bl	__lookup_processor_type					 @ r5=procinfo r9=cpuid
+					movs	r10, r5								 @ invalid processor (r5=0)?
+					beq	__error_p								 @ yes, error 'p'
+					bl	__lookup_machine_type					 @ r5=machinfo
+					movs	r8, r5								 @ invalid machine (r5=0)?
+					beq	__error_a								 @ yes, error 'a'
+					bl	__vet_atags
+					bl	__create_page_tables
+	
+					/*
+					* The following calls CPU specific code in a position independent
+					* manner.  See arch/arm/mm/proc-*.S for details.  r10 = base of
+					* xxx_proc_info structure selected by __lookup_machine_type
+					* above.  On return, the CPU will be ready for the MMU to be
+					* turned on, and r0 will hold the CPU control register value.
+					*/
+					
+					ldr	r13, __switch_data						@ address to jump to after mmu has been enabled
+					adr	lr, BSYM(__enable_mmu)					@ return (PIC) address
+				ARM(	add	pc, r10, #PROCINFO_INITFUNC		)
+				THUMB(	add	r12, r10, #PROCINFO_INITFUNC	)
+				THUMB(	mov	pc, r12							)
+				ENDPROC(stext)
+				
+				ENTRY(secondary_startup)
+					setmode	PSR_F_BIT | PSR_I_BIT | SVC_MODE, r9
+					mrc	p15, 0, r9, c0, c0		@ get processor id
+					bl	__lookup_processor_type
+					movs	r10, r5				@ invalid processor?
+					moveq	r0, #'p'			@ yes, error 'p'
+					beq	__error
+				
+					adr	r4, __secondary_data
+					ldmia	r4, {r5, r7, r12}		@ address to jump to after
+					sub	r4, r4, r5			@ mmu has been enabled
+					ldr	r4, [r7, r4]			@ get secondary_data.pgdir
+					adr	lr, BSYM(__enable_mmu)		@ return address
+					mov	r13, r12			@ __secondary_switched address
+				
+				ARM(	add	pc, r10, #PROCINFO_INITFUNC	) @ initialise processor	@ (return control reg)
+				THUMB(	add	r12, r10, #PROCINFO_INITFUNC	)
+				THUMB(	mov	pc, r12				)
+				ENDPROC(secondary_startup)
+				
+
+
+			arch/arm/kernel/head-common.s
+
+				__switch_data:
+					.long	__mmap_switched
+					.long	__data_loc			@ r4
+					.long	_data				@ r5
+					.long	__bss_start			@ r6
+					.long	_end				@ r7
+					.long	processor_id			@ r4
+					.long	__machine_arch_type		@ r5
+					.long	__atags_pointer			@ r6
+					.long	cr_alignment			@ r7
+					.long	init_thread_union + THREAD_START_SP @ sp
+				
+				/*
+				* The following fragment of code is executed with the MMU on in MMU mode,
+				* and uses absolute addresses; this is not position independent.
+				*
+				*  r0  = cp#15 control register
+				*  r1  = machine ID
+				*  r2  = atags pointer
+				*  r9  = processor ID
+				*/
+				
+				__mmap_switched:
+					adr	r3, __switch_data + 4
+				
+					ldmia	r3!, {r4, r5, r6, r7}
+					cmp	r4, r5				@ Copy data segment if needed
+				1:	cmpne	r5, r6
+					ldrne	fp, [r4], #4
+					strne	fp, [r5], #4
+					bne	1b
+				
+					mov	fp, #0				@ Clear BSS (and zero fp)
+				1:	cmp	r6, r7
+					strcc	fp, [r6],#4
+					bcc	1b
+				
+				ARM(	ldmia	r3, {r4, r5, r6, r7, sp})
+				THUMB(	ldmia	r3, {r4, r5, r6, r7}	)
+				THUMB(	ldr	sp, [r3, #16]		)
+					str	r9, [r4]			@ Save processor ID
+					str	r1, [r5]			@ Save machine type
+					str	r2, [r6]			@ Save atags pointer
+					bic	r4, r0, #CR_A			@ Clear 'A' bit
+					stmia	r7, {r0, r4}			@ Save control register values
+					b	start_kernel
+				ENDPROC(__mmap_switched)
+			
+			
+			
+	33. Linux boot sequence discussion - launch of 'INIT'								
+	
+			arch/init/main.c
+			
+				asmlinkage void __init start_kernel(void)
+				{
+					char * command_line;
+					extern struct kernel_param __start___param[], __stop___param[];
+
+					smp_setup_processor_id();
+					lockdep_init();				// Need to run as early as possible, to initialize the lockdep hash:
+					debug_objects_early_init();
+					boot_init_stack_canary();	// Set up the the initial canary ASAP:
+					cgroup_init_early();
+					local_irq_disable();
+					early_boot_irqs_off();
+					early_init_irq_lock_class();
+
+					// Interrupts are still disabled. Do necessary setups, then enable them
+					lock_kernel();				
+					tick_init();
+					boot_cpu_init();
+					page_address_init();
+			!		printk(KERN_NOTICE "%s", linux_banner);		// Linux version 3.8.13 (koen@rrMBP) ...
+																// init/version.c   
+					setup_arch(&command_line);
+					mm_init_owner(&init_mm, &init_task);
+					setup_command_line(command_line);
+					setup_nr_cpu_ids();
+					setup_per_cpu_areas();
+					smp_prepare_boot_cpu();			/* arch-specific boot-cpu hooks */
+					build_all_zonelists(NULL);
+					page_alloc_init();
+
+					printk(KERN_NOTICE "Kernel command line: %s\n", boot_command_line);
+					parse_early_param();
+					parse_args("Booting kernel", static_command_line, __start___param, __stop___param - __start___param, &unknown_bootoption);
+
+					// These use large bootmem allocations and must precede kmem_cache_init()
+					pidhash_init();
+					vfs_caches_init_early();
+					sort_main_extable();
+					trap_init();
+					mm_init();
+
+					// Set up the scheduler prior starting any interrupts (such as the timer interrupt). Full topology setup happens at smp_init() time - but meanwhile we still have a functioning scheduler.
+					sched_init();
+
+					// Disable preemption - early bootup scheduling is extremely fragile until we cpu_idle() for the first time.
+					preempt_disable();
+					if (!irqs_disabled()) {
+						printk(KERN_WARNING "start_kernel(): bug: interrupts were " 
+								"enabled *very* early, fixing it\n");
+						local_irq_disable();
+					}
+					rcu_init();
+					radix_tree_init();
+					/* init some links before init_ISA_irqs() */
+					early_irq_init();
+					init_IRQ();
+					prio_tree_init();
+					init_timers();
+					hrtimers_init();
+					softirq_init();
+					timekeeping_init();
+					time_init();
+					profile_init();
+					if (!irqs_disabled())
+						printk(KERN_CRIT "start_kernel(): bug: interrupts were "
+								"enabled early\n");
+					early_boot_irqs_on();
+					local_irq_enable();
+				
+					/* Interrupts are enabled now so all GFP allocations are safe. */
+					gfp_allowed_mask = __GFP_BITS_MASK;
+				
+					kmem_cache_init_late();
+				
+					// HACK ALERT! This is early. We're enabling the console before we've done PCI setups etc, and console_init() must be aware of this. But we do want output early, in case something goes wrong.
+					console_init();
+					if (panic_later)
+						panic(panic_later, panic_param);
+				
+					lockdep_info();
+					locking_selftest();				// Need to run this when irqs are enabled, because it wants to self-test [hard/soft]-irqs on/off lock inversion bugs too:
+				
+					if (initrd_start && !initrd_below_start_ok && page_to_pfn(virt_to_page((void *)initrd_start)) < min_low_pfn) {		// #ifdef CONFIG_BLK_DEV_INITRD
+						printk(KERN_CRIT "initrd overwritten (0x%08lx < 0x%08lx) - "
+							"disabling it.\n", page_to_pfn(virt_to_page((void *)initrd_start)), min_low_pfn);
+						initrd_start = 0;
+					}
+
+					page_cgroup_init();
+					enable_debug_pagealloc();
+					kmemtrace_init();
+					kmemleak_init();
+					debug_objects_mem_init();
+					idr_init_cache();
+					setup_per_cpu_pageset();
+					numa_policy_init();
+					if (late_time_init)	late_time_init();
+					sched_clock_init();
+					calibrate_delay();
+					pidmap_init();
+					anon_vma_init();
+					if (efi_enabled) efi_enter_virtual_mode();	// #ifdef CONFIG_X86
+					thread_info_cache_init();
+					cred_init();
+					fork_init(totalram_pages);
+					proc_caches_init();
+					buffer_init();
+					key_init();
+					security_init();
+					dbg_late_init();
+					vfs_caches_init(totalram_pages);
+					signals_init();					
+					page_writeback_init();	/* rootfs populating might need page-writeback */
+					proc_root_init();	// #ifdef CONFIG_PROC_FS
+					cgroup_init();
+					cpuset_init();
+					taskstats_init_early();
+					delayacct_init();
+					check_bugs();
+					acpi_early_init(); /* before LAPIC and SMP init */
+					sfi_init_late();
+					ftrace_init();
+				
+		!!!			rest_init();	/* Do the rest non-__init'ed, we're now alive */
+				}
+					
+					
+				static noinline void __init_refok rest_init(void) 
+					__releases(kernel_lock)
+				{
+					int pid;
+				
+					rcu_scheduler_starting();
+
+					// We need to spawn init first so that it obtains pid 1, however the init task will end up wanting to create kthreads, which, if we schedule it before we create kthreadd, will OOPS.
+
+					kernel_thread(kernel_init, NULL, CLONE_FS | CLONE_SIGHAND);		// pid = 1
+					numa_default_policy();
+
+					pid = kernel_thread(kthreadd, NULL, CLONE_FS | CLONE_FILES);	// pid = 2	
+					rcu_read_lock();
+
+					kthreadd_task = find_task_by_pid_ns(pid, &init_pid_ns);
+					rcu_read_unlock();
+					complete(&kthreadd_done);
+					unlock_kernel();
+				
+					// The boot idle thread must execute schedule() at least once to get things moving:
+					init_idle_bootup_task(current);
+					preempt_enable_no_resched();
+					schedule();
+					preempt_disable();
+					
+					cpu_idle();		/* Call into cpu_idle with preempt disabled */
+				}
+				
+
+				static int __init kernel_init(void * unused)
+				{
+					wait_for_completion(&kthreadd_done);			// Wait until kthreadd is all set-up.
+					lock_kernel();
+				
+					set_mems_allowed(node_states[N_HIGH_MEMORY]);	// init can allocate pages on any node
+					set_cpus_allowed_ptr(current, cpu_all_mask);	// init can run on any cpu.	
+
+					// Tell the world that we're going to be the grim reaper of innocent orphaned children.
+					// We don't want people to have to make incorrect assumptions about where in the task array this can be found.
+					init_pid_ns.child_reaper = current;
+					cad_pid = task_pid(current);
+					smp_prepare_cpus(setup_max_cpus);
+				
+					do_pre_smp_initcalls();
+					start_boot_trace();
+				
+					smp_init();
+					sched_init_smp();
+				
+					do_basic_setup();
+				
+					/* Open the /dev/console on the rootfs, this should never fail */
+					if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
+						printk(KERN_WARNING "Warning: unable to open an initial console.\n");
+				
+					(void) sys_dup(0);
+					(void) sys_dup(0);
+
+					// check if there is an early userspace init.  If yes, let it do all the work
+					if (!ramdisk_execute_command)
+						ramdisk_execute_command = "/init";
+				
+					if (sys_access((const char __user *) ramdisk_execute_command, 0) != 0) {
+						ramdisk_execute_command = NULL;
+						prepare_namespace();
+					}
+				
+					// Ok, we have completed the initial bootup, and we're essentially up and running. Get rid of the initmem segments and start the user-mode stuff..
+					init_post();
+					return 0;
+				}
+				
+
+				static noinline int init_post(void)
+					__releases(kernel_lock)
+				{
+					/* need to finish all async __init code before freeing the memory */
+					async_synchronize_full();
+					free_initmem();
+					unlock_kernel();
+					mark_rodata_ro();
+					system_state = SYSTEM_RUNNING;
+					numa_default_policy();
+
+					current->signal->flags |= SIGNAL_UNKILLABLE;
+
+					if (ramdisk_execute_command) {
+						run_init_process(ramdisk_execute_command);
+						printk(KERN_WARNING "Failed to execute %s\n",
+								ramdisk_execute_command);
+					}
+
+					 // We try each of these until one succeeds.
+					 // The Bourne shell can be used instead of init if we are trying to recover a really broken machine.
+					if (execute_command) {
+						run_init_process(execute_command);
+						printk(KERN_WARNING "Failed to execute %s.  Attempting "
+									"defaults...\n", execute_command);
+					}
+					run_init_process("/sbin/init");
+					run_init_process("/etc/init");
+					run_init_process("/bin/init");
+					run_init_process("/bin/sh");
+
+					//panic("No working init found.  Try passing init= option to kernel. "
+					panic("No init found.  Try passing init= option to kernel. "
+						  "See Linux Documentation/init.txt for guidance.");
+				}
+
+
+
+
+Section 5
+
+	34. eMMC booting- Big picture												
+	
+		latest image : AM62 Debian 11.6 2023-02-04 10GB SD XFCE Flasher
+					   AM3358 Debian 10.3 2020-04-06 4GB SD IoT
+		
+	
+		debian@CEA-grower:~$ lsb_release -da
+		  No LSB modules are available.
+		  Distributor ID: Debian
+		  Description:    Debian GNU/Linux 7.5 (wheezy)
+		  Release:        7.5
+		  Codename:       wheezy
+		  debian@CEA-grower:~$
+
+
+	35. eMMC update-Downloading latest OS image								
+
+		$ unxz bone-debian-9.9-iot-armhf-2019-08-03-4gb.img.xz 
+  
+		$ unxz bone-debian-10.3-iot-armhf-2020-04-06-4gb.img.xz 	<- AM3358 Debian 10.3 2020-04-06 4GB SD IoT
+		
+		$ lsb_release -da
+		  No LSB modules are available.
+		  Distributor ID: Debian
+		  Description:    Debian GNU/Linux 10 (buster)
+		  Release:        10
+		  Codename:       buster
+
+
+		Debian GNU/Linux 10 beaglebone ttyS0
+		BeagleBoard.org Debian Buster IoT Image 2020-04-06
+
+		debian@beaglebone:~$ ifconfig
+		eth0: flags=-28605<UP,BROADCAST,RUNNING,MULTICAST,DYNAMIC>  mtu 1500
+				inet 192.168.1.18  netmask 255.255.255.0  broadcast 192.168.1.255
+		
+		usb0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+				inet 192.168.7.2  netmask 255.255.255.0  broadcast 192.168.7.255
+		
+		usb1: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+				inet 192.168.6.2  netmask 255.255.255.0  broadcast 192.168.6.255
+
+
+	36. Enabling Internet on BBB											
+
+		$ ls -al  /opt/scripts/boot                                  
+
+			-rwxr-xr-x  1 debian debian  7721 Apr  6 13:33 autoconfigure_usb0.sh            
+			-rwxr-xr-x  1 debian debian  2206 Apr  6 13:33 autoconfigure_usb1.sh            
+
+	
+		$ ifconfig
+																						
+		usb0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500                      
+				inet 192.168.7.2  netmask 255.255.255.0  broadcast 192.168.7.255        
+																						
+		usb1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500                      
+				inet 192.168.6.2  netmask 255.255.255.0  broadcast 192.168.6.255        
+	
+		
+		$ sudo vi /etc/resolv.conf
+		
+			nameserver 8.8.8.8
+			nameserver 8.8.4.4
+			
+		$ sudo route add default gw 192.168.7.1 usb0
+		$ sudo route add default gw 192.168.6.1 usb1
+
+		$ sudo systemctl restart systemd-resolved.service
+
+		// iptables settings to share internet between wifi(lan) and ethernet
+			enable ip forwarding
+			echo 1 > /proc/sys/net/ipv4/ip_forward
+		
+			iptables --table nat --append POSTROUTING --out-interface <wifi_interface> -j MSSQUERADE
+			iptables --append FORWARD --in-interface <ethernet interface to share with> -j ACCEPT
+
+
+		scott@VirtualBox:~$ cat /proc/sys/net/ipv4/ip_forward
+		0
+		scott@VirtualBox:~$ sudo bash -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'
+		scott@VirtualBox:~$ cat /proc/sys/net/ipv4/ip_forward
+		1
+
+		scott@VirtualBox:~$ sudo iptables --append FORWARD --in-interface enxd039726bb0d1 -j ACCEPT
+		scott@VirtualBox:~$ sudo iptables --append FORWARD --in-interface enxd039726bb0d3 -j ACCEPT
+
+
+		== summary for internet on BBB == 		working on 16.04. what about 18.04 ?
+		>> BBB
+		1  ls -al  /opt/scripts/boot
+		2  ifconfig
+		3  sudo vi /etc/resolv.conf
+		4  sudo route add default gw 192.168.7.1 usb0
+		5  sudo route add default gw 192.168.6.1 usb1
+		6  sudo systemctl restart systemd-resolved.service
+		7  ping www.google.com
+
+		>> host PC
+		68  sudo bash -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'
+		73  sudo iptables --table nat --append POSTROUTING --out-interface enp0s3 -j MASQUERADE
+		75  sudo iptables --append FORWARD --in-interface enxd039726bb0d1 -j ACCEPT
+		76  sudo iptables --append FORWARD --in-interface enxd039726bb0d3 -j ACCEPT
+
+
+	
+Section 6
+	
+	37. Why Linux device tree is introduced ??										linux 4.4 used in lecture
+	
+		dts : provided by hw vendor, input to dtc along with dtsi		
+		dtc : device tree compiler
+		dtb : device tree binary,    output from dtc
+	
+	
+Section 7	
+
+	38. Writing uEnv.txt file from scratch part 1			: setenv, printenv, & run				
+		=> printenv soc
+		soc=am33xx
+		=> setenv serverip 192.168.27.1
+		=> printenv serverip
+		serverip=192.168.27.1
+
+		=> mmc rescan
+		=> mmc list
+		OMAP SD/MMC: 0 (SD)
+		OMAP SD/MMC: 1 (eMMC)
+
+		=> setenv my_mmc_list 'mmc list'
+		=> printenv my_mmc_list
+		my_mmc_list=mmc list
+		=> run my_mmc_list
+		OMAP SD/MMC: 0 (SD)
+		OMAP SD/MMC: 1 (eMMC)
+	
+	
+	39. Writing uEnv.txt file from scratch part 2			: boot from memory using bootm after loading files into memory(load command) -> dtb missed !					
+
+		U-Boot# help load
+		load - load binary file from a filesystem
+		
+		Usage:
+		load <interface> [<dev[:part]> [<addr> [<filename> [bytes [pos]]]]]
+			- Load binary file 'filename' from partition 'part' on device type 'interface' instance 'dev' to address 'addr' in memory. 
+			'bytes' gives the size to load in bytes. If 'bytes' is 0 or omitted, the file is read until the end. 
+			'pos' gives the file byte position to start reading from. If 'pos' is 0 or omitted, the file is read from the start.
+			All numeric parameters are assumed to be decimal, unless specified otherwise using a leading "0x".
+		
+		U-Boot# mmc list
+		OMAP SD/MMC: 0
+		OMAP SD/MMC: 1
+
+
+		fatload usb 0:1 0x82000000 uImage
+		fatload mmc 0:1 0x88000000 initramfs
+
+		load mmc 0:1 0x88000000 uImage
+		
+		
+		U-Boot# load mmc 1:2 0x82000000 /boot/uImage
+		** Invalid partition 2 **
+		
+		U-Boot# load mmc 0:2 0x82000000 /boot/uImage
+		4002080 bytes read in 485 ms (7.9 MiB/s)
+		
+		U-Boot# bootm 0x82000000
+		## Booting kernel from Legacy Image at 82000000 ...
+		Image Name:   Angstrom/3.8.10/beaglebone
+		Image Type:   ARM Linux Kernel Image (uncompressed)
+		Data Size:    4002016 Bytes = 3.8 MiB
+		Load Address: 80008000
+		Entry Point:  80008000
+		Verifying Checksum ... OK
+		Loading Kernel Image ... OK
+		OK
+		
+		Starting kernel ...
+		
+		Uncompressing Linux... done, booting the kernel.
+		
+		Error: unrecognized/unsupported machine ID (r1 = 0x00000e05).		<= because boot strap loader couldn't find the dtb
+		
+		Available machine support:
+		
+		ID (hex)        NAME
+		ffffffff        Generic OMAP4 (Flattened Device Tree)
+		ffffffff        Generic AM33XX (Flattened Device Tree)
+		ffffffff        Generic OMAP3-GP (Flattened Device Tree)
+		ffffffff        Generic OMAP3 (Flattened Device Tree)
+		0000060a        OMAP3 Beagle Board
+		00000a9d        IGEP OMAP3 module
+		00000928        IGEP v2 board
+		00000ae7        OMAP4 Panda board
+		
+		Please check your kernel config and/or bootloader.
+
+
+
+	40. Writing uEnv.txt file from scratch part 3			: boot from memory using bootm after loading files into memory(load command)
+
+		U-Boot# help bootm
+		bootm - boot application image from memory
+		
+		Usage:
+		bootm [addr [arg ...]]
+			- boot application image stored in memory
+				passing arguments 'arg ...'; when booting a Linux kernel, 'arg' can be the address of an initrd image
+				When booting a Linux kernel which requires a flat device-tree a third argument is required which is the address of the
+				device-tree blob. To boot that kernel without an initrd image, use a '-' for the second argument. If you do not pass a third a bd_info struct will be passed instead
+		
+		Sub-commands to do part of the bootm sequence.  The sub-commands must be issued in the order below (it's ok to not issue all sub-commands):
+				start [addr [arg ...]]
+				loados  - load OS image
+				ramdisk - relocate initrd, set env initrd_start/initrd_end
+				fdt     - relocate flat device tree
+				cmdline - OS specific command line processing/setup
+				bdt     - OS specific bd_t processing
+				prep    - OS specific prep before relocation or go
+				go      - start OS
+
+	
+	
+		U-Boot# setenv bootargs console=ttyO0,115200 root=/dev/mmcblk0p2 rw
+		U-Boot# printenv bootargs
+		bootargs=console=ttyO0,115200 root=/dev/mmcblk0p2 rw
+	
+		U-Boot# load mmc 0:2 0x82000000 /boot/uImage
+		4002080 bytes read in 485 ms (7.9 MiB/s)
+		
+		U-Boot# load mmc 0:2 0x88000000 /boot/am335x-boneblack.dtb
+		23334 bytes read in 14 ms (1.6 MiB/s)
+
+		U-Boot# bootm 0x82000000 - 0x88000000
+		
+		
+	41. Writing uEnv.txt file from scratch part 4	: transfer uEnv.txt via ymodem							
+
+		console=ttyO0,115200n8
+		ipaddr=192.168.7.2
+		serverip=192.168.7.1
+		loadaddr=0x82000000
+		fdtaddr=0x88000000
+		loadfromsd=load mmc 0:2 ${loadaddr} /boot/uImage;load mmc 0:2 ${fdtaddr} /boot/am335x-boneblack.dtb
+		linuxbootargs=setenv bootargs console=${console} root=/dev/mmcblk0p2 rw 
+		uenvcmd=setenv autoload no; run loadfromsd; run linuxbootargs; bootm ${loadaddr} - ${fdtaddr}
+		
+
+		U-boot# loady 
+		ctrl-a, s	select xfr protocols
+		space x 2	select folder
+
+			+-----------[ymodem upload - Press CTRL-C to quit]------------+               
+			|Sending: uEnv.txt                                            |               
+			|Bytes Sent:    128   BPS:22                                  |               
+			|Sending:                                                     |               
+			|Ymodem sectors/kbytes sent:   0/ 0k                          |               
+			|Transfer complete                                            |               
+			|                                                             |               
+			| READY: press any key to continue...                         |               
+			+-------------------------------------------------------------+        
+
+		## Ready for binary (ymodem) download to 0x80200000 at 115200 bps...                   
+		CxyzModem - CRC mode, 3(SOH)/0(STX)/0(CAN) packets, 4 retries
+		## Total Size      = 0x0000001d = 29 Bytes
+
+              				
+
+	42. Writing uEnv.txt file from scratch part 5 : how to import an environment variable via uEnv.txt (loady, env, & run commands)							
+
+		>> uEnv.txt
+		 
+		   mypcip=setenv serverip 192.168.1.2
+		   ipaddr=192.168.27.1	
+
+
+		U-Boot# loady
+		## Ready for binary (ymodem) download to 0x80200000 at 115200 bps...                   
+		CxyzModem - CRC mode, 3(SOH)/0(STX)/0(CAN) packets, 3 retries
+		## Total Size      = 0x00000025 = 37 Bytes
+
+		U-Boot# env import -t 0x80200000 37
+
+		U-Boot# printenv mypcip
+		mypcip=setenv serverip 192.168.1.2
+
+		U-Boot# run mypcip
+
+		U-Boot# printenv serverip
+		serverip=192.168.1.2
+		
+		U-Boot# printenv ipaddr
+		ipaddr=192.168.27.1
+
+			bootcmd=if test ${boot_fit} -eq 1; then run update_to_fit;fi;run findfdt; run init_console; rd
+			bootcmd_dhcp=run boot_net_usb_start; if dhcp ${scriptaddr} ${boot_script_dhcp}; then source $;
+			bootcmd_legacy_mmc0=setenv mmcdev 0; setenv bootpart 0:2 ; run mmcboot
+			bootcmd_legacy_mmc1=setenv mmcdev 1; setenv bootpart 1:2 ; run mmcboot
+			bootcmd_mmc0=setenv devnum 0; run mmc_boot
+			bootcmd_mmc1=setenv devnum 1; run mmc_boot
+
+			boot    - boot default, i.e., run 'bootcmd'
+			bootd   - boot default, i.e., run 'bootcmd'
+
+
+
+		>> uEnv.txt
+		
+		  mypcip=setenv serverip 192.168.1.2
+		  ipaddr=192.168.27.1
+		  bootargs=console=ttyO0,115200 root=/dev/mmcblk0p2 rw
+		  bootcmd=echo "***************Booting from SD***************";load mmc 0:2 0x82000000 /boot/uImage;load mmc 0:2 0x88000000 /boot/am335x-boneblack.dtb;bootm 0x82000000 - 0x88000000
+
+
+		$ boot 			=> same as "run bootcmd"
+
+			U-Boot# 
+			U-Boot# boot
+			***************Booting from SD***************
+			4002080 bytes read in 484 ms (7.9 MiB/s)
+			23334 bytes read in 13 ms (1.7 MiB/s)
+			## Booting kernel from Legacy Image at 82000000 ...
+			Image Name:   Angstrom/3.8.10/beaglebone
+			Image Type:   ARM Linux Kernel Image (uncompressed)
+			Data Size:    4002016 Bytes = 3.8 MiB
+			Load Address: 80008000
+			Entry Point:  80008000
+			Verifying Checksum ... OK
+			## Flattened Device Tree blob at 88000000
+			Booting using the fdt blob at 0x88000000
+			Loading Kernel Image ... OK
+			OK
+			Using Device Tree in place at 88000000, end 88008b25
+			
+			Starting kernel ...
+			
+			Uncompressing Linux... done, booting the kernel.
+			[    0.000000] Booting Linux on physical CPU 0x0
+			[    0.000000] Initializing cgroup subsys cpu
+			[    0.000000] Linux version 3.8.10 (ubuntu@ip-10-195-70-130) (gcc version 4.7.3 201302053
+			[    0.000000] CPU: ARMv7 Processor [413fc082] revision 2 (ARMv7), cr=50c5387d
+			[    0.000000] CPU: PIPT / VIPT nonaliasing
+
+
+	43. Challenge		
+	44. About RFS			
+	45. Generating "initramfs" using RFS									
+
+
+Section 8	   	images from EmbeddedLinuxBBB-master\pre-built-images\serial-boot
+
+
+	46. Serial booting Required Setup										
+	47. Serial boot - big picture											
+	48. Important Note														
+	49. Testing Serial boot part 1				use x modem
+	50. Testing Serial boot part 2	
+	
+		Welcome to minicom 2.7.1                                                               
+																							
+		OPTIONS: I18n                                                                          
+		Compiled on Aug 13 2017, 15:25:34.                                                     
+		Port /dev/ttyUSB0, 11:29:39                                                            
+																							
+		Press CTRL-A Z for help on special keys                                                
+																							
+		CCCCCCCCCCCCCCCCCC                                                                <- in uart boot mode     
+		U-Boot SPL 2017.03-00270-g5cf618e (Mar 28 2017 - 17:14:21)                        <- downloaded SPL/MLO     	
+		Trying to boot from UART                                                               
+		CCCCCxyzModem - CRC mode, 2846(SOH)/0(STX)/0(CAN) packets, 8 retries           <- downloaded u-boot       	
+		Loaded 364100 bytes                                                                    
+																							
+																							
+		U-Boot 2016.11-rc1 (Mar 29 2017 - 09:34:17 +0530)                                      
+																							
+		I2C:   ready                                                                           
+		DRAM:  512 MiB                                                                         
+		MMC:   OMAP SD/MMC: 0, OMAP SD/MMC: 1                                                  
+		*** Warning - bad CRC, using default environment                                       
+																							
+		Net:   <ethaddr> not set. Validating first E-fuse MAC
+		cpsw, usb_ether                                                                        
+		Press SPACE to abort autoboot in 2 seconds
+		=>                                                                                     
+		=>                                             
+		
+		=> loadx 0x82000000                                                                    
+		## Ready for binary (xmodem) download to 0x82000000 at 115200 bps...                   
+		CxyzModem - CRC mode, 33677(SOH)/0(STX)/0(CAN) packets, 1 retries                     
+		CACHE: Misaligned operation at range [82000000, 8241c660]                              
+		## Total Size      = 0x0041c660 = 4,310,624 Bytes                                        
+		=>
+		=> loadx 0x88000000                                                                    
+		## Ready for binary (xmodem) download to 0x88000000 at 115200 bps...                   
+		CxyzModem - CRC mode, 191(SOH)/0(STX)/0(CAN) packets, 1 retries                       
+		CACHE: Misaligned operation at range [88000000, 88005f6c]                              
+		## Total Size      = 0x00005f6c = 24,428 Bytes                                          
+		=>
+		=> loadx 0x88080000                                                                    
+		## Ready for binary (xmodem) download to 0x88080000 at 115200 bps...                   
+		CxyzModem - CRC mode, 24215(SOH)/0(STX)/0(CAN) packets, 1 retries                     
+		CACHE: Misaligned operation at range [88080000, 88374b36]                              
+		## Total Size      = 0x002f4b36 = 3,099,446 Bytes                                        
+		=>
+		=> setenv bootargs console=ttyO0,115200 root=/dev/ram0 rw initrd=0x88080000
+		=> printenv bootargs                                                                   
+		bootargs=console=ttyO0,115200 root=/dev/ram0 rw initrd=0x88080000                      
+		=>
+		=> bootm 0x82000000 0x88080000 0x88000000
+	
+	
+Section 9		images from EmbeddedLinuxBBB-master\pre-built-images\tftp-boot
+
+	51. TFTP booting Required Setup											
+	52. TFTP boot - big picture												
+	53. Preparing TFTP host			
+
+  		  see memo : 011Preparing TFTP Host.pdf
+
+	54. Testing TFTP boot on BBB
+		
+		U-Boot# setenv serverip 192.168.1.16
+		U-Boot# setenv ipaddr 192.168.1.18
+
+		U-Boot# ping 192.168.1.16
+		link up on port 0, speed 100, full duplex
+		Using cpsw device
+		host 192.168.1.16 is alive
+
+		U-Boot# tftpboot 0x82000000 uImage
+		link up on port 0, speed 100, full duplex
+		Using cpsw device
+		TFTP from server 192.168.1.16; our IP address is 192.168.1.18
+		Filename 'uImage'.
+		Load address: 0x82000000
+		Loading: #################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				##############################################################
+				545.9 KiB/s
+		done
+		Bytes transferred = 4310624 (41c660 hex)				
+
+		U-Boot# tftpboot 0x88000000 am335x-boneblack.dtb
+		link up on port 0, speed 100, full duplex
+		Using cpsw device
+		TFTP from server 192.168.1.16; our IP address is 192.168.1.18
+		Filename 'am335x-boneblack.dtb'.
+		Load address: 0x88000000
+		Loading: #####
+				261.7 KiB/s
+		done
+		Bytes transferred = 24428 (5f6c hex)
+
+		U-Boot# tftpboot 0x88080000 initramfs
+		link up on port 0, speed 100, full duplex
+		Using cpsw device
+		TFTP from server 192.168.1.16; our IP address is 192.168.1.18
+		Filename 'initramfs'.
+		Load address: 0x88080000
+		Loading: #################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#################################################################
+				#####################
+				526.4 KiB/s
+		done
+		Bytes transferred = 3099446 (2f4b36 hex)
+		U-Boot# 
+		U-Boot# setenv bootargs console=ttyO0,115200 root=/dev/ram0 rw initrd=0x88080000
+		U-Boot# bootm 0x82000000 0x88080000 0x88000000
+
+		  ## Booting kernel from Legacy Image at 82000000 ...
+		  ## Loading init Ramdisk from Legacy Image at 88080000 ...
+		  ## Flattened Device Tree blob at 88000000
+		  Starting kernel ...
+		  Uncompressing Linux... 		
+	
+	
+	55. Challenge-1			
+
+		console=ttyO0,115200n8
+		serverip=192.168.1.16
+		ipaddr=192.168.1.18
+		
+		loadaddr=0x82000000
+		fdtaddr=0x88000000
+		initrdaddr=0x88080000
+		
+		loadfromtftp=echo Booting from network ...;tftpboot ${loadaddr} uImage; tftpboot ${fdtaddr} am335x-boneblack.dtb; tftpboot ${initrdaddr} initramfs
+		
+		linuxbootargs=setenv bootargs console=${console} root=/dev/ram0 rw initrd=${initrdaddr}
+		
+		uenvcmd=setenv autoload no; run loadfromtftp; run linuxbootargs; bootm ${loadaddr} ${initrdaddr} ${fdtaddr}
+
+
+		Filename 'uImage'.		=> 		'.lename 'uImage		: Udemy Q&A sol'n #2 -> fixed by Udemy Q&A sol'n #1
+
+	
+	
+	56. Challenge-2															
+
+
+
+Section 10     
+
+	57. Understanding U-boot Source Tree	
+
+		www.denx.de/wiki/U-boot/SourceCode		
+		ftp://ftp.denx.de/pub/u-boot	-> 				2017.05.rc2		(linaro-6.3.1 O, 7.5.0 X -> ARM data abort)
+			
+			
+		1. board/ti/am335x/board.c   		board specific initialization
+		2. arch/arm/cpu/armv7/start.s		where RBL hands off control to SPL
+		3. config/bone_defconfig			
+
+		$ ls -l | wc -l 		// line count
+		  1243
+			
+	58. Cross tool-chain installation		
+
+		toolchain   
+		
+		   https://releases.linaro.org/components/toolchain/binaries/5.4-2017.01/ 
+		   
+		   gcc-linaro-5.4.1-2017.01.x86_64_arm-linux-gnueabihf.tar.gz
+		   gcc-linaro-6.3.1-2017.02.x86_64_arm-linux-gnueabihf.tar.gz		   
+		   
+		   export PATH=$PATH:/home/kiran/BBB_Workspace/Downloads/gcc-linaro-6.3.1-2017.02-x86_64_arm-linux-gnueabihf/bin		   
+		   
+		   $ vi /home/scott/.bashrc => add the path the end of the file.		   
+		   $ source /home/scott/.bashrc
+		   $ arm [tab] [tab]		   
+		   
+	
+	59. Configuring and generating SPL,MLO,U-boot images					
+	
+		make CROSS_COMPILE=arm-linux-gnueabihf- distclean					=> deletes .config		
+		make CROSS_COMPILE=arm-linux-gnueabihf- am335x_boneblack_defconfig	=> generates .config
+		make CROSS_COMPILE=arm-linux-gnueabihf-  menuconfig					=> edits .config
+	
+			Note. latest u-boot needs am335x_evm_defconfig instead of am335x_boneblack_defconfig.
+	
+	
+		make CROSS_COMPILE=arm-linux-gnueabihf- -j4 		// 1 minute		
+
+			COPY    u-boot.bin
+			LD      spl/u-boot-spl
+			MKIMAGE u-boot.img					  1
+			OBJCOPY spl/u-boot-spl-nodtb.bin
+			COPY    spl/u-boot-spl.bin
+			MKIMAGE MLO							  2 : u-boot-spl.bin + u-boot header
+			MKIMAGE MLO.byteswap
+
+	60. Challenge															
+	
+		https://github.com/beagleboard/linux
+		
+		$ git clone https://github.com/beagleboard/linux.git
+		
+		
+	
+Section 11
+
+	61. ARM architecture related code organization							
+	
+		ARCH. specific code 
+		  arch   dependent : alpha, arc, arm, arm64, avr32, blackfin, ..., ia64, mips, ..
+			- board file
+			- ARM cpu shared 
+			- machine(SoC) shared commmon code
+			
+			=> processor specific codes:				p190
+			    arch/arm/kernel/
+			    arch/arm/mm/
+			    arch/arm/boot/compressed/
+			    arch/arm/boot/lib/
+	
+			=> SoC(machine) & board specific codes:		p191
+			    arch/arm/mach-alpine
+				arch/arm/mach-asm9260
+				arch/arm/mach-at91
+				arch/arm/mach-axxia
+				arch/arm/mach-bcm
+				arch/arm/mach-davinci
+				arch/arm/mach-mediatek
+				arch/arm/mach-omap1 or 2	-> similar to AM335x	
+				arch/arm/mach-qcom
+	
+		  arch independent 
+			- linux kernel shared common code		
+		
+	
+	62. ARM Board configuration files organization							
+	
+		board file : board-
+		device tree eliminated board specific board files leaving one generic board file.
+	
+		.dt_compat field has compatible machine groud id.		
+		
+	
+	63. Soc specific driver code organization								
+	
+		p172	
+			drivers/video/fbdev/ 
+			drivers/input/touchscreen/ti_tsc.ko
+			drivers/mmc/host/omap_hsmmc.c 
+			drivers/spi/spi-omap2-mcspi.c
+			drivers/i2c/busses/i2c-omap.c
+			drivers/memory/omap-gpmc.c
+			drivers/usb/musb/musb_core.c
+			drivers/usb/musb/musb_gadget.c
+			drivers/usb/musb/musb_host.c
+			drivers/usb/phy/phy-am335x.c				
+			drivers/tty/serial/omap-serial.c						
+			drivers/watchdog/ omap_wdt.c
+			drivers/rtc/rtc-omap.c			
+			
+	64. Configuring and generating linux image								
+
+	    $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- bb.org_defconfig
+	    $ find . -name "bb.org_defconfig"
+		  ./arch/arm/configs/bb.org_defconfig
+
+		$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- menuconfig
+
+		  <*> User mode SPI device driver support	-> kernel module compiled along w/ the kernel
+		  <M> User mode SPI device driver support	-> kernel module NOT compiled along w/ the kernel
+
+			 -> can be looked up by CONFIG_SPI_SPIDEV in .config file later : don't edit in .config file but use menuconfig !!!!
+
+		$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j4 modules		=> .ko
+
+
+Section 12
+
+	65. Busybox introduction												
+	66. Busybox compilation													
+	
+		busybox.net/downloads 		1.26.2  2017-01-02
+
+		~/workspace/RFS_static/bin$ ls -1 | wc -l	
+		89
+		$ ls -1 /bin/ | wc -l
+		165
+
+		$ ls -1 /bin/ 
+		 ash 	-> busybox		; all soft links to busybox binary
+		 base64 -> busybox
+		 cat 	-> busybox
+		 cp 	-> busybox
+		 ...
+		
+		$ ls -l bin/
+		 busybox
+		
+			make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- defconfig
+			make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- menuconfig							-> build option : static			
+			make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- CONFIG_PREFIX=/home/scott/workspace/RFS_static install
+			
+		
+	67. Kernel Modules installation											
+
+		~/RFS_static$ du -sh		
+		 1.4M
+	
+		~/linux$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=<path of the RFS> modules_install
+
+		~/RFS_static$ ls lib/modules/4.14.108/																-> 4.4.62 in lecture 
+		  build              modules.builtin      modules.devname  modules.symbols.bin
+		  kernel             modules.builtin.bin  modules.order    source
+		  modules.alias      modules.dep          modules.softdep
+		  modules.alias.bin  modules.dep.bin      modules.symbols
+
+
+		~/RFS_static$ ls lib/modules/4.14.108/kernel
+		arch  block  crypto  drivers  fs  lib  mm  net  sound
+
+		
+		$ ls lib/modules/4.14.108/kernel/drivers/
+		atm         cdrom   fpga  hwmon  leds   misc  nfc         rpmsg  staging  uio
+		auxdisplay  char    gpio  i2c    md     mmc   pinctrl     rtc    target   usb
+		block       crypto  gpu   iio    media  mtd   pps         scsi   thermal  video
+		bluetooth   dax     hid   input  mfd    net   remoteproc  spi    tty      w1
+
+
+		$ ls lib/modules/4.14.108/modules.builtin 	=> statically compiled kernel modules
+		$ ls lib/modules/4.14.108/modules.dep 		=> all the dependencies b/w dynamically loadable kernel modules.
+
+		$ modprobe cdc_eem.ko  						=> read modules.dep & load dependencies first, and then load cdc_eem.ko
+		$ insmod 
+
+	68. Testing boot images and busybox on BBB-Part-1						
+	
+		MLO, u-boot.img, uEnv.txt => SD card
+		
+		workspace/bins$ cp ~/workspace/src/u-boot_2017_05_rc2/MLO  .
+		workspace/bins$ cp ~/workspace/src/u-boot_2017_05_rc2/spl/u-boot-spl.bin  . 
+		workspace/bins$ cp ~/workspace/src/u-boot_2017_05_rc2/u-boot.img .
+
+		workspace/bins$ cp ~/workspace/src/linux_bbb_4.14/arch/arm/boot/uImage . 
+		workspace/bins$ cp ~/workspace/src/linux_bbb_4.14/arch/arm/boot/dts/am335x-boneblack.dtb . 
+
+		workspace/bins$ cp MLO 			/media/scott/BOOT
+		workspace/bins$ cp u-boot.img 	/media/scott/BOOT		
+		workspace/bins$ cp uEnv-nfs.txt /media/scott/BOOT/uEnv.txt
+
+		  uEnv.txt
+			console=ttyO0,115200n8
+			ipaddr=192.168.1.18
+			serverip=192.168.1.16
+			absolutepath=/var/lib/tftpboot/
+
+			rootpath=/srv/nfs/bbb,nolock,wsize=1024,rsize=1024 rootwait rootdelay=5
+
+			loadtftp=echo Booting from network ...;tftpboot ${loadaddr} ${absolutepath}uImage; tftpboot ${fdtaddr} ${absolutepath}am335x-boneblack.dtb
+			
+			netargs=setenv bootargs console=${console} root=/dev/nfs rw nfsroot=${serverip}:${rootpath} 
+			uenvcmd=setenv autoload no; run loadtftp; run netargs; bootm ${loadaddr} - ${fdtaddr}
+		
+		
+			console=ttyO0,115200n8
+			ipaddr=192.168.1.18
+			serverip=192.168.1.16
+			absolutepath=/var/lib/tftpboot/				// 			loadramfsaddr=0x88080000			
+
+			rootpath=/media/tuat/Linux/workspace/rfs,nfsvers=3,tcp ip=dhcp,nolock,wsize=1024,rsize=1024 rootwait rootdelay=5
+			
+			loadtftp=echo Booting from network ...;tftpboot ${loadaddr} uImage; tftpboot ${fdtaddr} am335x-boneblack.dtb
+			
+			netargs=setenv bootargs console=${console} root=/dev/nfs rw rootfstype=nfs ip=${ipaddr} nfsroot=${serverip}:${rootpath}
+
+			uenvcmd=setenv autoload no; run loadtftp; run netargs; bootm ${loadaddr} - ${fdtaddr}
+
+		
+		
+		
+		$ cd arch/arm/boot
+		$ sudo cp uImage /var/lib/tftpboot
+
+			574  cd /															copy file system 		
+			576  sudo mkdir srv
+			577  cd srv
+			579  sudo mkdir nfs
+			581  cd nfs
+			582  mkdir bbb
+			583  sudo mkdir bbb
+			584  cd bbb/
+
+
+
+		$ scott@host:/srv/nfs/bbb$ sudo cp -r /home/scott/workspace/RFS_Static/* .
+			
+			600  sudo apt install nfs-kernel-server								start nfs service
+			602  vi /etc/exports
+			611  sudo exportfs -a
+			612  sudo exportfs -rv
+			
+			613  sudo service nfs-kernel-server restart						
+			614  sudo service nfs-kernel-server --status-all
+			615  sudo service nfs-kernel-server status		
+		
+	
+	69. Testing boot images and busybox on BBB-Part-2							
+
+		$ cat /etc/exports 
+		 /srv/nfs/bbb 192.168.1.18(rw,sync,no_root_squash,no_subtree_check)
+
+		$ sudo exportfs -a
+		$ sudo exportfs -rv								or sudo exportfs -arv
+		$ sudo service nfs-kernel-server restart
+		$ sudo service nfs-kernel-server status
+
+
+		scott@host:/srv/nfs/bbb$ mkdir dev				-> to fix /dev/tty? error message during boot
+		scott@host:/srv/nfs/bbb$ ls
+		bin  dev  lib  linuxrc  sbin  usr
+
+
+	70. Understanding busybox init and rcS Script							
+	71. integrating rcS(Startup ) scripts									
+	
+		[    4.547761] Waiting 5 sec before mounting root device...
+		[    9.727770] VFS: Mounted root (nfs filesystem) on device 0:18.
+		[    9.734761] devtmpfs: mounted
+		[    9.741540] Freeing unused kernel memory: 1024K
+
+		can't run '/etc/init.d/rcS': No such file or directory			-> slides 215~
+		
+		Please press Enter to activate this console.
+		/ #
+		/ # ls
+		bin      linuxrc    sbin     usr
+		/ # mkdir dev
+		/ # ls
+		bin      dev      linuxrc   sbin     usr
+
+
+
+			scott@host:~$ ls /srv/nfs/bbb/etc/init.d/  		<= EmbeddedLinuxBBB-master\scripts\etc\init.d
+			 rcK  rcS  S01logging  S02module  S40network  S50sshd
+
+
+
+		Jan  1 00:00:09 192 user.info kernel: [   10.902230] g_ether gadget: Ethernet Gadget, version: Memorial Day 2
+		Jan  1 00:00:09 192 user.info kernel: [   10.914051] g_ether gadget: g_ether ready
+		OK
+		Starting network: ifup: can't open '/etc/network/interfaces': No such file or directory
+		FAIL
+	
+		Please press Enter to activate this console.
+		/ #
+		/ # ifup -a
+		ifup: can't open '/etc/network/interfaces': No such file or directory	-> # touch /etc/networks/interfaces
+		/ #
+
+
+		Mounting proc
+		mount: mounting /proc on /proc failed: No such file or directory				-> mkdir /srv/nfs/bbb/proc
+		Starting logging: Jan  1 00:00:09 192 syslog.info syslogd started: BusyB
+
+
+	72. Enabling ethernet over usb by driver integration						
+	
+		$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=<path of the RFS> modules_install		
+		$ pwd
+		   /srv/nfs/bbb/lib/modules/4.4.62/kernel/drivers/bluetooth  => *.ko
+
+		$ cat /srv/nfs/bbb/lib/modules/4.4.62/modules.dep | grep g_ether
+			kernel/drivers/usb/gadget/legacy/g_ether.ko: kernel/drivers/usb/gadget/function/usb_f_rndis.ko kernel/drivers/usb/gadget/function/u_ehter.ko ...
+
+			i.e. g_ether.ko: usb_f_rndis.ko u_ehter.ko libcomposite.ko
+
+
+		/ # lsmod
+			usb_f_ecm		20480 1 - Live 0xbf039000
+			g_ether 		16384 0 - Live 0xbf030000
+			usb_f_rndis 	32768 2 g_ether, Live 0xbf021000
+			u_ether 		20480 3 usb_f_ecm, g_ether, usb_f_rndis, Live 0xbf018000
+			libcomposite 	65536 3 usb_f_ecm, g_ether, usb_f_rndis, Live 0xbf000000
+
+
+
+	
+	73. Auto loading of drivers during system startup						
+
+		 # touch /etc/networks/interfaces
+				
+		
+		/ # ifup -a
+		run-parts: /etc/network/if-pre-up.d: No such file or directory
+		ip: RTNETLINK answers: File exists
+		ifup: can't open '/var/run/ifstate.new': No such file or directory
+		/ #
+		/ # touch /etc/network/if-pre-up.d
+		/ # mkdir var
+		/ # cd var
+		/var # mkdir run
+		/var # cd run
+		/var/run # touch ifstate.new
+		/ #
+		/ # modprobe g_ether    			-> it first loads all the depedencies
+		/ # 
+		/ #
+		/ # lsmod
+		usb_f_ecm 20480 1 - Live 0xbf039000
+		g_ether 16384 0 - Live 0xbf030000
+		usb_f_rndis 32768 2 g_ether, Live 0xbf021000
+		u_ether 20480 3 usb_f_ecm,g_ether,usb_f_rndis, Live 0xbf018000
+		libcomposite 65536 3 usb_f_ecm,g_ether,usb_f_rndis, Live 0xbf000000
+		
+		
+		/ # ifconfig usb0
+		usb0      Link encap:Ethernet  HWaddr AE:A7:1A:53:21:0B
+				BROADCAST MULTICAST  MTU:1500  Metric:1
+		
+		/ # ifconfig usb0 192.168.6.2 down   	-> and then up
+		
+		
+		/ # ifconfig usb1
+		ifconfig: usb1: error fetching interface information: Device not found
+
+		
+	74. Challenge-1
+	75. Challenge-2															
+
+
+Section 13 Buildroot
+
+	76. Buildroot Intro		
+
+			2017.05.tar.gz
+			
+	77. Exploring buildroot directories and Build commands					
+	
+			buildroot-2017.05/configs/beaglebone_defconfig
+			buildroot-2017.05/board/beaglebone
+
+			 >> readme.txt
+
+			  $ make beaglebone_defconfig
+			  $ make menuconfig
+			  $ make -j4
+
+		
+			buildroot-2017.05/board/beaglebone/patches/linux
+			
+			
+	
+	78. Configuring and building Buildroot-Part1	
+	79. Configuring and building Buildroot-Part2							
+	
+		https://buildroot.org/downloads/manual/manual.html#_cross_compilation_toolchain
+		
+			6.1.2 external toolchain backend
+						
+				The external toolchain backend allows to use existing pre-built cross-compilation toolchains. 
+				Buildroot knows about a number of well-known cross-compilation toolchains 
+				(from Linaro for ARM, Sourcery CodeBench for ARM, x86-64, PowerPC, and MIPS, 
+				and is capable of downloading them automatically, or it can be pointed 
+				to a custom toolchain, either available for download or installed locally.
+		
+
+	80. Testing buildroot RFS and ssh support on BBB						
+
+	
+		The outcome from "make j4" in the previous lecture is "output/images/rootfs.tar."
+		
+			-> ~/buildroot-2017.05/output/images# ls
+			   rootfs.ext2  rootfs.ext4   rootfs.tar    uEnv.txt
+		
+		
+			-> ignore the error message at the end. It's because target package is not enabled. 
+		
+				...
+				
+			  >>>   Executing post-image script board/beaglebone/post-image.sh
+			  file(MLO): stat(/home/scott/Downloads/buildroot-2017.05/output/images/MLO) failed: No such file or directory	
+			  vfat(boot.vfat): could not setup MLO
+			  Makefile:718: recipe for target 'target-post-image' failed
+			  make[1]: *** [target-post-image] Error 1
+			  Makefile:79: recipe for target '_all' failed
+			  make: *** [_all] Error 2
+
+
+			-> replace file system generated by busybox.
+
+			
+			  /srv/nfs/bbb# cp -r * /home/scott/workspace/RFS_static
+			  /srv/nfs/bbb# rm -rf *
+			  
+			  ~/buildroot-2017.05/output/images# tar -xf rootfs.tar -C /srv/nfs/bbb/
+
+			  scott@VirtualBox:/srv/nfs/bbb$ ll
+			  total 68
+			  drwxr-xr-x 17 root root 4096 May 30 17:16 ./
+			  drwxr-xr-x  3 root root 4096 May 30 17:25 ../
+			  drwxr-xr-x  2 root root 4096 May 30 17:16 bin/
+			  drwxr-xr-x  4 root root 4096 May 30 17:16 dev/
+			  drwxr-xr-x  7 root root 4096 May 30 17:16 etc/
+			  drwxr-xr-x  3 root root 4096 May 30 17:16 lib/
+			  lrwxrwxrwx  1 root root    3 May 30 17:10 lib32 -> lib/
+			  lrwxrwxrwx  1 root root   11 May 30 17:11 linuxrc -> bin/busybox*
+			  drwxr-xr-x  2 root root 4096 May 31  2017 media/
+			  drwxr-xr-x  2 root root 4096 May 31  2017 mnt/
+			  drwxr-xr-x  2 root root 4096 May 31  2017 opt/
+			  drwxr-xr-x  2 root root 4096 May 31  2017 proc/
+			  drwx------  2 root root 4096 May 31  2017 root/
+			  drwxr-xr-x  2 root root 4096 May 31  2017 run/
+			  drwxr-xr-x  2 root root 4096 May 30 17:11 sbin/
+			  drwxr-xr-x  2 root root 4096 May 31  2017 sys/
+			  drwxrwxrwt  2 root root 4096 May 31  2017 tmp/
+			  drwxr-xr-x  7 root root 4096 May 30 17:16 usr/
+			  drwxr-xr-x  5 root root 4096 May 30 17:16 var/
+
+
+			-> reboot using nfs using new file system from buildroot instead of busybox
+
+				
+				[   10.270330] devpts: called with bogus options
+				Starting logging: OK
+				Initializing random number generator... 
+				[   10.608513] random: dd: uninitialized urandom read (512 bytes read, 63 bits of entropy available)
+				done.
+				Starting network: ip: RTNETLINK answers: File exists
+				FAIL
+				[   11.090307] random: ssh-keygen: uninitialized urandom read (32 bytes read, 107 bits of entropy available)
+				ssh-keygen: generating new host keys: RSA DSA ECDSA ED25519 
+				[   17.310565] random: nonblocking pool is initialized
+				
+				Starting sshd: OK
+				
+				Welcome to Buildroot-BBB
+				scott login: root
+				Password:				[root]
+				#
+
+
+
+			scott@VirtualBox:/srv/nfs/bbb$
+			scott@VirtualBox:/srv/nfs/bbb$ ssh root@192.168.1.15
+			The authenticity of host '192.168.1.15 (192.168.1.15)' can't be established.
+			ECDSA key fingerprint is SHA256:b35q6FU4ZIhc5dBLb6+SAjppqufej8npq3YB7yzF/5c.
+			Are you sure you want to continue connecting (yes/no)? yes
+			Warning: Permanently added '192.168.1.15' (ECDSA) to the list of known hosts.
+			root@192.168.1.15's password:
+			Permission denied, please try again.
+
+
+				$ sudo vi /srv/nfs/bbb/etc/ssh/sshd_config
+					#PermitRootLogin prohibit-password 
+					PermitRootLogin yes
+
+				# cd init.d/
+				# ls
+				S01logging  S20urandom  S40network  S50sshd     rcK         rcS
+				#
+				# ./S50sshd restart
+				Stopping sshd: OK
+				Starting sshd: OK
+				#
+								
+								
+				scott@VirtualBox:/srv/nfs/bbb$
+				scott@VirtualBox:/srv/nfs/bbb$ ssh root@192.168.1.15
+				root@192.168.1.15's password:							[root]
+				#
+				
+
+			# ssh scott@192.168.1.20
+			scott@192.168.1.20's password:
+			Welcome to Ubuntu 16.04.2 LTS (GNU/Linux 4.15.0-142-generic x86_64)
+			
+			* Documentation:  https://help.ubuntu.com
+			* Management:     https://landscape.canonical.com
+			* Support:        https://ubuntu.com/advantage
+			
+			240 packages can be updated.
+			5 updates are security updates.
+			
+			New release '18.04.6 LTS' available.
+			Run 'do-release-upgrade' to upgrade to it.
+			
+			Last login: Thu May 30 16:53:13 2024 from 192.168.1.8
+			scott@VirtualBox:~$
+
+
+
+	81. Buildroot Linux and U-boot configurations							
+	
+		. how you can enable the kernel as well as boot loader compilation through the buildroot.
+		. make -j4
+		
+			HOSTCC  scripts/kconfig/zconf.tab.o
+			HOSTLD  scripts/kconfig/conf
+			***
+			*** Can't find default configuration "arch/arm/configs/bb.org_defconfig"!
+			***
+
+			~/Downloads/buildroot-2017.05$ ls output/build/linux-4.11.3/arch/arm/configs/bb.org_defconfig
+			  ls: cannot access 'output/build/linux-4.11.3/arch/arm/configs/bb.org_defconfig': No such file or directory
+
+			~/Downloads/buildroot-2017.05$ ls output/build/linux-4.11.3/arch/arm/configs/omap2plus_defconfig
+			  output/build/linux-4.11.3/arch/arm/configs/omap2plus_defconfig
+
+
+	
+	82. Buildroot linux-uboot image generation and testing on BBB			
+
+		$ make menuconfig 
+			  
+			   kernel / kernel configuration / bb.org -> omap2plus
+			   
+		$ make -j4 
+			
+			='/home/scott/Downloads/buildroot-2017.05/output/build/_device_table.txt'
+			/usr/bin/install -m 0644 support/misc/target-dir-warning.txt /home/scott/Downloads/buildroot-2017.05/output/target/THIS_IS_NOT_YOUR_ROOT_FILESYSTEM
+			>>>   Executing post-image script board/beaglebone/post-image.sh
+			file(zImage): stat(/home/scott/Downloads/buildroot-2017.05/output/images/zImage) failed: No such file or directory	
+			vfat(boot.vfat): could not setup zImage
+
+			; ignore because zImage is not selected
+			
+		$ sudo cp output/images/am335x-boneblack.dtb /var/lib/tftp
+		
+		$ cd /var/lib/tftpboot/
+		$ cp ~/Downloads/buildroot-2017.05/output/images/am335x-boneblack.dtb .
+
+
+			Starting kernel ...
+			
+			[    0.000000] Booting Linux on physical CPU 0x0
+			[    0.000000] Linux version 4.11.3 (scott@VirtualBox) (gcc version 6.3.1 20170109 (Linaro GCC 6.3-2017.02) ) #1 SMP Fri May 31 10:22:41 PDT 2024
+
+
+Section 14 Eclipse
+
+	83. Eclipse installation Note											
+	
+	84. Installing JAVA JDK													
+	
+		  Installing Java JDK for Windows.pdf
+		   
+		    https://www.oracle.com/java/technologies/downloads/?er=221886
+
+			
+
+				C:\Users\peta>java -version
+				java version "22.0.1" 2024-04-16
+				Java(TM) SE Runtime Environment (build 22.0.1+8-16)
+				Java HotSpot(TM) 64-Bit Server VM (build 22.0.1+8-16, mixed mode, sharing)
+			
+		
+	85. Installing Eclipse+Cross Tool chain+build tools						
+	
+		  eclipse-inst-jre-win64.exe
+		  gcc-linaro-6.3.1-2017.02-i686-mingw32_arm-linux-gnueabihf.tar.xz
+		  make-3.81.exe
+
+
+		https://www.eclipse.org/downloads/packages/			
+
+
+	
+	86. Eclipse project creation and build settings							
+	
+	87. Installing Remote System Explorer and Testing Application			
+	
+			@@
+	
+
+		. can't find terminal in the right click menu from BBB -> try Window/ShowView/Terminal instead
+	
+	88. Importing Eclipse Projects											
+
+
+
+
+Section 15 AM335x pin, gpio, & SYSFS control
+
+	89. AM335x GPIO subsystem and expansion header details part 1		221~223
+
+		. AM335x TRM chap 25 GPIO
+		. AM335x Datasheet 4.1.2 pin diagram : 18 x 6 x 3 = 324 pins
+		. BBB SRM 7.1 
+  		   . out of 128 GPIO pins available are 44 on P8 and 23 on P9 : 67 
+
+		
+	90. AM335x GPIO Subsystem and expansion header details part 2			
+	
+		root@beaglebone:/sys/class/gpio# ls
+		  export 	gpio14 		gpio23	gpio31 	gpio47 ...
+		  ...		gpiochip0	unexport	
+	
+			gpio1[6] ==> 1 x 32 + 6  ==> GPIO38 
+			gpio0[27]==> 0 x 32 + 27 ==> GPIO27
+			
+	
+	
+	91. BBB GPIOs and Mode configuration registers							
+
+		. AM335x TRM chap 2.1 ARM Cortex-A8 Memory Map
+		
+			Control)Module 	0x44E1_0000	~ 0x44E1_1FFF	128KB
+			
+			 -> control module register address range
+
+			 
+		. AM335x TRM chap 9.3 CONTROL_MODULE registers
+	
+			base		offt	name						
+			-------------------------------------------------
+			44E1_0000	800h 	conf_gpmc_ad0				section 9.3.51
+
+			 -> pad(pin) configuration registers
+
+			[6]		slew rate speed (0 for fast, 1 for slow)
+			[5]		input enable value for the PAD (default 1:in)
+			[4]		pullup/down type selection
+			[3]		pullup/down enabled
+			[2:0]	mux select
+	
+	
+	92. Exploring Pin details using SYSFS entries-Part-1	
+
+		root@beaglebone:/sys/kernel/debug/pinctrl/44e10800.pinmux# cat pins 
+		 registerd pins: 142
+		 pin 0 (44e10800.0) 00000031 pinctrl-single
+		 pin 1 (44e10804.0) 00000031 pinctrl-single
+		 pin 2 (44e10808.0) 00000031 pinctrl-single
+		 ...
+		 pin 8 (44e10820.0) 00000027 pinctrl-single
+		 pin 9 (44e10824.0) 00000027 pinctrl-single
+		 ...
+		 pin 47(44e108bc.0) 00000008 pinctrl-single		<- !
+		 
+
+		arch/arm/boot/dts/am335x-boneblack.dts
+		
+		  &am33xx_pinmux {
+			 nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
+			    pinctrl-single,pins =<
+				   AM33XX_IOPAD(0x8a0, PIN_OUTPUT | MUX_MODE0)  /* lcd_data0.lcd_data0 */
+				   ...
+				   AM33XX_IOPAD(0x8bc, PIN_OUTPUT | MUX_MODE0)  /* lcd_data7.lcd_data7 */
+				   ...				
+				   AM33XX_IOPAD(0x8ec, PIN_OUTPUT_PULLDOWN | MUX_MODE0) 
+				>;
+			 };
+			 nxp_hdmi_bonelt_off_pins: nxp_hdmi_bonelt_off_pins {
+				...
+	
+	
+	93. Exploring Pin details using SYSFS entries-Part-2					
+	
+		root@beaglebone:/sys/kernel/debug/pinctrl/44e10800.pinmux# ls
+		  gpio-ranges  pingroups  pinmux-functions  pinmux-pins  pins
+
+		root@beaglebone:/sys/kernel/debug/pinctrl/44e10800.pinmux# cat pinmux-pins
+		  pinmux-settings per pin
+		  Format: pin (name): mux_owner gpio_owner hog?
+		  pin 0 (44e10800.0) : 481d8000.mmc (GPIO UNCLAIMED) function pinmux_emmc_pins group pinmux_emmc_pins
+		  pin 1 (44e10804.0) : 481d8000.mmc (GPIO UNCLAIMED) function pinmux_emmc_pins group pinmux_emmc_pins
+		  pin 2 (44e10808.0) : 481d8000.mmc (GPIO UNCLAIMED) function pinmux_emmc_pins group pinmux_emmc_pins
+		  pin 3 (44e1080c.0) : 481d8000.mmc (GPIO UNCLAIMED) function pinmux_emmc_pins group pinmux_emmc_pins
+		  pin 4 (44e10810.0) : 481d8000.mmc (GPIO UNCLAIMED) function pinmux_emmc_pins group pinmux_emmc_pins
+		  pin 5 (44e10814.0) : 481d8000.mmc (GPIO UNCLAIMED) function pinmux_emmc_pins group pinmux_emmc_pins
+		  pin 6 (44e10818.0) : 481d8000.mmc (GPIO UNCLAIMED) function pinmux_emmc_pins group pinmux_emmc_pins
+			...
+		  pin 25 (44e10864.0) : (MUX UNCLAIMED) (GPIO UNCLAIMED)
+			...	
+		  pin 28 (44e10870.0) : ocp:P9_11_pinmux (GPIO UNCLAIMED) function pinmux_P9_11_default_pin group pinmux_P9_11_default_pindefault_pin
+
+		root@beaglebone:/sys/kernel/debug/pinctrl/44e10800.pinmux# cat pins | grep "pin 28"
+		 pin 28 (44e10870.0) 00000037 pinctrl-single
+		 
+		root@beaglebone:/sys/kernel/debug/pinctrl/44e10800.pinmux# cat pingroups
+		 group: pinmux_uart0_pins
+		   pin 92 (44e10970.0)
+		   pin 93 (44e10974.0)
+		
+		 group: cpsw_default	// ethernet
+		   pin 66 (44e10908.0)
+		   pin 67 (44e1090c.0)
+		   pin 68 (44e10910.0)
+		 
+			...
+		 group: user_leds_default			BBB_SRM	table 8 
+		   pin 21 (44e10854.0)              	USR0 GPIO1_21		1 x 32 + 21 = 53 
+		   pin 22 (44e10858.0)              	USR1 GPIO1_22
+		   pin 23 (44e1085c.0)              	USR2 GPIO1_23
+		   pin 24 (44e10860.0)              	USR3 GPIO1_24
+		   
+		
+	94. Controlling USER LEDs using SYSFS entries-Part 1					
+
+		root@beaglebone:/sys/class/gpio# ls
+		  export 	gpio14		...	
+
+		root@beaglebone:/sys/class/gpio# ls gpio53
+		  ls: cannot access gpio53: No such file or directory
+
+		root@beaglebone:/sys/class/gpio# echo 53 > export
+		  bash: echo: write error: Device or resource busy
+
+		root@beaglebone:/sys/class/leds# ls
+		  beaglebone:green:usr0   beaglebone:green:usr2
+		  beaglebone:green:usr1   beaglebone:green:usr3
+
+		root@beaglebone:/sys/class/leds# ls beaglebone\:green\:usr0
+		 brightness  delay_on max_brightness  subsystem  uevent
+		 delay_off	 device   power			  trigger  	
+		 
+		root@beaglebone:/sys/class/leds/beaglebone:green:usr0# cat trigger
+		 none rfkill-any kbd-scrolllock kbd-numlock kbd-capslock kbd-kanalock kbd-shiftlock kbd-altgrlock kbd-ctrllock kbd-altlock kbd-shiftllock kbd-shiftrlock kbd-ctrlllock kbd-ctrlrlock mmc0 mmc1 usb-gadget usb-host timer oneshot disk-activity ide-disk mtd nand-disk [heartbeat] backlight gpio cpu cpu0 activity default-on panic netdev
+
+		root@beaglebone:/sys/class/leds/beaglebone:green:usr0# echo "none" > trigger
+		root@beaglebone:/sys/class/leds/beaglebone:green:usr0# echo "default-on" > trigger
+		root@beaglebone:/sys/class/leds/beaglebone:green:usr0# echo "timer" > trigger
+		root@beaglebone:/sys/class/leds/beaglebone:green:usr0# echo "100" > delay_on
+		root@beaglebone:/sys/class/leds/beaglebone:green:usr0# echo "500" > delay_off
+
+
+	95. Controlling USER LEDs using SYSFS entries-Part 2
+
+		root@beaglebone:/sys/class/leds/beaglebone:green:usr0# echo "mmc1" > trigger
+		root@beaglebone:/home# vi hello.txt
+		root@beaglebone:/home# sync
+
+
+	96. Controlling user LEDs using ‘C’ Application Part 1					
+	97. Controlling user LEDs using ‘C’ Application-part2					
+	
+		. BBB_led_control.c is C implementation of the line below
+	
+			-> root@beaglebone:/sys/class/leds/beaglebone:green:usr0# echo "heartbeat" > trigger		
+			
+		. run via "Terminal" in "Remote System" on Eclipse	
+		  (drag n drop elf from eclips to BBB) 
+	
+			$ sudo -s
+			# chmod +x [binary name]
+			# ./[binary name]	
+
+			# ./BBB_led_control trigger heartbeat
+			# ./BBB_led_control trigger oneshot
+			# ./BBB_led_control trigger none
+			
+			# ./BBB_led_control brightness 1
+			# ./BBB_led_control brightness 1
+
+
+Section 16
+
+	98. Interfacing external LED-Part-1		
+
+		root@beaglebone:/sys/kernel/debug# cat gpio
+		GPIOs 0-31, platform/44e07000.gpio, gpio:
+		 gpio-2		(		|P9_22		) in hi
+		 gpio-3		(		|P9_21		) in hi
+		 gpio-4		(		|P9_18		) in hi
+		 gpio-5		(		|P9_17		) in hi
+		 gpio-6		(		|cd			) in hi IRQ
+		 gpio-7		(		|P9_42		) in lo
+		 gpio-14	(		|P9_26		) in hi
+		 gpio-15	(		|P9_24		) in hi
+		 gpio-20	(		|P9_41		) in lo
+		 gpio-22	(		|P9_19		) in lo
+			...
+
+		root@beaglebone:/sys/kernel/debug# cat pinctrl/44e10800.pinmux/pin [tab]
+		pingroups	pinmux-functions	pinmux-pins		pins		
+		root@beaglebone:/sys/kernel/debug# cat pinctrl/44e10800.pinmux/pins
+		...
+		pin 0 (44e10800.0) : 481d8000.mmc (GPIO UNCLAIMED) function pinmux_emmc_pins group pinmux_emmc_pins
+		pin 1 (44e10804.0) : 481d8000.mmc (GPIO UNCLAIMED) function pinmux_emmc_pins group pinmux_emmc_pins
+		...	
+		pin 84 (44e10950.0) : 00000037 pinctrl-single	-> GPIO mode, pull up, input mode
+		...
+
+		=>  connect LED to gpio46, P8_16
+		
+	99. Interfacing external LED-part2										
+	
+			https://learn.sparkfun.com/tutorials/light-emitting-diodes-leds
+			
+
+					|			  +    -		(req: I_max < 20mA)
+			8_16    |___/\/\/\______|\____
+					|			 	|/    |
+					|	330 ohm			 ---	P9_1 or P9_2
+					|					 ///	
+					
+		root@beaglebone:/sys/class/gpio# ls
+		  export 	gpio14 		gpio23		gpio31 	gpio47 ...
+		  ...		gpiochip0	unexport	
+		root@beaglebone:/sys/class/gpio# echo 46 > export
+		root@beaglebone:/sys/class/gpio# ls
+		  export 	gpio14 		gpio23		gpio31 	gpio46 ...
+		  gpio47	...         gpiochip0	unexport	
+		root@beaglebone:/sys/class/gpio# ls gpio46
+		  active_low 	device 	direction 	edge 	power 	subsystem 	uevent 	value
+		root@beaglebone:/sys/class/gpio# cat gpio46/direction
+		  in
+		root@beaglebone:/sys/class/gpio# echo "out" > gpio46/direction
+		root@beaglebone:/sys/class/gpio# echo 1 > gpio46/value			// led on
+		root@beaglebone:/sys/class/gpio# echo 0 > gpio46/value			// led off
+		
+		
+					
+Section 17						
+
+	100. 7-Segment Display basics and Interfacing							
+	101. 7-Segment Display basics and Interfacing contd.		
+
+		common cathod
+	
+					|			  +    -		I_forward = 16mA
+			Vs 3.3V |___/\/\/\______|\____		V_LED = 1.8V
+					|			 	|/    |			 3.3 - 1.8	
+					|	100 ohm			 ---	R = ------------ = 100 ohm	
+					|					 ///		     16
+	
+			BBB GPIOs = 6 ~ 8 mA -> no need of a limiting resister
+		
+
+	102. 7segment display up-down counter implementation-1					
+
+		counter_7seg.c
+		
+		
+	103. 7segment display up-down counter implementation-2					
+
+		================================================
+		P8.7             GPIO_66        a
+		P8.8             GPIO_67        b
+		P8.9             GPIO_69        c
+		P8.10            GPIO_68        h //decimal point
+		P8.11            GPIO_45        d
+		P8.12            GPIO_44        e
+		P8.14            GPIO_26        f
+		P8.16            GPIO_46        g
+		=============================================
+
+		root@beaglebone:/sys/class/gpio66# cat direction
+		in
+		root@beaglebone:/sys/class/gpio66# echo "out" > direction
+		root@beaglebone:/sys/class/gpio67# echo "out" > direction
+		...
+		
+		# ./counter_7seg up 500
+		
+
+		
+	104. Challenge															
+
+
+Section 18
+
+	105. 4 digit 7 segment LED Counter implementation						
+	
+		common anode
+		
+		8 : A~G, DP
+		4 : digit select
+	
+	106. Challenge					
+	
+
+Section 19
+
+	107. Why Accelerometers are used ?										
+	108. Why Gyroscope sensors are used ?									
+	109. MPU6050 Introduction												
+	
+		9.2 I2C Interface
+			I2C is a two-wire interface comprised of the signals serial data (SDA) 
+			and serial clock (SCL). 
+
+			In general, the lines are open-drain and bi-directional. 
+			In a generalized I2C interface implementation, attached devices 
+			can be a master or a slave. The master device puts the slave address on the bus, 
+			and the slave device with the matching address acknowledges the master. 
+			
+			The MPU-60X0 always operates as a slave device when communicating 
+			to the system processor, which thus acts as the master. 
+			SDA and SCL lines typically need pull-up resistors to VDD. 
+			The maximum bus speed is 400 kHz.
+
+			The slave address of the MPU-60X0 is b110100X which is 7 bits long. 			
+			The LSB bit of the 7 bit address is determined by the logic level on pin AD0. 			
+			This allows two MPU-60X0s to be connected to the same I2C bus. 
+			When used in this configuration, the address of the one of the devices 
+			should be b1101000 (pin AD0 is logic low) and the address of the other 
+			should be b1101001 (pin AD0 is logic high).
+		
+	
+	110. Understanding MPU6050 ACC full scale range							
+	
+	
+	111. converting raw Acc value in to "g" values							
+	112. Understanding MPU6050 Gyro Full Scale range						
+	113. MPU6050 breakout board details										
+	114. Deciding BBB I2C pins for sensor interfacing		
+
+			figure 21-1 in AM335x TRM
+
+			# ls /dev/i2c*
+			 i2c-0		i2c-1		i2c-2	<= enumerated by omap i2c driver
+			 
+				P9 17,18 : I2C1_SCL,SDA in mode 2 	GPIO 87,86
+				P9 19,20 : I2C2_SCL,SDA in mode 3	GPIO 95,94 *
+
+			# cat /sys/kernel/debug/pinctrl/44e10800.pinmux/pins
+			 pin 86 (44e10958.0) 00000037 pinctrl-single	-> mode in 7
+			 pin 87 (44e1095c.0) 00000037 pinctrl-single	-> mode in 7
+			 
+			 pin 94 (44e10978.0) 00000033 pinctrl-single	-> mode in 3	!
+			 pin 95 (44e1097c.0) 00000033 pinctrl-single	-> mode in 3	!
+			
+	
+	115. MPU6050 Raw read Source code explanation-Part1					253				
+
+		 /*first lets open the I2C device file */
+		if ((fd = open(I2C_DEVICE_FILE, O_RDWR)) < 0) {
+			perror("Failed to open I2C device file.\n");
+			return -1;
+		}
+	
+		/*set the I2C slave address using ioctl I2C_SLAVE command */
+		if (ioctl(fd, I2C_SLAVE, MPU6050_SLAVE_ADDR) < 0) {
+				perror("Failed to set I2C slave address.\n");
+				close(fd);
+				return -1;
+		}
+
+		
+			So, now after that what we do is, set the I2C slave address using the ioctl command I2C_SLAVE.
+			The ioctl is a API, which actually performs the generic I/O operation command on file descriptors.
+			This is a linux standard function, which you can use to send commands to the driver, in order to change some configuration or to set some
+			configuration. So, for the ioctl you must give the 
+			fd of the device file  In this case is I2C.
+			a standard command which your driver understands.
+			
+			When you execute ioctl function here the driver will take this second parameter that is command.
+			Then it will understand that have to configure the I2C slave as this value.
+			So, if you don't do this then the I2C controller will not be having any idea to which slave it should talk.
+			On which address it should send out the I2C transaction bytes
+			And then, we call mpu6050_init which is implemented in this file.
+	
+	
+	116. MPU6050 Raw read Source code explanation-Part2						
+	
+			9.3 i2c protocol 
+	
+			  [S]tart : falling edge of SDA w/ SCLK high
+			  addr[6:0]
+			  rw[0]
+			  ack[0]
+			  
+			  data[7:0]
+			  ack[0]
+			  
+			  sto[P] : rising edge of SDA w/ SCLK high
+	
+				Start: SDA goes from high to low while SCL is high
+				AD 	 : Slave i2c address
+				R/W  : Write bit (0), Read bit (1)
+				ACK  : SDA line is low while the SCL line is high at the 9th clock cycle
+				NACK : SDA line stays high at the 9th clock cycle
+				RA 	 : MPU-60X0 internal register address
+				DATA : Transmit or received data
+				Stop : SDA going from low to high while SCL is high	
+	
+	
+	117. Testing MPU6050 Raw read application on BBB		
+	118. Measuring Tilt Angle of the object part 1					
+	119. Measuring Tilt angle of the object Part 2							
+
+
+Section 20
+
+
+	120. LCD Introduction													
+	121. 16x2 LCD pin details							Vcc = 5V											
+	122. HD44780 LCD controller Internal Details		ST7066					
+	123. Understanding DDRAM, CGRAM,CGROM									
+	124. Understanding LCD command sets -Part1								
+	
+		http://dinceraydin.com/lcd/commands.htm
+		
+	125. Understanding LCD command sets -Part2		
+		
+			lcd_driver.h
+			
+	126. Connecting BBB and LCD												
