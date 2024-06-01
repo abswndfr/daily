@@ -1,0 +1,1 @@
+https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/

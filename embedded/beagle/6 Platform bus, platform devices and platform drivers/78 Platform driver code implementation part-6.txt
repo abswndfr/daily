@@ -1,0 +1,143 @@
+
+In this lecture, let's implement the remove function.
+
+As you already know, the remove function will get called when the device is removed from the system.
+
+So, when the platform device is are removed from the system or when the driver is removed, then this remove
+
+function should be used to cleanup the memory held by the platform devices.
+
+In our case, every device holds 2 memories.You see in the probe, dynamically
+
+we allocate two memories. One for the device private data structure and another one for the device buffer.
+
+When the platform device is getting removed,
+
+then why do you need that memories?
+
+We must clear it. That what we do inside the remove function.
+
+In the remove function, you actually get the pointer to the platform device, which is going to be
+
+removed, and use that pointer to cleanup things.
+
+Now the problem is, how do you access this device private data pointer here.
+
+Because, this is a local variable.How do you access this pointer here? Because, only if you know this
+
+pointer, then you can cleanup the memory and access any other a member elements of the device private
+
+data structure.
+
+That's why, you should find out a way to access this pointer here.
+
+That we can do by again using this platform_device structure. Let's once again explore this structure.
+
+So, here is a structure and here go to a device structure. And you see a field here 'driver_data'. You can
+
+use this field to pass information from probe to remove.
+
+This field is a driver_data field, which you can set and get with these helper functions. A
+
+dev_set_drvdata and dev_get_drvdata.
+
+dev_set_drvdata we have to use in the probe function and dev_get_drvdata we can use in the remove
+
+function.
+
+What I'm going to do now is, I'm going back to the probe function and I'm going to save this pointer
+
+dev_data in the device structures driver data field, pdev.
+
+So, let's access this pointer pdev.
+
+pdev->dev.
+
+So, if you are confused pdev->dev
+
+.driver_data.You can use something like this =dev_data.
+
+I'm just saving this pointer in driver_data field or
+
+instead of doing this, you can simply use the helper functions provided that is set_drvdata.
+
+Let's explore this.Here it is.
+
+set_drvdata.
+
+You just have to pass the pointer to your data.
+
+Let's use set_drvdata.
+
+This takes address to the dev structure.
+
+pdev->dev
+
+and your data is dev_data.
+
+Save the
+
+device_private data pointer
+
+in platform device structure.
+
+When you reach remove you can extract that.So, in the remove function, the first thing what we do is, remove
+
+a device that was created with device_create().
+
+Let's go to our previous exercise, we used to do this device_destroy().This we have to do now device_destroy(). Let's
+
+do the device_destroy().
+
+device_destroy,
+
+this is class_pcd and here you should use the device_number.
+
+How do you access the device_number? From the device private data structure.
+
+How do you get the device private data structure?
+
+Let's create one pointer variable to our device private data structure.
+
+You should now use a device get driver data.
+
+This must be device get driver data.
+
+Here it is dev_get_drvdata, you should pass the pointer to the device structure.
+
+pdev->dev.
+
+And now by using this dev_data
+
+get the device_number.
+
+And the next step is, remove cdev entry from the system.The cdev cleanup you have to do.
+
+And free the memory held by the device. Device helds two memory. First cleanup the memory for the buffer.A
+
+kfree
+
+(dev_data->buffer).
+
+Finally, kfree
+
+(dev_data).
+
+So, all these three steps you have to do whenever you want to remove a device, when the device is being
+
+removed.
+
+After that, in the probe function, let's use the total devices member element of the driver data structure
+
+to count how many devices being probed.
+
+At the end here, I'm going to increment the total devices variable. pcdrv_data.total_devices++
+
+I'm going to do here.
+
+And I am going to do -- here.
+
+All right.So, the build was fine. And complete upto here and let me know if you have any questions,
+
+I'll see you in the next lecture.
+

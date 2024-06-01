@@ -1,0 +1,121 @@
+
+Let's continue coding of our platform_driver.
+
+What I do is, I'm going to keep some prints in the probe and remove function.
+
+Here, what I'm going to do is, I'm going to just write " A device is detected".
+
+And yes, I'm going to just print this.Let's see how it goes.
+
+So here, I'm going to print
+
+"A device is removed".
+
+And in the device setup, I'm going to change this word to
+
+loaded
+
+and this has unloaded.
+
+Let's build the project.
+
+So, now both the modules have been built. Let's insert our device setup kernel module.
+
+Now, let's check the dmesg.
+
+You can see that, the device setup module is loaded.
+
+Let's insert our platform driver module.
+
+And here you can see that, our drivers probe function has been executed and it has printed a device is detected.
+
+But, it should print twice, because we have registered 2 devices.
+
+I have to check this code again.
+
+So, we have register twice, isn't it?
+
+That means, probe should get called twice.
+
+Yeah! here it is.
+
+There is a problem. Here,
+
+there is a mismatch with the name.
+
+This is a matched device, because this device name value matches exactly with the driver's name value.
+
+That's why, this device is detected, but this device is not detected because there is a mismatch in
+
+the name.
+
+Let's change this.Now,
+
+it is fine.
+
+Let's remove the modules.You can remove in any order.
+
+First, let me remove the driver itself.
+
+Let me remove the driver.
+
+Hit enter and let me run the dmesg, here it is.
+
+When you removed the driver, the remove function was called.
+
+That means, the kernel is giving you a chance to unbind the device before you unload your driver.
+
+That's a reason why that remove function was called.And after that, the driver gets unloaded here.
+
+In the remove function, you can do some cleanup activities, which will see in this exercise.Like freeing
+
+a memory.
+
+Now the driver is removed.
+
+Let's a remove our device setup code.
+
+Here you can see that, when I removed the device setup module, the release function gets called and
+
+after that, the device setup module was unloaded.
+
+Let's change the order of a module unloading. I'm going to a first load driver, pcd_platform_driver, and
+
+let's check the dmesg. Here,
+
+you can see that, there is only one message
+
+'pcd_platform driver loaded'.So, it is not showing any probe messages.Let's load the platform devices.
+
+That means, our device setup module.
+
+So, now you see a device is detected.
+
+And device setup module is loaded.Look at this message from where it is coming? It is coming from the probe
+
+function.
+
+That means, as soon as you load this device setup code, the matching code ran, and the match was detected,
+
+and that's why the probe function gets called here.
+
+Let's first remove the device setup code.
+
+Let's check the messages.
+
+So, you have to check these 4 messages here.
+
+When you removed your device setup code. So, the kernel first called the remove function of the driver.
+
+That means, the kernel is giving you a chance to free the memory which is occupied by that device, before
+
+you unload that device from the system.
+
+That's why, first a remove function gets called.
+
+After that, this release method gets called, and after that device was unloaded from the system.
+
+Try this at your desk and let me know if you have any questions.In the next lecture, so we will add
+
+more code to our project.
+

@@ -1,0 +1,141 @@
+
+Now, let's add some more devices in our platform device setup file.
+
+Let me go to device setup file.
+
+Here, let's create more devices.
+
+I'm going to copy and paste these structures another two times.
+
+This is a third device and this will be the fourth device.
+
+First device, second device, I call it as third device,
+
+and I call this as my fourth device.
+
+And let's create different platform_data.In the platform_data,
+
+I'm going to remove this count here.
+
+Let's create two more entries, let's copy and paste.
+
+This is two and this is three.So, this is a third platform_data and this is a platform_data for the fourth
+
+device.
+
+I'm going to write this as 128,
+
+I'm going to select this as 32 let's say. Permission
+
+you can change here, let me write RDONLY.
+
+So, let me make this WRONLY.
+
+And let's change a serial number as well.
+
+We have got 4 devices.So, this is the third device,
+
+this is pcdev_pdata[2].
+
+And this is 3.
+
+So, now you have to call this platform register another two times.
+
+Now, there is one shortcut.
+
+So, you can use another API, which is provided by the platform_device.h, the API name is
+
+platform_add_devices.
+
+Here it is.If you use this function, then you can add multiple devices in one go.You just have
+
+to mention the count here and you can see that, it runs a loop here where it calls platform_device_register.
+
+But, the first argument for this function is array of platform devices to add. You should create
+
+array of platform devices and you should pass the pointer here.
+
+Let's use this function instead of platform_device_register.
+
+What I'm going to do is, I'm going to comment this out
+
+and I'm going to call
+
+platform_add_devices().
+
+For this, you have to pass array of platform devices.
+
+Let's create an array of platform devices, struct platform_device.
+
+Basically, it will be a pointer array.
+
+I call it as a platform
+
+pcdevs.
+
+This is a pointer array,
+
+which is equal to now let's initialize this array.
+
+Here, you should accumulate the addresses of all these platform devices.
+
+Let's initialize this array with addresses of the platform devices, which we have created here.So, the
+
+first entry would be platform
+
+pcdev1,
+
+this will be 3, this will be 4.
+
+After that, you have to pass this array
+
+to this function.This will be platform
+
+pcdevs, and the number of platform devices you are going to add.So, you can use a ARRAY_SIZE macro
+
+here.
+
+ARRAY_SIZE of this one.
+
+By using this you can add all the platform devices in one go. Let's test this.
+
+I'm going to do make host. Yes, it went well, and let's first remove any existing drivers, so I just
+
+run lsmod.
+
+We don't have any modules hooked, no problem.
+
+Let's do first pcd_ platform_driver.ko.
+
+It went well, driver loaded.
+
+insmod pcd_device_setup.ko.
+
+What do you expect? 4 times the probe should be called and we should see the information about all
+
+our devices.
+
+There is a crash.The crash says, 'cannot create duplicate filename'.
+
+All right. So, I got what is the problem.
+
+Here, I didn't change the id's. So, this is 0th id,
+
+this is id 0, id 1,
+
+it should be id 2, and it should be id 3.Because, there was a conflict while creating the device
+
+files.
+
+Let's run lsmod, to see whether that driver is really hookedup or not.
+
+Yes, it is hooked up.
+
+I think we have to remove these drivers.
+
+Let's try to remove pcdev_device_setup, so you cannot remove that.
+
+There is a big crash. The only resort is to reboot the machine not.
+
+Let me reboot the machine and I'll see you in the next lecture.
+
