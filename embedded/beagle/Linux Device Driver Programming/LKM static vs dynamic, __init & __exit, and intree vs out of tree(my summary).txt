@@ -1,0 +1,40 @@
+>> Building a kernel module 
+
+  Static(y)
+	
+	When you build a Linux kernel, you can make your module statically linked to the kernel image (module becomes part of the final Linux kernel image ). This method increases the size of the final Linux kernel image. Since the module is ‘built-in’ into the Linux kernel image, you can not ‘unload’ the module. It occupies the memory permanently during run time
+
+  Dynamic(m)
+	
+	When you build a Linux kernel, these modules are NOT built into the final kernel image, and rather there are compiled and linked separately to produce .ko files. You can dynamically load and unload these modules from the kernel using user space programs such as insmod, modprobe , rmmod.
+	
+
+
+>> Statically linked
+
+  Function section attributes __init & __exit
+	
+	__init and __exit makes sense only for static modules (built-in modules)
+	
+	__init is a macro which will be translated into compiler directive, which instructs the compiler to put the code in .init section of the final ELF of linux kernel image. .init section will be freed from the memory by the kernel during boot time once all the initialization functions get executed. Since the built-in driver cannot be unloaded, its init function will not be called again until the next reboot, that’s why there is no need to keep references to its init function anymore. so using __init macro is a technique, when used with a function, the kernel will free the code memory of that function after its execution. Similarly, you can use __initdata with variables that will be dropped after the initialization. __initdata, which works similarly to __init but for init variables rather than functions.
+	
+		
+	module clean-up function	
+
+	You know that for built-in modules clean-up function is not required. So, when you use the __exit macro with a clean-up function, the kernel build system will exclude those functions during the build process itself. 
+
+	Since you can not remove static modules, clean-up function will get called only in the case of dynamic modules when it is removed using user space command such as rmmod. If you write a module and you are sure that it will always be statically linked with the kernel, then there is no need to implement this function. Even if your static module has a clean-up function, the kernel build system will remove it during the build process if there is an __exit marker.
+
+
+>> Dynamically loadable
+
+  In-tree vs out of tree
+	
+	out of tree : outside of the Linux kernel source tree.
+	In-tree     : The modules already part of the Linux kernel (approved by the kernel developers and maintainers )
+	
+	When you write a module separately (which is not approved and may be buggy), build and link it against the running kernel, then its called as out of the tree module. Hence when you load an out of tree kernel module, kernel throws a warning message saying it got tainted.
+	
+	
+	
+	

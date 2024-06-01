@@ -1,0 +1,164 @@
+struct file_operations 			pcd_fops=			
+{
+	.open = pcd_open,
+	.release = pcd_release,
+	.read = pcd_read,
+	.write = pcd_write,
+	.llseek = pcd_lseek,
+	.owner = THIS_MODULE
+};
+																
+struct platform_device 			platform_pcdev_1 = {							struct platform_device {
+	.name = "pcdev-A1x",                                                        	const char						*name;
+	.id = 0,                                                                    	int								id;
+	.dev = {                                                                    	bool							id_auto;
+		.platform_data = &pcdev_pdata[0],                                       	struct device					dev;
+		.release = pcdev_release                                                	u64								platform_dma_mask;
+	}                                                                           	struct device_dma_parameters 	dma_parms;
+};                                                                              	u32								num_resources;
+struct platform_device 			*platform_pcdevs[] =                            	struct resource					*resource;
+{                                                                               	const struct platform_device_id	*id_entry;
+	&platform_pcdev_1,                                                          	const char 						*driver_override; // Driver name to force a match. driver_set_override()
+	&platform_pcdev_2,                                                          	struct mfd_cell 				*mfd_cell;		  // MFD cell pointer
+	&platform_pcdev_3,                                                          	struct pdev_archdata			archdata;		  // arch specific additions 
+	&platform_pcdev_4                                                           };
+};
+
+struct platform_device_id 		pcdevs_ids[] = 									struct platform_device_id {
+{                                                                               	char 			name[PLATFORM_NAME_SIZE];
+	[0] = {.name = "pcdev-A1x",.driver_data = PCDEVA1X},							kernel_ulong_t 	driver_data;
+	[1] = {.name = "pcdev-B1x",.driver_data = PCDEVB1X},        				};
+	[2] = {.name = "pcdev-C1x",.driver_data = PCDEVC1X},        				
+	[3] = {.name = "pcdev-D1x",.driver_data = PCDEVD1X},        				
+	{ } 		/*Null termination */				
+};				
+				
+struct platform_driver 			pcd_platform_driver = 							struct platform_driver {
+{                                                               					int  (*probe)(struct platform_device *);
+	.probe = pcd_platform_driver_probe,                         					int  (*remove)(struct platform_device *);
+	.remove = pcd_platform_driver_remove,                       					void (*remove_new)(struct platform_device *);
+	.id_table = pcdevs_ids,                                     					void (*shutdown)(struct platform_device *);
+	.driver = {                                                 					int  (*suspend)(struct platform_device *, pm_message_t state);
+		.name = "pseudo-char-device"      // redundant              				int  (*resume)(struct platform_device *);
+	}                                                           					struct device_driver driver;
+																					const struct platform_device_id *id_table;
+};                                                              					bool prevent_deferred_probe;
+																					bool driver_managed_dma;
+																				};
+
+
+
+
+struct device {
+	struct kobject 			kobj;
+	struct device			*parent;
+	struct device_private	*p;
+	const char				*init_name; 			/* initial name of the device */
+	const struct device_type *type;				
+	const struct bus_type	*bus;					/* type of bus device is on */
+	struct device_driver 	*driver;				/* which driver has allocated this device */
+	void					*platform_data;			/* Platform specific data, device core doesn't touch it */
+	void					*driver_data;			/* Driver data, set and get with dev_set_drvdata/dev_get_drvdata */
+	struct mutex			mutex;					/* mutex to synchronize calls to its driver. */
+	struct dev_links_info	links;
+	struct dev_pm_info		power;
+	struct dev_pm_domain	*pm_domain;
+	struct em_perf_domain	*em_pd;					#ifdef CONFIG_ENERGY_MODEL
+	struct dev_pin_info		*pins;					#ifdef CONFIG_PINCTRL
+	struct dev_msi_info		msi;						
+	const struct dma_map_ops *dma_ops;				#ifdef CONFIG_DMA_OPS
+	u64						*dma_mask;				/* dma mask (if dma'able device) */
+	u64						coherent_dma_mask;		/* Like dma_mask, but for alloc_coherent mappings as not all hardware supports 64 bit addresses for consistent allocations such descriptors. */
+	u64						bus_dma_limit;			/* upstream dma constraint */
+	const struct bus_dma_region *dma_range_map;										
+	struct device_dma_parameters *dma_parms;										
+	struct list_head		dma_pools;														/* dma pools (if dma'ble) */			
+	struct dma_coherent_mem	*dma_mem; 				#ifdef CONFIG_DMA_DECLARE_COHERENT		/* internal for coherent mem override */ 
+	struct cma 				*cma_area;				#ifdef CONFIG_DMA_CMA					/* contiguous memory area for dma allocations */
+	struct io_tlb_mem 		*dma_io_tlb_mem;		#ifdef CONFIG_SWIOTLB
+	struct list_head 		dma_io_tlb_pools;		#ifdef CONFIG_SWIOTLB_DYNAMIC
+	spinlock_t 				dma_io_tlb_lock;		#ifdef CONFIG_SWIOTLB_DYNAMIC
+	bool 					dma_uses_io_tlb;		#ifdef CONFIG_SWIOTLB_DYNAMIC			
+
+	/* arch specific additions */
+	struct dev_archdata		archdata;					
+	struct device_node		*of_node; 				/* associated device tree node */
+	struct fwnode_handle	*fwnode; 				/* firmware device node */
+
+	int						numa_node;				#ifdef CONFIG_NUMA						/* NUMA node this device is close to */
+	dev_t					devt;					#ifdef CONFIG_NUMA						/* dev_t, creates the sysfs "dev" */
+	u32						id;						#ifdef CONFIG_NUMA						/* device instance */
+	
+	spinlock_t				devres_lock;
+	struct list_head		devres_head;
+	const struct class		*class;
+	const struct attribute_group **groups;			/* optional groups */
+	void					(*release)(struct device *dev);
+	struct iommu_group		*iommu_group;
+	struct dev_iommu		*iommu;
+	struct device_physical_location *physical_location;
+	enum device_removable	removable;
+	bool					offline_disabled:1;
+	bool					offline:1;
+	bool					of_node_reused:1;
+	bool					state_synced:1;
+	bool					can_match:1;			
+	bool					dma_coherent:1;			#if defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE) || defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) || defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU_ALL)
+	bool					dma_ops_bypass : 1;		#ifdef CONFIG_DMA_OPS_BYPASS
+};
+
+
+
+
+
+struct pcdev_platform_data  pcdev_pdata[] = {				/*create n platform data*/
+	[0] = {.size = 512, .perm = RDWR,   .serial_number = "PCDEVABC1111"},
+	[1] = {.size = 1024,.perm = RDWR,   .serial_number = "PCDEVXYZ2222"},
+	[2] = {.size = 128, .perm = RDONLY, .serial_number = "PCDEVXYZ3333"},
+	[3] = {.size = 32,  .perm = WRONLY, .serial_number = "PCDEVXYZ4444"}
+};
+
+struct device_config 
+{
+	int config_item1;
+	int config_item2;
+};
+struct device_config pcdev_config[] =       /*configuration data of the driver for devices*/
+{
+	[PCDEVA1X] = {.config_item1 = 60, .config_item2 = 21},
+	[PCDEVB1X] = {.config_item1 = 50, .config_item2 = 22},
+	[PCDEVC1X] = {.config_item1 = 40, .config_item2 = 23},
+	[PCDEVD1X] = {.config_item1 = 30, .config_item2 = 24}
+	
+};
+
+struct pcdev_private_data					/*Device private data structure */
+{
+	struct pcdev_platform_data pdata;
+	char *buffer;
+	dev_t dev_num;
+	struct cdev cdev;
+};
+
+struct pcdrv_private_data					/*Driver private data structure */
+{
+	int total_devices;
+	dev_t device_num_base;
+	struct class *class_pcd;
+	struct device *device_pcd;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
