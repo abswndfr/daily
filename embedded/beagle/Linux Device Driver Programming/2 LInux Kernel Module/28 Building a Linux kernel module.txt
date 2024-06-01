@@ -1,0 +1,280 @@
+
+In this lecture, let's learn how to build a kernel module. Kernel module can be built in two ways.
+
+One is statically linked against the kernel image or it can be build as dynamically loadable kernel
+
+module.
+
+In most of the exercises in this course we will be writing and using dynamically loadable kernel modules.
+
+Let's say you want to build a kernel module as dynamically loadable kernel module.
+
+There are two types of dynamically loadable current modules.
+
+One is In tree modules and another one is Out of tree modules.
+
+What exactly is a In tree module? In tree modules means internal to the linux kernel tree.
+
+For example, in the earlier videos, you actually ran a command modules, make modules to build all
+
+dynamically loadable kernel modules of the Linux kernel.
+
+All those modules are called as In tree modules.
+
+That means, they are internal to the linux kernel tree.
+
+There are another type of dynamically loadable kernel module, that is out of tree, that is external to the linux
+
+kernel tree.
+
+So, the module what we just wrote our helloworld module, it is actually a Out of tree module.
+
+Loading Out of tree module taints the kernel.
+
+That is kernel issues a warning saying Out of tree module has been loaded.
+
+This is just a warning from the kernel and we can safely ignore this warning.
+
+You will see that when you load that module to the kernel.
+
+Let me quickly cover about what are In tree and Out of tree modules. Basically, out of tree means outside
+
+of the Linux kernel source tree.
+
+The modules, which are already part of the Linux kernel are called In tree modules. That is approved
+
+by the kernel developers and maintainers.
+
+When you write a module separately (which is not approved and maybe buggy),
+
+build and link it against the running kernel, then it's called as out of the tree module.Hence
+
+when you load an out of tree kernel module, kernel throws a warning message saying it got tainted.
+
+That is a taint flag will be set in the kernel.
+
+Let's explore building a kernel module as Out of tree. Later will also explore In tree building.
+
+Modules are built using "kbuild" which is the build system used by the Linux kernel.
+
+Doesn't matter whether it is a static module or dynamic module, modules are built using "kbuild", that is
+
+kernel build.
+
+Modules must use "kernel build system"
+
+to stay compatible with changes in the build infrastructure and to pick up right flags to GCC.
+
+When you compile a user level program, what you do? You actually use a compiler called GCC and you
+
+use various compiler flags, you use various linker flags to compile your program.
+
+So the same procedure we have to follow here, but
+
+while building a kernel module you need not to worry about what kind of compiler switches or compiler
+
+arguments you have to use the compiler.
+
+You just have to invoke the kernel build system and the kernel build system will take care of using right compiler
+
+switches to the compiler. To build external modules, you must have a prebuilt kernel source available
+
+that contains the configuration and header files used in the build.
+
+Basically, we have already installed the kernel source, isn't it? We will be building our module
+
+against that prebuilt kernel source.
+
+This ensures that
+
+as the developer changes the kernel configuration, his custom driver is automatically rebuilt with the
+
+correct ke rnel configuration.
+
+If you need more information about building a module using "kbuild" you can go through the kernel documentation
+
+at this path.Let's move forward.
+
+There are some important note I would like to mention, so please remember that when you are building
+
+a Out of tree module, you need to have a complete and precompiled kernel source tree on your system.
+
+This we have already done.
+
+We have downloaded the kernel source tree and built it.
+
+The reason is, modules are linked against object files found in the kernel source tree.
+
+You cannot compile your module against one Linux kernel version and load it into the system, which is
+
+running kernel of different version.
+
+The module load may not be successful, and even if it is successful, you will encounter runtime issues
+
+with the symbols.
+
+That's why, the thumb rule is "Have a precompiled Linux kernel source tree on your machine and build your module against
+
+that".
+
+There are two ways to obtain a prebuilt kernel version.
+
+Download kernel from your distributor and build it by yourself
+
+this is what we did,
+
+or install the Linux- headers-of the target Linux kernel. Let's say you have a embedded system
+
+where the board is already running a Linux kernel of some different version.
+
+And now you have to write a driver for that board. What you do is,
+
+you try to get the kernel source of that running Linux kernel version.
+
+So, if you don't get full Linux source, then at least try to download the Linux headers of the target
+
+Linux kernel version.
+
+And build your module against that.
+
+As I said, you cannot compile your module against one Linux kernel version and load it into the system
+
+which is running kernel of different version.
+
+Don't try to do that.
+
+That's a reason why we downloaded the Linux
+
+kernel source from the beagle bone repository, compiled it, and updated the Linux kernel image in the target.
+
+Now, the version of the target Linux kernel and version of the source what we have got in our system
+
+is same.
+
+We are just going to build our module against the source, what we have installed.
+
+Let's see the procedure to a build a Out of tree kernel module.
+
+And maybe in the next lecture, let's explore about building In tree kernel module.
+
+This is a command you have to use. Very simple command, you just have to use make command, that's it.
+
+Now the idea here is, you have to trigger the top level makefile of the Linux kernel source tree,
+
+that's a key thing here.
+
+And to trigger top level makefile of the Linux kernel source tree, we use -C switch with the make.
+
+When you execute make -C, so make first enters into the Linux kernel source tree and it executes
+
+a top level make file.
+
+That's how kernel build system triggers.
+
+And when the make invokes top level make file, all the compiler switches, the dependency lists, version string,
+
+everything will be utilized to build your kernel module.
+
+When make invokes the top level makefile,
+
+you then have to direct the top level makefile to your local makefile,
+
+or a local folder where you have kept your Out of tree module source.
+
+And we direct the top level make file to our local folder by using the variable M.
+
+So, M is equal to you have to give path to your module source.
+
+And after that, this command also includes target options, and we'll explore about that in a moment.
+
+First, you have to use make -C, path to the Linux kernel tree to invoke the top level makefile of
+
+the kernel source tree, and when make invokes the top level makefile of the Linux kernel tree, the kernel build system
+
+triggers
+
+and you have to use the variable M to direct the build flow to enter into your local folder where you
+
+have kept your module source file.
+
+This is a command syntax in short make -C kernel directory and M=path to the
+
+local module, and then you have to mention targets.
+
+So, we will explore about the targets little later.Let's move forward.
+
+Now, for the targets you can use these options. If you want to build a module, then use a command modules.
+
+If you want to install the module, then use a command modules install.
+
+If you want to clean-up all the generated files in the module directory, then use clean.
+
+And if you want to get
+
+any help, then you just use help
+
+command here.
+
+These are the different targets.
+
+We have already used these targets. We have used modules, we have used modules_install, the same target option
+
+you can use with this command.
+
+Let's see creating a local makefile.
+
+As I said, the top level make file will invoke the local makefile. This you need to create by yourself.
+
+In the local makefile you should define a kbuild variable like below.
+
+You have to use a kbuild variable called obj-
+
+you can use 3 different values here.
+
+n,y, or m.
+
+And after that, you have to mention the module_name .o.
+
+Let's understand how to create a local makefile.
+
+In the local makefile you should define a kbuild variable like below.
+
+You have to use the kbuild variable obj- and you have to use the appropriate option.
+
+And then equate that to your module_name .o.Here, 'X'
+
+takes one of the below values. It could be n, or it could be y, or it could be m. If it is n, that
+
+means do not compile the module. When your kbuild system visits the local folder
+
+it reads the local makefile and it reads this variable obj-
+
+it could be n,y, or m. If it is y, that means compile the module and link with kernel image.
+
+That means, it's a static module
+
+if it is y. If 'X' is m, then compile as dynamically loadable kernel module.
+
+All you need to do is, you have to create a make file and write this statement.
+
+Let's say, I have a kernel module source file main.c and I want to build it as a dynamically loadable kernel
+
+module, then I would just mention obj-m := main.o.
+
+When the kernel build system sees this statement, the kbuild system will build main.o, that is
+
+object file from main.c and after linking, it will result in the kernel module, main.ko.
+
+Remember that, you should not mention main.c here. Main.c is a source, our target is
+
+main.o object file.
+
+That's why, you have to write main.o.
+
+So, the kernel build system creates the target that is main.o, and after linking, the kernel module
+
+main.ko will be generated.
+
+I hope you get the idea and let's try all these things practically on our helloworld kernel module, and I will
+
+see you in the next lecture.

@@ -1,0 +1,92 @@
+So, from this lecture onwards, let's explore about the Linux kernel moduls and let's write a simple hello
+
+world
+
+kernel module.
+
+First, let's learn how to write a simple hello world kernel module, will learn how to compile the
+
+kernel module using the kernel build mechanism,
+
+and transferring kernel module to the Beagle bone black hardware, loading it and unloading it.
+
+Let's get started.
+
+First, let's start with understanding what exactly is Linux kernel module. Linux supports dynamic insertion
+
+and removal of code from the kernel while the system is up and running. The code
+
+what we add and remove at run time is called a kernel module.
+
+Once the Linux kernel module is loaded into the Linux kernel, you can start using new features and functionalities
+
+exposed by the kernel module without even restarting the device.
+
+Linux kernel module dynamically extends the functionality of the kernel by introducing new features
+
+to the kernel such as security, device drivers, the file system drivers, system calls, and various other
+
+things.
+
+Basically, it's a kind of modular approach.
+
+You have a base kernel and if you want to add new features, then you can add as a module to the
+
+running kernel.
+
+Support for Linux kernel module allows your embedded Linux systems to have only minimal base kernel
+
+image and optional device drivers and other features are supplied on demand via module insertion.
+
+Example: when a hot-pluggable new device such as USB is inserted the device driver which is Linux
+
+kernel module gets loaded automatically to the kernel.
+
+That's why, the code what we add and remove at runtime is called as kernel module.
+
+Device driver is an example of Linux kernel module.
+
+Basically, what I can say is, a Linux kernel module is like a plugin to the running Linux kernel.
+
+There are two main types of LKMs, static and dynamic.
+
+Let's understand what exactly is the static LKM.
+
+When you build a Linux kernel, you can make your module statically linked to the kernel image.
+
+That means, module becomes part of the final Linux kernel image.
+
+This method increases the size of the final Linux kernel image.
+
+Since the module is 'built-in' into the Linux kernel image, you can't unload the module. It occupies the memory permanently
+
+during the runtime.
+
+And the second one is dynamic linux kernel module.
+
+When you build a Linux kernel, these modules are NOT built into the final kernel image, and rather they are
+
+compiled and linked separately to produce .ko files.
+
+We actually did this in the previous lecture
+
+we executed a command modules.
+
+That command actually built the kernel modules, the dynamic kernel module separately. That command
+
+actually produced lots of .ko files.
+
+You can dynamically load and unload these modules from the kernel using user space programs such as
+
+insmod, or
+
+modprobe,or rmmod.
+
+These are the commands which will be using in future lectures to insert and remove the kernel module,
+
+the dynamic kernel modules.
+
+So, in summary, when you are building the kernel, you can either link modules directly into the kernel
+
+or build them as separate modules that can be loaded into the kernel at some other time.
+

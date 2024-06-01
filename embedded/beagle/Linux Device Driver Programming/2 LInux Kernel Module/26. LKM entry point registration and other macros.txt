@@ -1,0 +1,121 @@
+
+Now, let's explore about the module entry points registration. So, now you have got a module initialization
+
+function and module clean-up function. You have to inform or you have to register your kernel modules
+
+entry points with a kernel.
+
+For that, we use some macros, which is given by the kernel.
+
+For that, we use module_init and module_exit macros.
+
+These are the macros used to register your module's init function and clean-up function with the kernel. Here module
+
+init
+
+and module_exit is not a function, but a macro defined in linux/module.h. For example, module
+
+init() will add its parameter to the init entry point database of the kernel.
+
+And module_exit() will add parameter to exit entry point database of the kernel.
+
+Basically, you just have to give your entry point n ame
+
+as an argument to these macros, that's it.
+
+Now, the next part is module description.
+
+These are some metadata which we are going to include in your kernel module. You can include
+
+MODULE_LICENSE, MODULE_AUTHOR, and MODULE_DESCRIPTION.
+
+For that, these macros can be used.
+
+Out of these macro's MODULE_LICENSE macro is very much important where you have to mention license type
+
+of the a kernel module what you are going to write.
+
+MODULE_LICENSE is a macro used by the kernel module to announce it's a license type.
+
+If you load a module whose license parameter is non GPL, then kernal triggers warning of being tainted.
+
+So, way of kernel letting the users and developers know it's a non-free license based modules.
+
+The developer community may ignore the bug reports you submit after loading the proprietary licensed
+
+module.
+
+The declared module license is also used to decide whether a given module can have access to the small
+
+number of "GPL-only" symbols in the kernel.
+
+Go to linux/module.h to find out what are the allowed parameters which can be used with this
+
+macro to load the module without tainting the kernel.
+
+So, with this macro you have to use a string value.
+
+This string value indicates a license type, it could be GPL or non-GPL.
+
+And here you see,
+
+the module license macro
+
+and these are the options you can use with a module license macro.
+
+It could be GPL, or GPL v2, GPL BSD, MIT, all these string values you can use with that macro.
+
+If your module is proprietary, then you can use the string proprietary.
+
+That's why, you have to use a appropriate value according to your license for which you are module adares
+
+to.
+
+When a non-GPL module is loaded, the kernel throws an error saying, a proprietary module has been
+
+loaded, and the kernel will get tainted.
+
+There is nothing wrong in using proprietory as a option here. You can use that. That depends on you.
+
+And if you want to understand more about this licensing schemes, then you can read the kernel documentation
+
+or you can just a google these a license terms you will get more info.
+
+In this course, for all our kernel modules we will be using this option that is GPL. Exit this.
+
+Let's move forward. And by using MODULE_AUTHOR a macro you can mention the author of the kernel module
+
+and by using MODULE_DESCRIPTION macro, you can write a small descriptive message which explains your
+
+kernel module.
+
+After that, there is also one more macro called module info from which you can create your own custom
+
+message.
+
+For example, if I want to include a message or a data such as a board is equal to beagle bone, then
+
+I would use module info.
+
+Here, board is a 'key' and beagle bone is a 'value'.
+
+When we do exercises we are going to use all these macros
+
+it will get clear, when you see one example.
+
+So, you can extract these module description details by running some elf analyzing tools such as objdump
+
+or modinfo, there are various tools by which you can extract a these metadata of the kernel module.
+
+So, will see when we generate some driver object files.
+
+So, we'll see all these things when we build our kernel module and generate a .ko files, that is kernel
+
+object file.
+
+In the next lecture, let's implement this hello world kernel modules
+
+and after that, we'll explore how to build a kernel module.
+
+I will see you in the next lecture.
+
