@@ -1,0 +1,77 @@
+FAQ
+FAQ about the Course
+1) Which board is required for this course?
+
+You may use any of the board listed below
+
+Beaglebone  Black Revision C (latest and this board is used in this course)
+
+Older revisions:
+
+Beaglebone  Black  Revision B
+
+Beaglebone  Black  Revision A6A
+
+Beaglebone  Black  Revision A6
+
+Beaglebone  Black  Revision A5C
+
+Beaglebone  Black  Revision A5B
+
+Beaglebone  Black  Revision A5A
+
+Beaglebone  Black  Revision A4B
+
+Beaglebone  Black  Revision A4A
+
+Beaglebone  Black  Revision A4
+
+Beaglebone white
+
+2) Can i use SeeedStudio BeagleBone Green (BBG) or SanCloud BeagleBone Enhanced?
+
+You should be able to use BBG and SanCloud BeagleBone Enhanced with small or no changes, but the course exercises are not tested with these boards.
+
+but almost all the course contents applies to these boards also
+
+3) Which Host operating system do I need for this course?
+
+For the core embedded Linux tasks such as kernel/bootloader compilation, busybox, buildroot compilations, etc you need a ubuntu host.
+
+If you don’t have Ubuntu host then don’t worry, you can install Ubuntu on virtual machine, installing and working with virtual machine is also covered in this course.
+
+For eclipse application development for BBB hardware you may use any OS such as windows/OSX/ubuntu.
+
+4) Can i download all the source codes ?
+
+Yes, you can download the source code from the github repo
+
+5) Will I get course certificate?
+
+Yes! When you complete 100% of the course, you will be able to download the certificate from udemy !
+
+6) What are the other hardware or components do i need other than beaglebone ?
+
+It’s optional! For the hardware interfacing projects you may need couple of other devices only if you want to practice at your desk, otherwise only BBB hardware is enough
+
+7) If i don’t have any board which board i should use?
+
+You have many choices
+
+1) Beaglebone black Rev C ( this is used in this course)
+
+2) Beaglebone Green  ( this is NOT used in this course)
+
+3) Beaglebone Enhanced (this is NOT used in this course)
+
+Check: http://beagleboard.org/bone
+
+8) Can i interact with the author during the course?
+
+Yes! You can use course Q/A discussion board to post your questions and get replies from the author and other students.
+
+9) Can i ask for refund if i don’t like this course?
+
+yes! Of course.
+
+you have 30days time from the day of purchasing in which you can ask for refund and udemy will give full amount back without asking any reasons. You need not give any clarifications at all. We always want to keep our students in safe zone.

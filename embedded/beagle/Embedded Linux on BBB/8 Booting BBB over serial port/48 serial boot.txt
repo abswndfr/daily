@@ -1,0 +1,8 @@
+Important Note
+
+If you are facing issues with uboot boot after downloading it through XMODEM, 
+then please refer to these threads where TI Software team suggests 
+to use YMODEM protocol to download the uboot image instead of XMODEM. 
+
+https://e2e.ti.com/support/arm/sitara_arm/f/791/t/646278?AM3358-UART-boot-mode
+http://processors.wiki.ti.com/index.php/AM335x_U-Boot_User%27s_Guide#Boot_Over_UART

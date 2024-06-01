@@ -1,0 +1,8 @@
+
+	20. What do we need to successfully boot linux on BBB ?				
+
+		RBL 	: ROM boot loader. tiny and limited. written by the vendor (Ti for AM335x)
+		SPL/MLO : Secondary Program Loader / Memory LOader derived from U-Boot. Load and execute 3rd stage boot loader, U-Boot.  
+		U-Boot  : load linux kernel
+		Linux K : load file system
+		RFS		: /SD/Flash/Network/RAM/e-MMC

@@ -1,0 +1,198 @@
+
+In this lecture, let me give you a quick overview about the course and its contents.
+
+This course has more than 20 sections.
+
+So, the section 1 is just an introduction section which consist of couple of lectures which will quickly
+
+introduce the beaglebone black hardware. And in the section 2, we will be concentrating about the initial set
+
+up related to the beaglebone black hardware and we will also explore the beaglebone black web interfacing.
+
+In the section 3, I'll give you a quick overview about the AM335x functional blocks.
+
+Knowing the functional blocks are really important in order to understand the operation of the SOC.
+
+So, this has 2 lengthy lectures which will introduce the AM335x functional block.
+
+Then we have a section 4 which explains beaglebone linux booting process.
+
+This is actually a long section consisting of lectures more than 10.
+
+And here, we will step by step will understand, how exactly the Linux boots, right? from the ROM bootloader
+
+until we launch the init program from the Linux kernel.
+
+Okay? Each and every step is explained with clear explanation, animations and practical testing on the beaglebone
+
+hardware.
+
+We'll test RBL, we'll test MLO, U-Boot and then we'll test the linux kernel step by step.
+
+And in between I will also explain the linux source code as well as U-boot source code to understand
+
+how exactly the handing off of control happens from one bootloader to another bootloader to the kernel
+
+to the file system. And in the section 5,
+
+I'll be talking about the eMMC update of the beaglebone black hardware with the newer Debian way.
+
+So, I will teach you, how you can update the eMMC memory with the newer release of the Debian OS from
+
+the beaglebone.org.
+
+So, this section is for people who use Windows as their host and this section is same, but this explains for
+
+the people who use Ubuntu as a host and for the people who use Mac then don't worry.
+
+It is exactly the same and easy as you do in the windows.
+
+OK? So, there is no such differences.
+
+OK? Then in the section 7, we'll also learn about booting the Angstrom Linux on the Beaglebone black hardware
+
+and then will talk about Linux Device Tree.
+
+Why that is introduced? in the section 8 and in section 9
+
+It has couple of lectures, I will guide you how you can write the uEnv.txt step by step from
+
+scratch and test it on the beaglebone black hardware.
+
+So, in the section 10,
+
+I'll talk about installing Ubuntu on virtual box.
+
+OK? So, the Ubuntu is required whenever we do core compilations, bootloader compilations, builded compilations,
+
+etc., those compilations cannot be done on Mac or windows host.
+
+So, you need a Ubuntu, and some students don't want to have a dual boot on their PC.
+
+OK?
+
+So, in that case, you can install a virtual box and on that you can run the Ubuntu-16 operating system.
+
+And in this section, I will show you how you can do that.
+
+OK? And after that in the section 11, I will talk about booting the beaglebone black hardware
+
+over the serial port.
+
+So, we'll transfer all the boot images
+
+over the serial port and we'll boot the board.
+
+OK? So, all these things are done practically.
+
+And after that, in the TFTP section, I will talk about how you can boot your board through the TFTP protocol.
+
+OK? And in the section 13,
+
+I will talk about the U-Boot,
+
+it's the source tree explanation,
+
+the cross toolchain installation
+
+and finally I will show you, how you can configure and generate the SPL, MLO and U-Boot images for your
+
+board, OK?
+
+And in the section 14, I will explain about the Linux source tree.
+
+The ARM architecture, code organization, the board configuration files, the SOC specific driver organization
+
+and finally we will configure and generate the linux image from the Linux source code that we download
+
+from the kernel.org.
+
+And in the section 15, I will talk a bout Busybox and I will help you to generate the minimalistic
+
+root file system from using Busybox and then we will test it on the hardware. And I will also talk
+
+about the init scripts, rcS, run levels and also
+
+I will show you how you can auto load lots of drivers when you have created your own root file system and how
+
+you can enable lots of functionalities like SSH, the Internet over USB
+
+So, those things how you can enable
+
+I'll show you in this section OK? when you have your own root file system.
+
+OK? And in Section 16, I will talk about the build root and how you can configure and generate binaries
+
+using build route and how you can finally test it on the hardware. Great.
+
+So, in the section 17, I will take you to the eclipse environment to develop applications for the beaglebone
+
+black hardware. So, eclipse can be installed in Mac, windows, Ubuntu.
+
+So, it is independent of any operating system.
+
+So, I will show you how you can write application, cross-compile it
+
+and finally how you can transfer the generated binary from host to the beaglebone black hardware
+
+just using drag and drop method that we call as remote Remote System Explorer Plugin in the Eclipse IDE. And
+
+in the Section 18,
+
+these are very very interesting topics where
+
+I will talk about the pins of the AM335x SOC, how you can map the pins
+
+GPIOs to kernel friendly numbers and I will explain about the GPIO sub system.
+
+I will talk about how you can control the user LEDs from the SYSFS entry of the linux kernel
+
+and I will also talk how you can write your own C application in order to control LEDs.
+
+OK?
+
+And the section 19, I will talk about the External LED interfacing. In the Section 20, I will talk about
+
+interfacing 7 segment LED either common cathode or common anode to the beaglebone black
+
+hardware and how you can write C application to drive that LED. So, all these are eclipse projects.
+
+Okay?
+
+And then I'll talk about, in the section 21, I will talk about interfacing a 4 digit 7 segment LED
+
+to the beaglebone black hardware.
+
+Okay?
+
+And there are other couple of projects related to MPU6050 accelerometer and gyroscope sensors.
+
+So, I will show you how you can interface that through the I2C interface to the beaglebone black
+
+hardware and we will write some applications to measure the tilt angle of the beaglebone black hardware.
+
+Okay? and I also have a couple of LCD projects,
+
+OK?
+
+which you can do with the beaglebone black hardware along with the EEPROM Projects.
+
+OK?
+
+So, this doesn't end here.
+
+OK?
+
+I will add more videos related to the wireless networking,
+
+the simple driver writing and the videos related to bluetooth, touch screen etc.. So, all these are planned
+
+in future.
+
+Great.
+
+So, that's a brief overview about the course.
+
+I hope you will get maximum benefit out of this course, and let me end this video and I will see you
+
+in the next lecture. Bye.

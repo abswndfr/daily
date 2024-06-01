@@ -1,0 +1,73 @@
+Additional components list
+Additional components requirements for this course
+
+1. Serial Debug cable
+	To access the serial(UART) pins of the board for debug purposes, a USB to Serial TTL convertor hardware is required because the Board doesn’t come with on-board serial converter chip .
+	
+	These are some of the recommendations only if you don’t have any USB to Serial convertor cable or hardware
+	
+	Note: if you have already bought USB to Serial Convertor hardware for my earlier courses, then you can continue using the same.
+	
+	https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=usb+to+ttl&rh=i%3Aaps%2Ck%3Ausb+to+ttl
+
+
+
+
+2. 5VDC Power Supply
+
+	You can power the board by connecting BBB to your PC using mini USB cable, but the current via the USB port is limited to 500mA by the power management device on the board. The board shuts off if USB current exceeds this range. Also if you want to drive more peripherals, the current will be in sufficient. A DC power supply solves this issue.
+	
+	Recommended DC power adapter 5V @ 2A
+	
+	Remember that the operating current recommended to be 1A to 2A, exceeding this range may damage the board.
+	
+	http://www.adafruit.com/products/276
+	
+	https://www.amazon.com/Super-Power-Supply-Adapter-BeagleBone/dp/B00J0CN3U8/ref=sr_1_1?ie=UTF8&qid=1496145278&sr=8-1&keywords=beaglebone+black+power+adapter
+	
+
+
+
+3. Micro SD card 
+
+    This course requires micro SD card of 4GB or above to carry out the SD card related experiments like eMMC booting, SD booting, etc. 
+
+
+
+	Additional components requirements for Hardware interfacing sections of this course 
+
+		Note1 : Buy the below components only if you want to try out example projects covered in the “hardware interfacing sections “
+		
+		Note 2 : if you already have some of the below components , then please continue using it unless you have a good reason to buy new one.
+		
+		Note 3 : I am not affiliate for these components and I take NO responsibility  if you receive any damaged or non-working components. These links are given only for exploration purpose. 
+
+
+	7 Segment Display Common Cathode, Red
+	
+		http://www.ebay.com/sch/i.html?_from=R40&_trksid=p2380057.m570.l1311.R1.TR11.TRC1.A0.H0.X7+segment+di.TRS0&_nkw=7+segment+display&_sacat=0
+	
+	
+	Male to male, male to female, female to female jumper wires
+		http://www.ebay.com/sch/i.html?_odkw=male+to+male&_osacat=0&_from=R40&_trksid=p2045573.m570.l1311.R1.TR6.TRC1.A0.H0.Xmale+to+male+jum.TRS0&_nkw=male+to+male+jumper+wire&_sacat=0
+
+	
+	LCD DISPLAY GREEN 16x2 LCD16X02 HD44780 DIY ARDUINO
+	
+		http://www.ebay.com/sch/i.html?_odkw=4+digit+7+segment+display&_osacat=0&_from=R40&_trksid=p2045573.m570.l1313.TR6.TRC1.A0.H0.XLCD+DISPLAY+16x.TRS0&_nkw=LCD+DISPLAY+16x2&_sacat=0
+
+	
+	7 Segment Display - 4 Digit Clock Type
+	
+		http://www.ebay.com/itm/1-Pcs-LED-Display-7-Segment-4-Digit-Red-Common-Cathode-for-Arduino-US-Seller-/181981511608?hash=item2a5ef17fb8:g:VSEAAOSwHaBWivl7
+	
+
+	MPU-6050 6DOF 3 Axis Gyroscope+Accelerometer Module for Arduino DIY
+	
+		http://www.ebay.com/itm/MPU-6050-6DOF-3-Axis-Gyroscope-Accelerometer-Module-for-Arduino-DIY-/201415045005?hash=item2ee545af8d:g:OSwAAOSwDwtUm4WP
+
+	
+	LEDs and buttons 
+	
+	
+	
