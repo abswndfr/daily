@@ -1,0 +1,88 @@
+
+So, in the previous lecture, we discussed about the dynamic memory allocation APIs. kmalloc(), kzalloc(),
+
+and also it's a resource management versions.Like devm_kmalloc(), devm_kzalloc(),etc..
+
+So, it's always better if you use a resource management a version of the memory management APIs.
+
+In our code, we didn't do that actually.So, in our code, we simply used kzalloc. It's always
+
+better if you use devm_kzalloc. That will prevent lots of code duplications.
+
+For example, in our case, you can see that in the remove function we are writing kfrees. Here is a
+
+a code which frees the memory.
+
+Basically, you can avoid freeing of memory by yourself if you use resource management APIs.
+
+That is one of the biggest advantage of resource management APIs, so which will make your code bug free.
+
+Because, most of the time programmers forget to free the memories. Here,
+
+we were conscious.
+
+That's why, we took care of freeing of memory.
+
+But, most of the time programmers while coding they forget to cleanup the memories and that may
+
+cause memory leak.
+
+To avoid these mistakes, the Linux kernel developers have added the Resource Management APIs.
+
+As I said, it also avoids code duplications. For example, here you can see that, the kfree() code has been
+
+used at multiple places. One of course, in the remove function
+
+and one more time we used the kfree(),
+
+that is in the error handling of probe. Here
+
+also we have used a kfree.
+
+Basically, that's a code duplication.
+
+Using kfree() in the remove function can be avoided, if you use resource management API for this kzalloc().
+
+Let's change this kzalloc() function using it's devm flavor.
+
+I'm going to modify this
+
+devm_kzalloc().
+
+So, the first argument should be the pointer to the device.
+
+What I'm going to do now is, I'm going to use address of pdev -> dev.
+
+You can understand this code like this.This memory allocation has been done on behalf of this device
+
+dev, when this device is going away or when this device is getting removed from the system, the kernel
+
+will automatically deallocate the memory held by this device.
+
+That's a meaning of this code actually.
+
+Similarly, I'm going to change this kzalloc() here.
+
+Let's use devm_kzalloc and the same argument
+
+pdev->dev.
+
+When the "remove" function gets called, and in the remove function
+
+now you need not to do this.
+
+You can remove this.
+
+Because, the memory deallocation will be taken care by the kernel in the correct order, you need
+
+not to worry about the order.
+
+But, in the proper function it should be there. In the probe function, you should deallocate yourself,
+
+so if the probe fails. Here, you can use a devm_kfree()
+
+devm_kfree().
+
+So, here you should give pointer to the dev structure.That would be fine.
+
+Let's just compile this code and let's see builds or not. Builds, no problem.

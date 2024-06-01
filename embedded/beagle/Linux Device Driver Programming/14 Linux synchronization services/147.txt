@@ -1,0 +1,357 @@
+
+Hey, welcome back. In this lecture, let's understand spinlock versus mutex.
+
+Let me first start with Spinlock.
+
+Spinlock is kernel synchronization service, or locking service used to avoid race condition while accessing
+
+shared resources.
+
+Only one thread of execution can hold spinlock at any given point in time.
+
+So, when a thread tries to acquire spinlock which is already held, the thread busy loops or spins on
+
+the processor until the lock becomes available. Since a thread busy
+
+loops on the processor, wasting processor execution cycles,
+
+it is not wise to hold the spinlock for a longer duration.
+
+Spinlocks are suitable for short critical sections. So, spinlock come in various versions,
+
+importantly IRQ and non-IRQ versions, and they protect shared resources by concurrent access by
+
+disabling kernel pre-emption and interrupts on the local processor. In spinlock,
+
+you have to remember two important thing.
+
+One is, when the lock is not available, it spins or busy loops on the processor, OK? wasting the processor
+
+cycle.
+
+Second thing what you have to remember is, spinlock disables kernel pre-emption, and it can also disable interrupts on
+
+the local processor.
+
+Let's understand more on that.
+
+There are some guidelines while using a spinlock. Spinlocks are non-recursive in Linux. A thread that
+
+tries to acquire a spinlock which is already held by the same thread, the thread busy loops waiting
+
+for itself to release the spinlock
+
+that will never happen because it is busy looping.
+
+It will never proceed to execute the code which releases the spinlock.
+
+So, this leads to self deadlock.
+
+Let's discuss this.
+
+What is self dedlock?
+
+So, let's say P1 process executes something like this. Let's say P1 process runs, it acquires the
+
+spinlock. What is acquiring a spinlock?
+
+It's nothing but inside the spinlock there is a variable called lock.
+
+Making lock = 1 is nothing but acquiring a spinlock.
+
+So again, how it is done? it is done by the hardware instruction.
+
+That's all acquiring a spinlock.
+
+So, acquire the spinlock,
+
+and after that execute the critical section and release the spinlock. That means, lock becomes 0.
+
+You have to use something like this, you cannot use something like this. What happens here? If you
+
+try to do this. Here, there is a attempt to recursive lock, if you see here.
+
+So, let's say,
+
+this is a processor, let's say CPU 0 and let's say P1 is running here. So, acquire the spinlock.
+
+This is a lock variable.
+
+So, acquire the spinlock, let's say this is success, lock
+
+becomes 1. And here P1 is trying to acquire the same spinlock.
+
+That's a failure, right? Because, it is already held. So, when there is a failure, P1 spins on this
+
+processor. That means, it continuously executes there, doing nothing like a while loop. It continuously executes
+
+on that processor.
+
+So, no one can preempt this P1.
+
+Why?
+
+Because, spinlock disables the pre-emptions. So, pre-emption is already disabled here.
+
+Since pre-emption is disabled, now no one can remove this P1, that's a deadlock.
+
+P1 cannot proceed to this line, where it releases the spinlock. Process P1 will stop spinning only
+
+when the clock is available.
+
+Lock will be made available here, right?
+
+But it is already spinning here.
+
+That's why, process will not proceed to the code, which releases the spinlock. So, it will not proceed
+
+here.
+
+That's why, it will lead to self deadlock.
+
+I hope you are getting this point, so that's why, spinlocks are non-recursive in Linux. That's why, don't try
+
+to acquire a spinlock which is already held by the same thread. So, spinlock disables pre-emption
+
+and busy loops.
+
+So, this will hog the processor doing nothing.
+
+So, use spinlock when the critical section is short.
+
+That doesn't mean that you have to put timer and you have to measure it.
+
+Just analyze your code.
+
+Spinlocks are best suited to guard concurrent access to shared resource from interrupt handlers.
+
+Spinlock is the only choice available a to lock the critical section from the interrupt handler.
+
+Why?
+
+Because, it spins.
+
+OK. It doesn't give up the processor.
+
+I will talk about that later, why spinlocks is suitable for interrupt handlers. So, spinlock cannot be used
+
+to protect the critical section which sleeps.
+
+So, this is one more interesting thing.
+
+You cannot use a spinlock to protect a critical section which sleeps.
+
+I will also discuss this last point little later.
+
+Now, let's consider the uniprocessor system, OK? On uniprocessor systems
+
+spinlock acts as a marker to enable or disable the kernel pre-emptions since locking is not required.
+
+Now, let's take an example of SMP.
+
+Let's say, there are two processor, CPU-0 and CPU-1.
+
+And in the memory there is a lock. And lock 0 means lock available and lock 1 means lock unavailable.
+
+Let's say, Process P1 runs here and at the same time P2 runs here. Because, it's a SMP. P1 here and P2
+
+here.
+
+So first, now let's say both the processes they try to run spinlock_lock. That means, they try to lock
+
+this variable, which is there in the memory. Simultaneously, they try to do this.
+
+It can happen.
+
+That means, CPU-0 should start one memory transaction.
+
+Right?
+
+to make this lock is equal to 1. And CPU-1 also should do one memory transaction,
+
+to make this lock = 1. But those two transactions will not happen at the same time, why?
+
+Because, at the hardware level, the access to the memory is serialized by the arbiter. At
+
+there is a bus arbiter, bus master arbiters, which will serialize based on the masters priority.In
+
+a computer system there could be multiple masters.
+
+So, CPU-0 is one master, CPU-1 is another master,
+
+there could be DMA masters, there could be USB master, ethernet master.
+
+They all try to catch the bus, which leads to various peripherals such as a memory or to different peripherals. So,
+
+concurrent access to a memory maybe serialized by the arbiter. Maybe based on the priority, maybe CPU-0
+
+as higher priority over CPU-1 to catch the bus.
+
+That depends on the hardware implementation.
+
+The spinlock_lock function actually triggers an instruction, atomic instruction, which triggers all
+
+these bus transactions.
+
+That's why, either CPU-0 will succeed to catch the bus or CPU-1 will succeed to catch the bus.
+
+Let's say, CPU-0 will be successful in catching the bus, which leads to the memory.
+
+In that case, process P1 will make this lock=1.
+
+After that, it executes the critical section.
+
+So, when it is executing the critical section, so P2 will be spinning in this processor.
+
+Why?
+
+Because, it has already disabled the pre-emption.
+
+Pre-emption is disabled.
+
+And then it tried to lock the memory, that is the lock variable which is there in the memory, but failed.
+
+Because, process P1, which is running in the CPU-0 already acquired the lock.
+
+That's why, locking fails here. So, locking succeeds here.
+
+That's why, processor P2 spins here.
+
+It won't go to these code block, which is a critical section. And here,
+
+the lock will be released, lock will be made as 0, and after that it succeeds here and then it
+
+proceeds to the critical section like that.
+
+That's how spinlock works in SMP. So, both pre-emption and locking is required in SMP, whereas in uniprocessor
+
+system a locking is not required, only enabling or disabling pre-emption is required.
+
+So, I already explained this self deadlock, never try to do this.
+
+Let's move forward. Let's discuss the deadly embrace. This is a problem which may happen either in
+
+spinlock or any kind of locking, it need not be spinlock.
+
+So, when you have multiple locks, always try t o acquire the locks in order. Let's understand this with an
+
+example. Let's say, there are a two CPU's, CPU-0 and CPU-1. Now
+
+let's say, thread 1 or pro cess 1 acquires the spinlock.
+
+Let's say thread 1 or process 1 runs here, T1 and T2 runs here.
+
+Let's say, or you can consider this as process 1 or process 2, anyway it is same. So, now let's say a thread 1
+
+acquires spinlock A. Let's say, it is initially it is successful and thread 2 acquires spinlock B, that
+
+is also successful.
+
+Thread 1 acquires spinlock
+
+B, not possible. Because, thread 2 is already holding that.
+
+So, it spins here.
+
+So, T1 will be spinning here.
+
+After that, thread 2 acquires spinlock A, which is not possible, because it is already held by thread 1
+
+it's pins here. Pre-emption is
+
+disabled, here also pre-emption is disabled.
+
+You see here, both are just spinning on different processors. Scheduler cannot remove this T1, there
+
+will be no scheduling. So, both the processors will hog. Because, here thread 1 is waiting for B, it
+
+is waiting for B, and thread 2 is waiting for A.
+
+Both are waiting for the locks which are held by one another.
+
+This is called a deadly embrace. It is a deadlock actually. So, such issues may happen while using
+
+a lock. OK?
+
+any lock, it could be spinlock, mutex, or any lock.
+
+That's why, the solution is always acquire in order.
+
+Order could be anything and that based on your project or how many spinlocks or locks you use.
+
+You have to define one order and you have to document it. If it is acquired in AB order, then it should
+
+be acquired AB order.
+
+It should not be acquired in BA order.
+
+Here, I said that, spinlock cannot be used to protect the critical section which sleeps.
+
+What does that mean?
+
+Let's see.
+
+Note that it's not recommended to use spinlock to protect a critical section that sleeps or blocks.
+
+So, always use spinlock with the critical section which is atomic in nature.
+
+For example, let's say, there is a processor 0
+
+and let's say you have process P1 running.
+
+And first what happens is,
+
+spinlock, it calls spinlock_lock.
+
+Before acquiring the critical section P1 process acquires the lock and it calls critical section. Let's
+
+say, critical section in is let's say copy_to_user a function, which were used in the earlier part of the course.
+
+Let's say, it's a critical section code copy_to_user(). And it unlocks, spinlock_unlock.
+
+This is a critical section. This is a kernel function copy_to_user which sleeps, that means, the
+
+kernel can block this process P1 when a sleeping function is called.
+
+So, what copy_to_user does?
+
+It copies some data into the user memory. Let's say, user memory is not available or the pages, the
+
+user pages are not available currently in the memory.
+
+In that case, this function goes to sleep
+
+or it will get blocked until the user memory is available.
+
+Kernel can put this process P1 to sleep until user memory or user pages are available to put the data
+
+into the user memory.
+
+So, when you use such a sleeping APIs or kernel function, the P1 will be put into sleep and the kernel
+
+will schedule some other process onto the CPU. Let's say, it's schedules P2. This is actually a self
+
+induced rescheduling.
+
+So, of course, the pre-emption is disabled, but this is a self induced scheduling, which is resulted
+
+by a function which sleeps.
+
+So, now when this P2 runs here, since pre-emption is already disabled by P1 while acquiring the
+
+spinlock, there could be a chance
+
+P1 will never be scheduled again.
+
+That means, there could be a chance that P1 will never release the lock. Because, P2 may run forever, because
+
+there is no pre-emption.
+
+That's why, there could be a chance that P1 will not run again.
+
+Thus, it may hold the lock forever.
+
+That's why, it is not recommended to use spinlock to protect a critical section that sleeps.
+
+In the next lecture, let's understand how to use spinlock. I will see you in the next lecture.
+

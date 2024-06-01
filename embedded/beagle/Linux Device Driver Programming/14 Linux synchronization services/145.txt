@@ -1,0 +1,570 @@
+
+Hey, welcome back to the lecture. In this section,
+
+let's understand avoiding race conditions in our project.
+
+So, basically in this lecture, we are going to understand why race conditions happens, and how to protect
+
+the critical section, and how to use the Linux synchronization services such as spin locks and mutexes
+
+to protect the critical section from race conditions.
+
+The concepts which you are going to learn in this section, you can apply to any piece of software or
+
+project. It need not be specific to the Linux device driver programming or any Linux system programming.
+
+These are the generic concepts you can apply to any projects, when you are writing a any piece of codes
+
+for any platforms.
+
+First of all, let's understand what exactly is a race condition? A race condition is runtime phenomenon
+
+where two or more threads of execution race towards a shared resource to access it.
+
+This may result in an inconsistent state of the shared resources and can cause a software bug.
+
+So, then what exactly is a shared resource?
+
+The condition issue comes while accessing a shared resource.
+
+A shared resource is a resource, which could be a global variable, or a shared memory area, or a peripheral
+
+that can be accessed by multiple threads of execution executing on the same processor or different
+
+processors.
+
+For example, if you have a global variable in your project and if there are two tasks or two processes
+
+are you know a sharing that global variable, then it becomes a shared resource.
+
+So, then what's a critical section? A Code block in your project, which manipulates the shared resource,
+
+which we call as critical section. Care must be taken on such code blocks to protect them from concurrent access
+
+from 2 or more threads of execution
+
+because there could be an attempt of concurrent access which leads to race condition issues.
+
+So, we'll see how that concurrency happens.
+
+You have to protect the critical section, because there could be an attempt of concurrent access. So,
+
+critical section code must be made atomic.
+
+That means, until one thread of execution completes the execution of a critical section, no other thread
+
+of execution is allowed to enter the same critical section.
+
+The idea to solve the problem of race condition is to make the critical section atomic, and we do that
+
+by using locks.
+
+We'll see that in next lectures.
+
+Now, let's take an example of how we can face a race condition issue.
+
+Let's say, there is a shared memory in your project and let's say you have a pointer variable called a mem_ptr.
+
+This is a global variable, which can be used to track the shared memory.
+
+Let's say, initially the memory pointer, OK? which is a pointer variable is pointing to the initial
+
+space of the shared memory.
+
+So, now let's say there are two processes in the system, process P1 and process P2.
+
+Let's say, process P1 wants to store a data byte into the shared memory. So, it manipulates the global
+
+variable mem_ptr.
+
+What it does is, it just calls a store 10 into the memory location pointed by this mem_ptr. So, 10
+
+will be stored here. And after that, it increments the memory pointer.
+
+So, the memory pointer points to the next location. And after that, P1 process completes its job and it leaves
+
+the CPU and now the process P2 runs. It stores 99 into the memory location pointed by mem_ptr.
+
+Let's say, 99 is stored here.
+
+After that, it incriminates the memory pointer. So, memory pointer now points here and it leaves the
+
+CPU. Like that process P1 and P2 a execute on the CPU and they do their job.
+
+Here, if you see this is fine, right?
+
+I mean, you see there is no issues with this code block.
+
+This would be fine if the system is a uniprocessor system(UP) and the kernel's process pre-emption
+
+is disabled. If your system is a uniprocessor system, that means, processor which has only a
+
+single core or a system in which only a single core is being utilized by the kernel, and if the kernel's
+
+you know process pre-emption is disabled, then it is perfectly fine.
+
+Manipulating the shared resource memory pointer without using any locking is fine.
+
+No problem.
+
+It works.
+
+So, if you don't know what pre-emption in OS is, it's a process of forcefully removing a currently
+
+executing tasks from the CPU and allowing some other task to run on the CPU.
+
+This is done by the scheduler. Basically in a preemptive kernel
+
+the task which is running on the CPU need not be running up to completion.
+
+So, that is at any time a task can be removed or preempt from running
+
+state and scheduler can make any other task to run on the CPU.
+
+That's what we call as a preemption.
+
+So, now let's again analyze this scenario with kernel pre-emption enabled. So, you can also turn off
+
+the kernel pre-emption. There are configuration items to do that.
+
+Let's say, initially the mem_ptr is pointing here and let's say process P1 is executed first on the CPU
+
+by the scheduler.
+
+It executes store 10 at this memory pointer, so 10 will be stored here and then let's say the scheduler
+
+preempts or removes this process P1 and it allows P2 process to run on the CPU.
+
+If that happens, then there is a chaos. Let's say, pre-emption happens here and now P2 runs.
+
+Now, what P2 does is, it actually uses the same memory pointer and tries to store the value
+
+99.
+
+You see here, the value which is written by process P1 is destroyed.
+
+That's why, the P2 is going to overwrite that, right? it the P2 makes it 99.
+
+So, you lost the value, which is written by the process P1.
+
+So, if someone is reading on this a shared memory, then that task or that process may not see the value
+
+which is written by the process P1.
+
+Then what happens is it increments the pointer here.
+
+So, pointer comes here.
+
+And after that, process P2 completes. So, when it is completed, let's say the control goes back to the
+
+process P1.
+
+Scheduler runs P1. Now, what it does is, it just increments the memory pointer,
+
+memory pointer now points here. You see here, there is a inconsistency, right?
+
+You lost some data which is presented by the process P1.
+
+This is a case of race condition. Here, there is a problem. The problem of manipulating this shared
+
+resource in a random order.
+
+Right?
+
+The manipulation on this shared resource should happen serially. First P1 should do its manipulation
+
+on this pointer, and only when it completes that manipulation, other processes should be allowed to
+
+do any other manipulation on that shared resource.
+
+So, that's why, to solve this problem, what you should do now is, you should treat this as a critical
+
+section and you have to make it atomic.
+
+Remember, critical section is a code block where the shared resource is manipulated.
+
+So, at these two places the shared resource is manipulated.
+
+You should treat this as a critical section.
+
+How to solve this race condition issue?
+
+Let's see that.
+
+So, now let's introduce a lock.
+
+Let's first try with a software lock, a global variable lock.
+
+If lock is equal to 0, then that means lock is available.
+
+If lock is equal to 1, then lock is not available.
+
+Now, let's redo our process P1 and process P2 accessing the critical section.
+
+So, now what process P1 does
+
+is, it first checks
+
+whether lock is equal to 0 or not.
+
+If lock is equal to 0, that means lock is available.
+
+So, it makes lock as unavailable.
+
+It makes lock = 1. And after that, it does its manipulation over the shared resource.
+
+When the manipulation is completed, it releases the lock here. So, it makes lock available and it exits.
+
+Let's see, whether it solves our problem of race condition or not.
+
+Now, let's say first the scheduler runs P1 process.
+
+Let's say, first P1 checks whether lock is equal to 0 or not, let's say lock = 0 initially.
+
+So, this condition become true.
+
+If it is true, then process P1 makes lock = 1.
+
+Now, let's say here the pre-emption kicks in. Let's say, at this point, the scheduler preempts this process P1
+
+and let's say process P2 runs now.
+
+What P2 does is, it checks whether lock = 0. That turns out to be false.
+
+Why?
+
+Because, process P1 has already made lock = 1.
+
+That's why, P2 will not enter into this code block.
+
+So, that's why, P2 a will not enter and it exists. Let's say control comes back here.
+
+And I mean, again the pre-emption happens, P2 is removed, P1 is made to run, and now P1 resume's
+
+and now it does some manipulation over the shared resource,
+
+and let's say again it is preempted here.
+
+Even if it is preempted here, then no problem, because P2 can never enter this critical section
+
+because lock is not available for the process
+
+P2, isn't it?
+
+That's how it looks like you know P1, and after that P1 completes this all the manipulation,
+
+on the shared resource and then it makes lock = 0 and it exists.
+
+When the process P2 is scheduled to run, then it sees that lock = 0, and then it acquires
+
+the lock and it does its manipulation.
+
+By this logic, it looks like we solved the problem of race condition, but that is not true.
+
+So, now let's analyze further.
+
+So, now let's analyze this.
+
+Let's say, first the process P1 runs and let's say P1 executes this compare code.
+
+This is if(lock == 0) that's a compare, isn't it?
+
+Let's say, P1 executes this successfully and let's say this turns out to be true for P1.
+
+And after that, let's say the pre-emption happens and now let's say P2 runs.
+
+Now, P2 does the comparison and it turns out to be true, right? for P2 as well.
+
+After that, again the pre-emption happens and now P1 runs.
+
+When P1 runs, it makes lock = 1. So, it locks. And after that, let's say it calls the
+
+store method, it manipulates the shared resource. That's fine.
+
+After that, let's say here again the pre-emption happens. Now, P2 runs. And now P2 also can make
+
+lock = 1 and it can manipulate the shared resource.Right?
+
+You see here, both the processes P1 and P2, they are in the critical section. That means, Atomicity
+
+of the critical section is not achieved. i.e., before P1 finishes the critical section, P2 raced towards
+
+the critical section.
+
+That's why, by using a software lock logic, you cannot prevent the race condition issue.
+
+So, now how do you solve this issue?
+
+This issue can't be solved by using a software logic, something like this.
+
+You should make this as atomic.
+
+That's why, most of the processor architectures provide a dedicated atomic instruction for test and set
+
+functionality.
+
+Some architectures a provide instructions which can do exclusive load and store. So, to do this test and
+
+set operation. For example, here lock = 0
+
+this is actually a test
+
+and this is set. So, test and set you should achieve by using atomic instruction, which is provided
+
+by the hardware,
+
+and this is called as hardware lock.
+
+So, semaphores, the spin locks, mutexes are based on using those dedicated instructions provided by the
+
+underlying hardware architecture.
+
+This is how you can solve this issue of race condition.
+
+Let's say, you have a software lock in the memory, let's say a global variable.
+
+And now what you should be doing is, you should be using a test_and_set function, which is provided
+
+by the Linux. So, test_and_set results in execution of atomic instruction, which can do a test_and_set on
+
+this memory location.
+
+So, test_and_set is implemented, something like this.
+
+Please note that, the code what I have written here is a code equival ent of an instruction. Basically,
+
+test_and_set is not implemented like this.
+
+I'm just writing equivalent of an atomic instruction of the processor architecture.
+
+It looks something like this.
+
+First you load the current value of the lock, current value of the lock or old value of the lock
+
+into a variable, and then set the lock to 1 and return the old value.
+
+Let's apply this logic here. So, test_and_set, address of lock. Initially lock = 0.
+
+What happens here? old = 0 and lock is set to 1. That is lock is acquired here
+
+and return the old value, a return 0.It return 0.
+
+This becomes not of 0 is 1, so P1 process
+
+enters this critical section. Let's say, pre-emption happens here. Pre-emption cannot happen while executing
+
+a test_and_set. Why?
+
+Because, that is realized through atomic instruction
+
+remember that. For example, here this load is realized through exclusive load.
+
+If you want to explore more about exclusive load, you can go to arm.com website from which you
+
+can understand how the exclusive
+
+load instruction works. Here,
+
+the memory location is set to 1.
+
+So, that is realized through exclusive store.
+
+This is in the case of ARM.
+
+If it is X86 architecture, then there is a dedicated instruction such as compare, and exchange, and set,
+
+something like that. So, different architectures a they provide different instructions.
+
+That's why, pre-emption cannot happen here. If preemption happens here,
+
+so then let's say P2 runs, then it again executes test_and_set. How it works test_and_set? A load
+
+the previous value, that is 1.
+
+So, 1 is set by P1 actually.And
+
+set lock = 1 and and return the old value. Return the old value means 1, not of 1 is 0.
+
+So, P2 will not enter the critical section.
+
+So, that's how hardware lock works.
+
+So, your semaphore, spin lock, and mutex locking depends on this logic.
+
+Basically, they make use of dedicated hardware instructions.
+
+Let's understand, when do we really need locking. Let's understand with different possible scenarios.
+
+Now, let's discuss scenario 1.
+
+Let's consider the uniprocesser system with no kernel process preemption + no interrupt in the
+
+system.
+
+So, uniprocessor system means the kernel configuration item a CONFIG_SMP is set to OFF.
+
+And no pre-emption. If you want to disable pre-emption in the kernel, you know you can do that by using
+
+the configuration item CONFIG_PREEMPT you must keep this to OFF.
+
+Then your system becomes uniprocessor system and pre-emption will be disabled. By default,
+
+CONFIG_PREEMPT is On and CONFIG_SMP is On.
+
+By the way, let's understand what exactly is a SMP and UP systems. SMP stands for Symmetric Multiprocessor
+
+System and UP stands for Uniprocessor system. Linux 2.0 and later versions support SMP.
+
+Your code can run on 2 or more processors simultaneously
+
+if it is a SMP system.
+
+Let's say your processor has two cores.
+
+If the kernel is configured as SMP which is by default,
+
+then the Linux kernels can spon two threads of execution simultaneously on two different cores.
+
+For example, the P1 process can run here,
+
+the P2 process can run here simultaneously on two different processors. If it's a SMP system.
+
+So, if CONFIG_SMP configuration item of the kernel is turned off, then only one core the
+
+primary core will be utilized, another core will be ignored.
+
+So, that's a difference between SMP and uniprocessor system.
+
+Let's discuss the locking in uniprocessor system
+
+first, OK? Let's take this case uniprocessor system,
+
+that means, SMP is off and no kernel process pre-emption, kernel pre-emption is turned off,
+
+and let's assume there are no interruptions in the system.
+
+In this case, let's say first P1 runs.P1 runs and it executes this, it executes this, and it exits.
+
+When it exits,
+
+let's say P2 process runs, it executes this, it executes this, and it exits.
+
+You don't need any locking here.
+
+Why?
+
+Because, there are no pre-emption, isn't it? Even if you have two cores, let's say this is core 0 and this
+
+is core 1. Since, it is a UP system, another core will not be used.
+
+So, when P1 is running in this core, it will run to completion.
+
+It can't be preempted, right? because pre-emption is off. When P1 completes, P2 runs.
+
+That's why, the access to the shared resource is anyway serialized, you don't have to use any locking here.
+
+Let's consider the next scenario UP system + kernel pre-emption is disabled, but let's say
+
+there is a sharing of resources between a process and an ISR.
+
+That is interrupt service routine.
+
+Here, no locking is required between processes P1 and P2.
+
+Why?
+
+Because, pre-emption is disabled, right?
+
+and it's a UP system. But, locking maybe required if ISR accesses the shared resource otherwise not.
+
+If ISR accesses your shared resource, then locking is required between a process and the
+
+interrupt service routine.
+
+So, we'll see how to use that locking later.
+
+But locking is required only if the ISR touches the shared resource.
+
+But, no locking is required between the processes.
+
+Let's move forward.
+
+Let's take up the next case. The uniprocessor system, kernel process pre-emption is enabled.
+
+There is only one core which will be used, so let's say core 0. In this case, locking is required.
+
+Why?
+
+Because, when the P1 is running, it can be pre-empted at any time by P2, isn't it?
+
+That's why, P1 and P2 will share this a CPU.
+
+The execution time of the CPU will be shared, and scheduler we don't know when scheduler schedules
+
+P1 and when scheduler schedules P2. That's a reason, you have to use locking.
+
+Locking is required between the processes P1 and P2.
+
+Let's move forward.
+
+Now, let's consider the SMP system with kernel process pre-emption disabled.
+
+Let's say, you have 2 cores, core 0 and core 1.
+
+Even though pre-emption is disabled, the scheduler can run P1 in core 0 and P2 on core 1 simultaneously.
+
+That's why, you need locking.
+
+So, this critical section can be executed by two processors at the same time.
+
+That's possible in SMP system.
+
+That's why, locking is required here.
+
+Let's understand one more scenario, SMP system and kernel process pre-emption enabled. Here
+
+again locking is required. Because, let's say P1 runs here and P2
+
+runs here. So, locking is required. Because, there is a chance of both the processes racing towards the
+
+critical section to modify it.
+
+So, it's possible and kernel pre-emption is enabled.
+
+Let's say, the scheduler schedules P2 here. It preempts P1, P1 can immediately run over here.
+
+So, that's possible.
+
+That's why, locking is required in this case as well.
+
+Let's say, SMP system + interrupts enabled.
+
+So, let's say you have
+
+core 0 here and you have core 1 here. Let's say, P1 runs here and hardware interrupt triggers this
+
+CPU and ISR runs here.
+
+In that case, locking is required. Because, ISR and the process can run simultaneously, they both
+
+can race towards the critical section.
+
+That's why, locking is required here as well.
+
+I hope you understood different scenarios
+
+what I have just discussed.
+
+So, now how to do this locking will understand later. Because, the Linux kernel gives us various tools such
+
+as spin lock, mutexes, a semaphores to implement the locking.
+
+The underlying locking logic a depends on the hardware lock
+
+what I explained in the previous slide. The depends on the hardware architecture support by making
+
+use of the atomic a test and set instructions.
+
+So, in the next lecture, let's understand Linux locking services to protect critical section
+
+and I will see you in the next lecture.

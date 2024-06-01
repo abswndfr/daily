@@ -1,0 +1,179 @@
+
+In this lecture, let's explore some of the functions available in Linux to use spinlock.
+
+So, your code,
+
+you have to represent a spinlock by creating an instance of the structure spinlock_t. This structure definition
+
+you can find in spinlock_types.h.
+
+So, here is a structure and this is a lock variable.
+
+Before using a spinlock, it must be initialized.
+
+There are two ways by which you can initialize a spinlock variable.
+
+The static method and the dynamic method.
+
+For some project static method may be suitable, and for some project you may have to use the
+
+dynamic way of initialization.
+
+Let's say, you want to statically create a spinlock variable and initialize it.
+
+Then you can just use this macro DEFINE_SPINLOCK.
+
+So, here you just have to mention the name of the lock variable, which you want to create.
+
+This macro is defined in spinlock_types.h. As you can see here, it just creates
+
+a variable of type
+
+spinlock_t with the name, what you have supplied here, and it initializes the spinlock variable
+
+to unlocked state.
+
+So, this is basically a static creation.
+
+Then, what is dynamic initialization?
+
+Let's say, you have to create a pointer variable of spinlock_t in your project, something
+
+like this.
+
+And then you allocate the memory using kmalloc,
+
+and now if you want to initialize this lock variable, you can go for dynamic initialization method.
+
+You can use spin_lock_init, and you just have to pass the address of the
+
+spinlock variable.
+
+Now, let's look at kernel functions to use a when we want to lock and unlock a spinlock.
+
+OK?
+
+So, these functions are defined in include linux/spinlock.h.
+
+First of all, let's discuss locking.
+
+To lock a spinlock, you have got three important functions. spin_lock,
+
+spin_lock_irq,
+
+and spin_lock_irqsave. Let's understand about these functions one by
+
+one.
+
+When you use spin_lock, you have to send the address of the lock variable.
+
+What you have created in your project?
+
+Spin_lock first disables the kernel pre-emption and then it tries to acquire the lock.
+
+Whereas, spin_lock_irq does one more important thing, that is it also disables the interrupt on
+
+the local processor.
+
+In your driver, if a resource is shared between a process and an ISR,
+
+then using just spin_lock won't protect shared resource being accessed concurrently by
+
+the interrupt service routine, you must use spin_lock_irq.
+
+Because, by disabling the interrupts spin_lock_irq function prevents the execution of an ISR on the local
+
+processor. So, note that, spin_lock_irq disables both interrupts and pre-emption
+
+on the local processor.
+
+To unlock a spilnlock, you can use spin_unlock or spin_unlock_irq.
+
+So, if you had used spin_lock to acquire the spin_lock, then you have to use
+
+spin_unlock to release the spin_lock, OK? It's like that.
+
+So, if you had used spin_lock_irq to acquire the spin_lock, then you have to use spin_unlock_irq to
+
+release the spin_lock.
+
+Now, the bad thing about using spin_lock_irq is when you use
+
+spin_unlock_irq to unlock the spin_lock interrupts will be enabled.
+
+Even if interrupts were disabled before acquiring the lock.
+
+You see here,
+
+this function is defined in spinlock.h.
+
+And the this function calls this function, which is defined in spinlock_api_smp.
+
+.h.
+
+And if you see here, it first releases the lock, then enables the interrupts,
+
+and finally enables the kernel pre-emption.
+
+So, it doesn't matter whether interrupts were enabled or disabled before acquiring the lock, it just enables
+
+the interrupts,
+
+which is bad and may lead to some issues. It's better to use another flavor that is
+
+spin_lock_irqsave.
+
+So, what this does is, it first saves local CPU's current interrupt status on the 'flag' variable
+
+what you supplied here.
+
+And then disables the interrupts on the local CPU.
+
+Then during unlocking, it uses that previously saved interrupt status to enable or disable the interrupts
+
+of the local CPU.
+
+So, it just you know restores the previous state of the interrupts as it is.
+
+So, here is an example of locking and unlocking.
+
+Remember that, you do locking and unlocking over a critical section.
+
+For more information, you can visit this documentation page spinlocks.txt.
+
+The documentation says, use spin_lock and spin_unlock, If and only if
+
+you know that the spinlocks
+
+are never used in interrupt handlers,
+
+you can use the non-irq version. So, if and only if you know that the spinlocks are never used in
+
+interrupt handlers,
+
+you can use the non-irq versions. To use this locking and unlocking apis only if the critical section
+
+is manipulated from "process context" and there is no ISR manipulating this critical section involved.
+
+This is how you should be using IRQ version.
+
+Just create a 'flag' variable and supply that with this kernel function, where the current state of the interrupts
+
+will be recorded.
+
+Now, there are also lock try functions, which you can use with spinlock.
+
+First one is spin_trylock. spin_trylock tries to acquire the lock.
+
+If acquire fails, then it will not spin, but returns 0 immediately.
+
+And it will return non-zero value, if it is successful in acquiring the spinlock in the first attempt.
+
+spin_trylock_irq is same as spin_trylock, but it just takes care of interrupts.
+
+So, spin_is_locked function does not obtain the lock, it just checks.
+
+If lock is currently obtained, it returns non-zero.
+
+If lock is available, it returns 0.
+

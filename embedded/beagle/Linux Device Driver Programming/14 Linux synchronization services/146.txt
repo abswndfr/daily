@@ -1,0 +1,94 @@
+
+In this lecture, let's understand Linux locking services to protect critical section.
+
+Let's see what are the services Linux provides.
+
+So, majorly there are 3 types of locking in Linux.
+
+These are the locking services provided by the Linux.
+
+The first one is Spinlock, Mutex, and the last one is Semaphore.
+
+In this course, I'll be discussing Spinlock and mutex.
+
+So, there are some guidelines about using them.
+
+Please note that, if you are protecting a critical section in the code which runs on behalf of the user
+
+request, that is, if the kernel runs in process context or user context, then you can either use
+
+spinlock or mutex to guard the critical section.
+
+If you want to protect the critical section of the ISR, that is interrupt service routine, which runs in
+
+internet context, then you have to use Spinlock.
+
+That's a guideline.
+
+So, if you are wondering what is user context and interrupt context. Let's take an example.
+
+Simple example.
+
+Let's say, you run a 'cat' command from your command prompt.
+
+What is that 'cat' command?
+
+That's a user program, isn't it?
+
+That user program triggers system call handler.
+
+Because, cat is a system call, which is a user program .So, when you run that, it triggers the kernel, isn't it?
+
+That means, it triggers the system call handler, which is implemented as a module in the kernel space.
+
+So, system call handler runs in kernel space. It is a privileged code, it runs in the kernel space.
+
+Here, the kernel code runs on behalf of user requests, hence this code runs in user context or
+
+process context. We can say that, system call handler runs in user context or process context.
+
+So, let's say in the previous example, you did something like this.
+
+You did echo
+
+you know some text
+
+to the device. /dev/pcd, right? you did this. What triggers? when this happens the write method,
+
+the write method of your driver triggers.
+
+So, your module in this case is executing in process context. Process context of echo command.
+
+So, it's like that.
+
+That's why, what this guideline says is, if you are protecting a critical section in the code which runs
+
+on behalf of user request, then you can use either spinlock or mutex.
+
+But there is also something called interrupt context. So, the kernel code executes in interrupt context,
+
+when there is an interrupt assertion from the hardware.
+
+Whenever hardware interrupt triggers, the ISR runs automatically. Right?
+
+That ISR code
+
+we call it as interrupt context
+
+code. Kernel is executing a code of "interrupt context", that is not behalf of any user request.
+
+That's why, we call tasklet or interrupt service routine as code which are executing in interrupt context.
+
+So, that's why, the guideline says, if you want to protect the critical section of the ISR or any code
+
+which runs in interrupt context, such as tasklet, timers,ISRs. You cannot use mutex, you have to use Spinlock.
+
+I'll tell you why, OK? when we discuss about Spinlock and mutex.
+
+Let's move forward.
+
+So, that's why, these are the interrupt context code like ISRs, Tasklets, softirqs, timers, never use mutex
+
+as locking mechanism when the critical section executes in interrupt context.
+
+In the next lecture,I will cover Spinlock versus Mutex. I will see you in the next lecture.

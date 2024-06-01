@@ -1,0 +1,544 @@
+
+Hey, welcome back.
+
+In this lecture, we are going to understand one more matching technique between a platform driver and
+
+a device, and the technique is using platform device
+
+ids.
+
+First, let's understand what's the usecase of this.In an embedded scenario, you generally find different
+
+versions of a chip.
+
+Let's take an example.Let's say, a vendor produces temperature sensing chip. The vendor is going to produce
+
+different versions of a temperature sensing chip in there product line at different timelines.
+
+For example, let's say, the vendor produces a temperature sensing chip whose name is TS-A1x.
+
+TS -A1x is a identification name of that chip.
+
+And in there product line, they may also produce more advanced temperature sensing chip like B1x,
+
+C1x, like that.
+
+Such hardware spinning is common in embedded systems.
+
+So, the B1x chip may be a little advanced than A1x, and C1x maybe more advanced than
+
+A1x and B1x.
+
+Each chip has its own configuration items or configuration parameters.
+
+So, the configuration parameters or the configuration items of B1x maybe little different
+
+from configuration items of A1x.
+
+Now, all these things should be handled by the platform driver.
+
+Do you think the vendor is going to give four or three different drivers to handle these three different
+
+families of chips?
+
+No, the vendor is going to give only one driver, which is going to handle various chip families of temperature
+
+sensing chips.
+
+Generally, the vendor doesn't give you a separate driver to handle A1x family and the vendor doesn't
+
+give you a separate driver to handle the chips of C1x family.
+
+That means, now a single driver should store different configuration items in the driver, and whenever
+
+it detects a chip, then it should verify its a device id and then it should load appropriate configuration
+
+parameters,
+
+and thus it configures the device properly.
+
+That means, now the platform driver must support different device ids to compare.
+
+In this hypothetical example, the platform driver must support 3 different ids like TS-A1x, B1x,
+
+C1x.
+
+When it detects a platform device whose name matches with any of these entries, then that's a matched
+
+device and the 'probe' function will get called and it can then configure that device.
+
+For this use case, the driver uses something called a device ids.
+
+We are going to support this matching feature to our driver now.
+
+You have to now modify the pcd platform driver to support different versions of pcdevs.
+
+So, now what we'll do is, we will give a unique id to every device, like I would like to call the first
+
+device as pcdev-A1x, pcdev-B1x, and
+
+pcdev-C1x.
+
+And then, we are going to maintain the supported id list in the driver, and then we are going to a configure
+
+them appropriately.
+
+So, now let's again explore our platform drivers structure.
+
+Here you see, platform_device_id,
+
+so here you should hook up your id_table, that is device id_table.
+
+If you just explore this structure, this is a very simple structure, which is there in
+
+mod_devidetable.So, a very simple structure,which consists of only two member elements.
+
+The first one is a name.
+
+Here, you are going to save the device id name, which your driver is going to support.
+
+And this field is long integer type, which is use it to hook up the driver data.So, will see the use
+
+case
+
+when we a code for this in our driver.
+
+Let's get into our code and let's first open device_setup.c.
+
+Here, we are going to support 4 devices, but the name is different now.This device name
+
+and this device name is pcdev-B1x.
+
+And this is C1x.
+
+And the rest of the code will be the same, no changes here. I'm going to exit.
+
+Let's open driver code.
+
+Here, now it is not a simple name based matching.
+
+Now, we are going to use the id_table matching.
+
+This name matching will not be carried out
+
+now.This becomes now redundant.
+
+Let's go back.And in the platform_driver structure, let's initialize this field.But before that, we have
+
+to create this structure.
+
+Let's create that.Here,
+
+let's create struct platform_device_id.
+
+platform_device_id. It should be an array remember. Why? Because, you are storing multiple names, That's
+
+why, it should be array. I would call it as pcdevs_ids[ ]
+
+=
+
+let's initialize.
+
+The first array element I'm going to initialize now is equal to dot(.) .
+
+So, what's a member element name? name. .name = I would call it as pcdev-A1x.
+
+And after that, you have to initialize this driver data, but for a time being, I'm not going to use
+
+that field.In the next lecture,
+
+let's understand what's the purpose of that field.
+
+I'm just leave it here. Yes, that's over.
+
+Just close the bracket.And let's go for the second array element initialization,
+
+that is 1 = or let me just copy paste this.
+
+Four times.This is 1, this is 2, so not four times
+
+I'm just going to use 3 times.
+
+0 1 2.
+
+This is B1x and this is C1x. This driver doesn't support D1x. That looks fine.
+
+So now, what you do is, just use this field id_table.
+
+id_table is equal to just use this pointer.
+
+By using this table, in this driver you have given a support for the device, whose name is either A1x,
+
+or B1x, or C1x. When you use the id_table entry here, then this name will no longer be used for
+
+device and driver matching.This you can verify by using the source code of platform match.
+
+Let me take you to the implementation of a where the matching happens in the Linux kernel source.
+
+That actually happens in the function a platform-match.
+
+I think you should go into drivers,
+
+base, platform.c.
+
+Here, just search for platform match.
+
+So, here it is. Bind platform device to platform driver.You see here, different types of matching.
+
+A matching between device and driver happens here.First, this function you know it tries to a match using OF style,
+
+that is something to do with device tree related matching. Then it tries for if that is successful, it returns
+
+here
+
+you can see that.It doesn't care about other type of matching.And then it tries for ACPI style match,
+
+and then it comes to the id_table match.
+
+So, if the id_table match is successful, then it returns here. It doesn't care about the last result,
+
+that is the driver name based matching.You can see that, it a simple string copy.
+
+Your pdev name is compared with driver name.
+
+So for, what was happening in our case was this final result.
+
+Everything was failing here, and the matching function last leed was verifying the driver name and
+
+the device name.
+
+So, now it won't happen, because we have initialized the id_table.
+
+That's why, it will go into the platform_match_id function here it is.
+
+So, where it runs a while loop and it checks your list what you have provided.
+
+Let's get back to the code, and I think everything is fine, let's just try to build the code.
+
+There seems to be a lot of error.
+
+I think you should include header for this.
+
+It is defined in mod_devicetable.h.
+
+Let's copy this name.
+
+Let me add that header.
+
+Yes, the build was successful and first remove the loaded driver, if any.
+
+So, let me check using lsmod.
+
+There is one driver is already hooked up, let me remove that first.
+
+Let me just clear the dmesg.
+
+First, let me load the device setup.
+
+Device setup module loaded and now let me load
+
+pcd_platform_driver.ko.
+
+Here it is.You can see that, it detected three devices.
+
+For the 4th one it was not successful, because it was D1x. That support we have not given in
+
+our driver.
+
+That's about a device id matching.
+
+And suppose in the driver, if you want to support a D1x, then you can create one more entry here.
+
+You can mention that device_id.And
+
+let's first remove the platform driver, need not remove the device setup.Just load again.
+
+So, you can see that, now all 4 devices have been detected.
+
+That's about the usecase of a platform_device_ids.
+
+And now let's get back to this structure platform_device_id, now you may be wondering a what is the use
+
+of this field driver_data.
+
+Who is going to use this structure?
+
+This structure is going to be created by the driver.
+
+That means, driver is going to set this field driver_data.
+
+In this field, the driver is going to store some configuration data related to that device.So, that
+
+when the device is detected and when the probe is called, the driver can extract that data in the probe
+
+function, and then it can configure that device using that configuration data.
+
+Because, I said in the previous slide that every device will have its own configuration items to configure,
+
+that is generally the case in hardware programming.
+
+These configuration items are not provided by the platform,
+
+these are maintained inside the driver.
+
+The driver maintains that in this field driver_data.So, when the device is detected, it can extract
+
+the data back.
+
+Let's see how to use this field.For that, I'm going to my driver code.
+
+Here, let's create some dummy configuration structure, something like that.
+
+What I do here is, I create some
+
+device_config structure.
+
+Let's say, this structure has a couple of member elements, let's say int config_item1,
+
+int config
+
+item2, something like that.
+
+Here, we are supporting 4 devices.Let's create an array of this structure type. struct
+
+device config pcdev_config[ ]
+
+=
+
+The first device config items will be let's say,
+
+config_item1 = let's say 60, and second config item
+
+will be let's say 21.
+
+And this is for the next device
+
+like that. I'm going to copy this.
+
+Let me make it as 50, 40, 30.
+
+So, this would be 22, 23, 24, something like that.
+
+This line signifies that, this is a configuration item must be used to configure a pcdev-A1x device.When
+
+this device is detected, the driver should use this one.
+
+Now the question is, so in the probe function, how does the driver is going to extract this information
+
+when this device is detected?
+
+For that, the driver_data field is used.
+
+You can make use of this driver_data field.
+
+What you do is, let's initialize the driver_data field. Here, you store this is actually a long data
+
+type.
+
+So, here you store the id
+
+of this configuration item, the id is 0.
+
+So, you can store that here, like you can store 0 here.When the probe function gets called,
+
+so from the platform device structure you can extract this driver data portion
+
+and by using this id, you can get the configuration item, and then you can configure the device.
+
+In order to make this intuitive, let's do one more setting here.
+
+I'm going to use 'enum' to give a special name for these ids.
+
+What I'm going to do is, enum pcdev_ids or pcdev_names.
+
+I'm going to maintain some names here a PCDEVA1X,
+
+PCDEVB1X,
+
+PCDEVC1X, and
+
+PCDEVD1X.
+
+So, in an enum, the value for this will be 0.If it is not initialized, then this will be 1, this
+
+will be 2, and this will be 3. Instead of using a 0, 1, 2, 3,
+
+here. I am going to use 'enum' values.
+
+PCDEVA1X, and this is PCDEVD1X.
+
+So, this is more intuitive than the earlier method. You can easily make out that, this is a configuration
+
+item which belongs to PCDEVA1X. Here,
+
+there is a problem.
+
+This is device_config.
+
+Sorry about that, config.
+
+And here this comma is not required, let's terminate this structure here.
+
+In the driver_data, you can simply give
+
+PCDEVA1X here.Similarly, initialize the driver_data for the next one.
+
+Please note that, I'm just storing a number here.
+
+This is not a address, so this is a number.
+
+So, let's try to build, the build is fine.
+
+Let's go back to the probe function.
+
+When the 'probe' function gets called, so you have a pointer to the matched platform_device.
+
+That is matched platform device.
+
+Where is a platform_device? Here is a platform_device. You have a pointer to the matched platform
+
+device.
+
+And matched platform_device_id pointer will be in this pointer variable.So, you have to consult this
+
+pointer variable to extract that driver_data.
+
+In the probe function, I'm going to print back those config items.
+
+Maybe here.
+
+What I do is, let's print pr_info
+
+"config_item1 = %d".
+
+How do you extract the config_item? So, you should
+
+consult this array.
+
+That's why, what will do is, so let's keep all these things at the beginning of the driver. I'm going to
+
+cut all this code,
+
+let's put that in the beginning, maybe here.
+
+That looks good.
+
+The probe function has to consult this pcdev_config[ ].
+
+pcdev_config of pdev dereference that, select id entry,
+
+dereference that and select driver_data. Because, that's a index.
+
+pcdev_config of this element
+
+.config_item1. That's how you extract the config
+
+item1.
+
+Similarly, let's print the config_item2.
+
+So, now let's check this code.
+
+Everything is fine. Le t's remove already loaded drivers.
+
+insmod pcd_device_setup.ko,
+
+insmod pcd_platform_driver.
+
+Here it is.
+
+This is a first detected device and these are the platform data, and this is a configuration data
+
+of this device.
+
+Which the driver extracted using the driver_data field.
+
+We can see that every time it is different.
+
+That's about the id_table matching, and there is one more method we need to explore that is device tree matching.
+
+So, that we can only explore you know after completing the basics of a device tree writing.
+
+That's about the basics of platform device and a platform driver.
+
+So, don't worry, we'll will do more exercises as we move along with this course. Before ending the session,
+
+I would like to cover one more important thing while writing the platform driver.
+
+In this driver, we used a the module init function, a cleanup function, and after that we used these a
+
+registration macros.
+
+While writing a platform driver, all these things can be replaced by a single macro
+
+called module_platform_driver.
+
+Basically, this macro inserts a these a init and cleanup functions. Actually this module later expands
+
+to these init and cleanup functions, and these a module registration macros.
+
+So, this macro is defined in a platform_device.h. Where it says? It's a helper macro
+
+for drivers that don't do anything special in module init and exit.
+
+This eliminates a lot of boilerplate a codes.
+
+Each module may only use this macro once, and calling it replaces module_init() and module_exit().
+
+Please note that, so if your job in the init and cleanup function is just to register a platform driver
+
+and to unregister a platform driver, then only you can replace these a functions with this macro.
+
+Otherwise, you cannot use this macro.
+
+For example, in our code, apart from calling platform_driver_register() and platform_driver_unregister()
+
+we did several other things, such as a alloc_chrdev_region, unregister_chrdev_region, a class_creation,
+
+etc. We included those codes in the init and exit macro.
+
+That's why, I didn't use this macro.
+
+You can use this macro only when this init and exit function consist of platform_driver_register and
+
+platform_driver_unregister.
+
+If that was the case, then in your platform_driver
+
+you can replace this init and exit with
+
+module_platform
+
+driver, and you just have to mention this platform driver name.
+
+This much is sufficient. You need not to write init, you need not to write cleanup,
+
+you need not to call platform_driver_register, you need not to call platform_driver_register or unregister.
+
+Everything will be taken care by this single macro.
+
+But, as I said, we cannot use this macro. Because,
+
+we are implementing some other functionalities in the driver init and cleanup, other than just registering
+
+and registering.
+
+So, this macro is actually defined in platform_device.h and if you just a see this macro
+
+module_platform_driver, it then calls this module driver macro.
+
+This module_driver is actually implemented in device.h
+
+so here. You can see that,
+
+helper macro for drivers that don't do anything special in module init and exit.
+
+And here you can see that, this macro implements the init and exit function for you.
+
+And it also includes the platform register and unregister code here.
+
+So, with that note, I would like to end this lectures on platform device and drivers, so we'll see more
+
+exercises as we make a progress in this course.
+
+And from the next lecture onwards, let's explore about device trees. I will see you in the next lecture.

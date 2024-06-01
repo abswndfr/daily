@@ -1,0 +1,409 @@
+
+The previous lecture we coded for init and cleanup, and now let's code for the probe function.Here, I have already
+
+written some comments, which will help you to understand things better.
+
+Whenever the probe function is called, you know that, a platform_device_exist, which is relevant
+
+to our driver.
+
+That's why, you should initiate the binding process.
+
+That means, you should configure it or you should do some work on behalf of that device.
+
+First thing what we are going to do is, we are going to extract the platform data.
+
+If no platform data is available , then you cannot proceed.
+
+That's our logic.
+
+Some driver may implement differently.
+
+If they don't detect platform data, then they may proceed with a default values.In
+
+our driver will stick to a simple model.
+
+So, if the platform data is not detected, then we cannot proceed.
+
+I'm going to create a pointer variable for our device private data. struct pcdev_private_data a pointer
+
+variable.
+
+I call it as *dev_data.
+
+And after that, get the platform data.This is a pointer to the matched device.By using this pointer
+
+you have to extract the platform data.
+
+Let's create one temporary variable for our platform data.
+
+What is our platform data structure? pcdev_platform_data.
+
+I call it as pdata.
+
+Let's initialize this pdata is equal to extract the platform_data from here. pdev
+
+dereference that, get into dev, and in the dev you have platform_data.
+
+I actually explained this structure, where this structure has this field.So, you can extract like this.Or
+
+there is already one helper function available in device.h. The name of that function is dev_get_platform
+
+data.
+
+So, you can also use this.
+
+Let me use this macro
+
+dev_get_platdata.
+
+Instead of this, I just write
+
+dev_get_platformdata and I just pass, this actually needs pointer to the device structure. pdev,
+
+dereference and select dev. Send the address
+
+of this.
+
+This actually returns a void pointer, so you have to typecast.
+
+That's how we are going to extract the platform data.
+
+So, if this variable is null, then there is no platform data available.That check for the null case.
+
+!pdata
+
+Then let's just print that "no platform data available", I will just store the error code in the variable return.
+
+-EINVAL.
+
+And I used the goto to jump to the label 'out'.
+
+Let me implement out somewhere here. Out:
+
+I'm just going to print here "device probe failed", return ret.
+
+I'm going to maintain one variable return here.That make sense.
+
+Now, if the control comes to the second line, then there was a platform_data.
+
+So, if the platform_data is really available, then we are going to extract the data and store it in our
+
+device private data.
+
+We should allocate memory for this now.
+
+And for that, we are going to explore some dynamic kernel memory allocation APIs.
+
+So, now let's explore about kernels dynamic memory allocation APIs.
+
+When you writing drivers or any kernel functions, if you want to allocate any memory in kernel
+
+space, then you can make use of this a dynamic memory allocation APIs.
+
+The important one is kmalloc().
+
+Where the letter 'k' signifies the memory allocation is in the kernel space.
+
+Let's explore a more about this function kmalloc().So, the kmalloc() is defined in a linux/slab.h. If
+
+you are going to a use this function, then you have to include linux/slab.h.
+
+This kmalloc() is used to allocate memory in kernel space by drivers and kernel functions. Memory obtained
+
+by this function will be physically contiguous.
+
+Now, let's see how to use this kernel function.
+
+You just have to pass a 2 arguments.
+
+First one is size.
+
+From the kernel documentation, so this is what mentioned in the kernel documentation about size. "The maximum
+
+size of a chunk that can be allocated with kmalloc is limited.
+
+The actual limit depends on the hardware and the kernel configuration, but it is good practice to use
+
+kmalloc for objects smaller than page size". So, the page size for the ARM architecture will be a 4 kilobytes.
+
+That is 4096 bytes.
+
+That's why, it is always better to limit this size a smaller than the page size. And after that, this
+
+parameter that is flags.
+
+Flags actually they change the behavior of the underlying memory allocator. Basically, a kmalloc()
+
+uses something called slab allocator, and by using this flag, you can change the behavior of the
+
+memory allocator.
+
+Let's explore about a these flags in a moment.
+
+Now, let's see what it returns.
+
+This returns NULL if the allocation fails, on success virtual address of the first page allocated.
+
+So, virtual address of the first physical page allocated.
+
+Let's explore about some of the flags here.Now, this I have taken from the slab.h.Here, you can see
+
+that, kmalloc is the normal method of allocating memory for objects smaller than page size in the kernel.
+
+These are the flags, which you can use while using kmalloc().
+
+Here the very important flags are GFP_KERNEL and GFP_ATOMIC. So, where
+
+'GFP' stands for get free pages. By using these flags, you can change the behavior of the underlying
+
+memory allocator.
+
+For example, the most commonly used flag for the process context is GFP_KERNEL.
+
+It actually makes the underlying allocator to allocate the memory from the normal kernel RAM.
+
+And if the memory is not available at the time your driver request for memory, then the kernel may
+
+put your process to sleep.
+
+That means, a kernel can put your process into blocked state.
+
+That's why, kmalloc() with a flag
+
+GFP_KERNEL may sleep, you should remember this.
+
+And when memory becomes available, your process gets unblocked.So, GFP_ATOMIC flag is another important
+
+flag, which you can use with kmalloc. A when you use kmalloc inside an interrupt handler. Because,
+
+if the memory is not available, then the allocator immediately returns
+
+the caller will not be put into sleep. Because, interrupt handlers cannot sleep,
+
+they can't be rescheduled like your normal processes.
+
+So, most probably you'll be using GFP_KERNEL in your driver, when you want to allocate memory dynamically
+
+on behalf of process context.And use GFP_ATOMIC to request memory from the interrupt handler.
+
+So, the usage of kamlloc is very simple.
+
+Let's say, I want to allocate memory for this structure.
+
+I just create one a structure variable of pointer type.And after that, I just use kmalloc with size
+
+information and the flag.And you have to check the returned pointer.
+
+Sometimes it could be NULL. That's why, if it is NULL, then you can return the error code ENOMEM.
+
+So, now let's see
+
+kfree. kfree is used to deallocate the previously allocated memory.
+
+You just have to mention the pointer here.
+
+A pointer returned by kmalloc.
+
+If this pointer is null, no operation is performed.
+
+If you pass NULL here, then no operation is performed. So, don't free memory not originally allocated
+
+by the kmalloc() or you will be run into trouble.
+
+So, use only that pointer here, which is previously allocated by the kmalloc().
+
+So, now there are other flavors of kmalloc like kcalloc(), kzalloc(), krealloc(), kmalloc_array(). I would
+
+like to discuss a one of the most important one, that is kzalloc().
+
+Let's explore about kzalloc().Because, kzalloc is preferred over kmalloc.
+
+Let's see, what kzalloc() does. The prototype is exactly same as kmalloc(),
+
+the only thing what it does is, after allocating the memory the memory is set to zero.
+
+It may look a trivial, but that is actually a very important thing what this a function does.
+
+That's why, in all your driver code use kzalloc instead of kmalloc.
+
+Then, why should we care about a memory getting initialize to zero by the kzalloc?
+
+So, let's see one use case here.
+
+Let's say, you have a structure, structure bar and it has got 3 member elements here.
+
+And you create a pointer variable here. After that, you allocate the memory for that pointer using
+
+kmalloc(). After that,
+
+now the memory is allocated, and after that, you send that pointer to this function bar_processing_function.
+
+So, it could be some unknown function to you.
+
+You just send the argument pbar. Let's say, this function is not implemented by you.
+
+Let's see what this function does.
+
+First, what this function does is, it checks this a name member element of this structure. If this name
+
+is NULL, then only this function allocates memory for this pointer.
+
+So, if this name is not null, then this function assumes that you have already allocated a memory for
+
+this variable.
+
+That's why, memory for 'name' is already allocated,
+
+so this function doesn't allocate any memory.
+
+And after that, what this function does here is, it tries to do some memcpy or something, where this pointer
+
+will be dereferenced.
+
+This code may crash if a pbar-> name is not a valid pointer.
+
+This function doesn't check whether this has a valid pointer not. It just tries to dereference.
+
+Now, you may face such issues if you use kmalloc() here.
+
+Why?
+
+Because, kmalloc() doesn't return a zeroed memory.
+
+That's why, this
+
+variable may be having some random values and that random value is checked here.
+
+If the random value is present,
+
+this function assumes that, you know, the memory for the 'name' variable is already allocated.
+
+It just tries to dereference that blindly, and there could be a crash.
+
+So, one thing what you can do here is, before a sending this variable to this function here, you can
+
+zero out each and every member element of this pointer variable, that could solve the problem.
+
+Otherwise, just use kzalloc
+
+instead of kmalloc. So, it anyway zeroes out the memory locations.After that, a kzfree(). So, if you have allocated
+
+memory using kzalloc(), then you can free that memory using kzfree() or you can also use kfree().
+
+No problem.
+
+So, only thing is it is just like kfree(), but it zeroes out the memory.
+
+Let's move forward.And the next one is krealloc(). So, krealloc is used to reallocate the already
+
+allocated memory.So, the already allocated memory a using kmalloc() or
+
+kzalloc(), that pointer you should mention here.
+
+And the new_size is you have to mention here. And this a same flag, which we saw with kmalloc().
+
+The use case of a krealloc() is let's say by using kmalloc()
+
+you have already requested for 100 bytes
+
+and now you want to extend it to 150 bytes.
+
+Then you can mention that old pointer here and let's say you want to realloc that to 150 bytes.
+
+So, you mention the new size here, 150 bytes.
+
+So, a new pointer will be given to you by this function and the contents will remain unchanged.
+
+The content of the old pointer will remain unchanged.
+
+That's about kzalloc(), kmalloc(), and krealloc(),
+
+and now let's get back to our lecture.
+
+Let's continue.Now,
+
+let's allocate the memory for dev_data =
+
+I'm going to use kzalloc(), and you have to mention the size and the flag that is GFP_KERNEL.
+
+what is the size? sizeof this structure. struct
+
+pcdev
+
+private_data,
+
+GFP_KERNEL.
+
+Or you can simply write like this instead of writing this long name, you just write *dev_data.
+
+After that, let's do NULL check and ret = -ENOMEM,
+
+and let's goto out.
+
+That makes sense.
+
+Let's proceed to the next step. If the memory allocation is successful, then just a copy data from
+
+platform data.
+
+Let's do that.
+
+dev_data, dereference that and select pdata
+
+of size. First let's extract the size information, which is there in this pdata, or you can also use a
+
+memcpy. pdata of size.
+
+pdata of serial number = pdata of serial number.
+
+After that, let's just print these information.
+
+I'm going to use a couple of print statements here.
+
+So, I just printed all these informations of the matched platform device.
+
+Our next step is, dynamically allocate a memory for the device buffer using the size information a what
+
+you extracted from the platform data.
+
+Before that, let's see whether this code compiles or not.
+
+There seems to be some problem kzalloc(),
+
+you have to select the appropriate header file for this.
+
+This is in linux/slab.h.
+
+Let's include that header file.Let's compile.
+
+There seems to be OK.
+
+Complete up to here and in the next lecture, I'm going to cover these steps, but see if you can able
+
+to implement these things.The third step is you just have to allocate memory for the buffer and get
+
+the device
+
+number.That means, you have to now use the device
+
+number field of this dev_data to store the device
+
+number.
+
+So, you already know the base
+
+and you just add the id field of the platform_device_structure, you get the device
+
+number.
+
+So, see if you can able to do this.
+
+And after that, do cdev init and cdev add.
+
+You already know this, because you have already done in the previous exercise.Create device file
+
+and handle the appropriate errors.
+
+I'll see you in the next lecture.
+

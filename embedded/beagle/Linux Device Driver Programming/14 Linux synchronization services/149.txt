@@ -1,0 +1,179 @@
+
+Now, let's explore the Mutexes.
+
+So, while spinlock is a spinning lock of Linux, 'mutex' is a sleeping lock of Linux.
+
+When a thread tries to acquire the mutex which is already held,
+
+the thread will be put on to wait queue and it sleeps.
+
+The processor can execute other threads
+
+meanwhile.
+
+So, when the mutex holder releases the lock,
+
+one of the task waiting in the wait queue will be awakened to acquire the lock.
+
+So, the main difference between a spinlock and a mutex is what happens, when the lock is not available.
+
+In the case of spinlock, a busy looping takes place
+
+and in the case of mutex, you know the task which fail to acquire a lock will be blocked or it will
+
+be put on to wait queue
+
+and rescheduling happens. So, some other task will be made to run on the CPU.
+
+That's a difference between spinlock and a mutex. At most, only one thread of execution can hold
+
+the mutex at any time.
+
+Mutex implements ownership of the lock. So, the owner, that means the owner task who locked it should
+
+unlock it.
+
+Recursive lock and unlocking is not permitted, just like spinlocks.
+
+And mutex should not be used from interrupt context code such as hardware or software interrupt handlers, tasklets, or
+
+timers.
+
+A thread can sleep holding a mutex. So, use a mutex for sleeping critical section.
+
+You already know that, you cannot use a spinlock or it is at least not recommended to use a spinlock
+
+for a critical section, which calls a kernel function which may sleep.
+
+Spinlock is not recommended for sleeping critical section, whereas mutex can be used if your critical
+
+section sleeps.
+
+Mutex may be used in process context, but not in interrupt context.
+
+You must not use a mutex
+
+in interrupt context.
+
+Because, during lock contention, the thread will be put on to sleep, and scheduler reschedules other
+
+tasks. That's a reason why you should not use a mutex in interrupt context.
+
+Many people wonder, so what exactly the reason for not using a mutex in interrupt context.
+
+So basically, you know, it's not about you user mutex or not use mutex in an interrupt context code.
+
+It's all about, you know, you should not call any kernel functions which may sleep.
+
+So, what I mean by a kernel function inducing a sleep means, you know,
+
+a user task will be blocked or put on to wait queue until some event is met.
+
+And there is a rescheduling kicks in and the kernel may schedule a some other tasks
+
+meanwhile.
+
+That's what we call as sleeping. OK? Sleeping on the wait queue, until some event is met.
+
+So, that is not allowed in interrupt context.
+
+So, if you remember we covered processer exceptions, a fault exceptions a in our Arm Cortex Mx course.
+
+So, there was one interesting processer a fault exception called usage exception.
+
+So, usage exception triggers when you try to move from handler mode to thread mode, by keeping an active
+
+ISR pending. That means, you can't move to execute user level code by keeping an active ISR pending.
+
+So, if there is any such attempt, processer triggers a fault exception called usage exception.
+
+So, you can apply the same concept here as well, even though here the processor is advanced one.
+
+So here, when ISR runs, the kernel will be in interrupt context.
+
+You should not force the kernel to execute the code, which runs in 'process context' by keeping interrupt
+
+context code pending.
+
+So, you can only do that after finishing the interrupt context code, that is after exiting an ISR.
+
+Triggering a scheduler to move to process context in between the interrupt context code is illegal, and
+
+processor doesn't like it and it may trigger the exception.
+
+The rule is when in interrupt context, you must finish it and then you can go back to the process context .
+
+If you use mutex inside the ISR or if you call any kernel function which has the possibility of getting
+
+blocked,
+
+then there could be rescheduling, that is there could be a chance of transition from interrupt context
+
+to process context, by keeping active interrupt context code pending, which is illegal.
+
+That's why, do not use any kernel function inside the interrupt context code, which may sleep.
+
+To find out whether a function sleeps or not, you should check the documentation of that kernel function.
+
+All right. Now let's continue. So,
+
+never use mutex in interrupt context codes such as hardware interrupt, handlers,timers, tasklets because interrupt context
+
+is not schedulable.
+
+Since mutex puts the task to sleep, it is suitable for locking the critical section, which is
+
+time-consuming, where the lock time is longer.
+
+Never try to acquire the mutex by holding the spinlock since the processor of acquiring the mutex may sleep.
+
+So, now you may be having question now in your mind, when to use what? or
+
+you may be confused. If you are confused, then go back to the spinlock and mutex lessons, and please rewatch
+
+it for the beginners.
+
+It may be confusing, but I would like to summarize it now.
+
+If your critical section is in 'interrupt context',
+
+you have got no choice,
+
+you spinlock.
+
+If your critical section is in 'process context' but critical section may sleep holding the lock,
+
+then you have to use mutex. In this case, mutex is recommended.
+
+For example, our read method, our write method, what we implemented in our pseudo character device
+
+drivers, the critical section is a sleeping critical section. Because, we used a kernel function
+
+copy_to_user, copy_from_user,
+
+all those kernel functions are sleeping in nature.
+
+That's why, you may have to use mutex over there.
+
+If your critical section is in process context
+
+and if it is atomic. So, atomic means, if you are critical section doesn't call any kernel function
+
+which sleeps. OK?
+
+Then you have got two choices here, you can either use mutex or spinlock.
+
+Now, if you want to take a decision whether to use mutex or spinlock here. Use spinlock
+
+if the critical section is short otherwise mutex. OK?
+
+That doesn't mean that you start measuring it.
+
+So, need not do all those things use by default
+
+mutex. Always prefer using mutex over spinlock.
+
+So, if you are working in this case.
+
+All right. Now, let's check some kernel documentation to explore the mutex functions. OK.
+

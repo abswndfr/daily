@@ -1,0 +1,44 @@
+
+Hey, welcome back to the lecture.
+
+So, now let's do one code exercise to understand platform devices and platform driver.
+
+This will be the implementation of pseudo character driver as platform driver.
+
+Repeat the exercise pseudo character driver with multiple devices as a platform driver.
+
+The driver should support multiple pseudo character devices as platform
+
+devices. Create device files to represent platform devices, and the driver must give open, release, read,
+
+write, lseek methods to deal with the devices.
+
+Basically, this exercise will be the implementation of your previous pcd_driver as a platform driver.
+
+The structure of the driver changes a little bit.So, now you have to implement two extra functions.
+
+One is probe function and another one is a remove function to handle the platform devices.
+
+From the next lecture, let's start implementing this exercise. For the implementation purpose
+
+I'll be creating 2 kernel modules.
+
+First kernel module will be our platform driver, and the second kernel module I call it as a platform
+
+device setup. This kernel module will use to add the platform devices. So, will create two . c files. One
+
+is for the platform driver and another one is for platform device setup.
+
+What are we going to do in platform device setup?
+
+We are going to do two important things.
+
+The first one is, a create 2 platform devices and initialize them with the required information.
+
+The required information will be a name of a platform device, in platform data, Id of the device,
+
+release function for the device.
+
+And after that, we are going to register platform devices with the Linux kernel.
+
+So, without further at will let's get into our editor and let's start coding.

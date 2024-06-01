@@ -1,0 +1,141 @@
+
+So, now let's do the third step dynamically allocate memory for the device buffer.
+
+I'm going to reuse this code.
+
+I'm going to copy that,
+
+and here
+
+dev_data of buffer.
+
+So sizeof, you need not to use sizeof now. Because, you have the size information, this field.
+
+Let's copy and paste that.
+
+And this is the flag.
+
+If it is not available and this is a NULL check, cannot allocate memory, and now you should free this
+
+memory.
+
+I call it as dev_data_free. Jump to dev_data_free and go to dev_data_free here.
+
+dev_data_free and you have to use kfree, so dev_data.
+
+After that, get the device number. That means, we have to initialize the dev_num_field of this device
+
+private data structure.
+
+This is = get the base number from the driver data structure. pcdrv_data.
+
+dev_num_base we have. For that, you do a plus and use the id field of pdev.
+
+Remember, when we are feeding the platform device we used to use the 'id 'field. That's why, that id field
+
+is important. Use that field here. pdev ->id.
+
+For the first device id field be zero.
+
+So, for the next device it will be 1.
+
+That's our device_number.
+
+After that, do cdev_init and cdev_add. This is very simple.
+
+Now, let's get the code from our previous exercise for this.
+
+Let's paste here.
+
+Here, this fops field will be same, all you need to do change is this one.
+
+dev_data->cdev.
+
+You have to pass the address of that. Very simple.
+
+Cdev init is over, now let's do cdev add.
+
+For the cdev_add,so we used to do this. Let's copy this code. Basically, you have to initialize the owner
+
+field of the cdev.
+
+dev_data->cdev.owner= THIS_MODULE, return is equal to cdev_add. Here, you should
+
+pass the address of cdev,
+
+that is dev_data
+
+of cdev. And here you should pass the device
+
+number.
+
+device_number is this one,
+
+dev_num. Let's do that. dev_data->dev_num.
+
+And you are going to add one device, that's correct.
+
+So, the final argument will be 1. If return is less than 0, cdev_add failed, and you should cleanup
+
+the memory for the buffer,buffer_free.
+
+Let's implement the buffer_free.
+
+buffer_free: kfree
+
+(dev_data -> buffer)
+
+After that, our next step is, create device file for the detected platform device.Here,
+
+you have to take a device_pcd, which is there in pcdrv_data.
+
+And device_create(pcdrv_data.class_pcd
+
+that's correct,
+
+NULL. Here, you have to give the device
+
+number, let's give that
+
+dev_num->dev_num.
+
+Sorry, dev_data.
+
+NULL and pcdev, this will be same, here it will be id. So, you have to use the id field here. pdev->id.
+
+You have to check using IS_ERR(pcdrv_data.device_pcd), device create failed, and you have to do a cdev_del here.
+
+cdev_del.
+
+Let's do the cdev delete, cdev_del.
+
+You have to pass the address of the cdev.
+
+dev_data dereference that, select cdev.(dev_data-> cdev).
+
+So if the device create is successful, then we conclude that the probe was successful.
+
+I'm just going to print "the probe was successful".
+
+At the beginning, let's print one more message here.
+
+"A device is detected",
+
+something like that.
+
+The probe was successful, otherwise device probe failed.
+
+And after that, we just return 0 here.
+
+So, now let's
+
+build it.There seems to be some problem at the line number 162, it should be
+
+device_num_base.
+
+Let's fix that 162.
+
+device.
+
+We coded for the probe function and try to finish up to here, and I will see you in the next lecture.
+

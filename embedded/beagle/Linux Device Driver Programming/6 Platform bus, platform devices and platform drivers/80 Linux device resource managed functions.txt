@@ -1,0 +1,182 @@
+
+Hey, welcome back to the lecture.In this lecture,
+
+let's explore about resource managed kernel APIs.
+
+So, now what is a important of Resource managed APIs?
+
+Let's take one use case.
+
+In your previous exercise on platform driver, you used kmalloc() to acquire the kernel memory.
+
+What kmalloc() does? It actually allocates a resource.The resource in this case is kernel memory.
+
+And there is one more flavor of kmalloc()
+
+that is called devm_kmalloc().
+
+Now, the difference between these two is, this allocates a resource,
+
+so here this also allocates a resources but this actually "remembers" what has been allocated.
+
+That's why, it is called as resource manage API.
+
+Now, let's see this further,
+
+it is very interesting actually.
+
+Whenever you are dealing with a device.So, a device is nothing but anything which can be represented
+
+by an instance of struct device.
+
+You actually your dealing with a platform device.
+
+A platform device can be represented by a platform device structure, which actually embeds struct device,
+
+isn't it?
+
+That means, basically in your probe function, you are dealing with struct device and you are allocating
+
+memory on behalf of an instance of struct device.
+
+When you are allocating some memory on behalf of struct device instance. And when you use kmalloc(), then
+
+it is actually inefficient.Because, when you use kmalloc(), then when this device is getting removed
+
+from the system or when the driver which is managing this device getting removed from the system.
+
+You should manually free the memory what you have allocated for the struct device.
+
+So, that's why, if you use kmalloc(), then programmer must free the memory using kfree() during driver
+
+detach or device detach.
+
+Sometimes programmers will forget to use kfrees and it may result in memory leak.
+
+That's why, linux developers have introduced the resource managed version of this kmalloc() called
+
+devm_kmalloc().
+
+If you use devm_kmalloc(), then programmers using kfree() is not required.
+
+Kernel will take care of freeing memory when the "device" or managing "driver" gets removed from the system.
+
+That's why, it is called resource managed API.
+
+That means, this function remembers that memory is allocated on behalf of this device.
+
+There are many resource managed APIs are available.So, actually you have to refer to this kernel documentation
+
+to see full list of resource managed APIs.
+
+Instead of using kmalloc() and kfree(), you can just use devm_kmalloc(). And in the GPIO subsystem
+
+you actually acquire a GPIO descriptor using gpiod_get(), and if that gpio descriptor is no
+
+longer used, then you have to deallocate that using put.
+
+So, instead of calling get and put you can just use devm_gpiod_get() like
+
+that.
+
+So, some of the kernel APIs a have their resource managed version.And instead of using request_irq()
+
+and free_irq(),
+
+you can just use devm_request_irq().
+
+If you use this one, then you need not to a free the
+
+irq. It will automatically get freed.
+
+Remember that, you have to use this devm versions only when you are doing something behalf of an
+
+instance of struct device.
+
+Let's see an example of devm_kmalloc(), which is there in drivers\base\devres.c.
+
+Here you see these two parameters are same as kmalloc(),
+
+but look at the first argument here, that's a struct device.
+
+It's basically it is like saying you are allocating this memory on behalf of this device.When the
+
+kernel detects that this device is getting removed from the system, the memory will be automatically
+
+freed.
+
+So, I am in devres.txt in the kernel documentation, just browse through this document.
+
+So, you see a list of all resource managed a functions.This is for the management of clock,
+
+this is for the DMA,
+
+this is for the GPIOs,
+
+I2C, there is a devm_kmalloc(), there is a devm_kzalloc(),
+
+so for more information you can refer to this documentation.
+
+And if we use this as a resource managed APIs, then we can simplify our probe and remove functions.
+
+In a probe function, what we usually do is,a we actually create a pointer to the device private data
+
+and then we allocate some memory, let's say using kmalloc().
+
+After that, we check the returned pointer and if it is null, then we return.We return an error code
+
+saying no memory.
+
+If the memory allocation is successful, then we do something else here
+
+and if something goes wrong here, then we jump to our error handling code, where we free this.
+
+That is the previously allocated memory we actually free here.
+
+So, we were doing something like this.
+
+If you introduce devm_kmalloc instead of kmalloc, then you no longer have to do this.Just
+
+see here, how you can simplify the probe function.
+
+So, instead of kmalloc use devm_kmalloc.
+
+Here, there is a failure, then you return.That's great.
+
+And after that, you try to do something and if something goes wrong here, you just return here.
+
+Need not to use any gotos, need not to kfree, nothing.Just written.
+
+When you return a error code,
+
+so the kernel understands that the probe has failed, and it will automatically free the memory which you
+
+allocated here.That's why, you can see that, we can simplify the probe function by using
+
+devm_kmalloc.
+
+And the same thing applies to the remove function, we are doing something like this.In the remove function,
+
+we were deallocating the memory, which is allocated to the buffer and the device private data.
+
+That is no longer required, if you have used devm_kmalloc in the probe function.
+
+That's why, when you use devm_kmalloc() to allocate the memory in "probe" function, using kfree() in remove
+
+function is no longer required.
+
+That's why, it simplifies the remove function as well.
+
+I hope you get some idea about a resource managed kernel APIs. As I said, this flavor of kernel
+
+APIs you can only use when you are doing something on behalf of an instance of struct device,
+
+remember that.You cannot use this everywhere.
+
+It is majorly used in the "probe" function.
+
+And if you want full list of those APIs, you can just consult this documentation.
+
+So, with that note, I would like to end this lecture
+
+let me know if you have any questions.

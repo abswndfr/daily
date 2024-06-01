@@ -1,0 +1,741 @@
+
+So, now let's see a some of the mutex functions, which you can a use in our project.
+
+To explore mutex related functions, you can go to documentation, and here go to locking, and here you
+
+can explore this file mutex-design.rst.
+
+Here you find details about the mutex subsystem. So, if you want more information you can also refer
+
+to this kernel documentation,
+
+and here a these are the functions, what you can use to initialize lock and unlock a mutex. It
+
+is similar to spinlock.
+
+Here you can see that, a for statically defining the mutex
+
+you can use this macro, which is present in a mutex.h. If you go to the Linux kernel
+
+source tree,
+
+you can go to include, linux,
+
+here you can go to mutex.h.
+
+So, you can search for this DEFINE_MUTEX here.
+
+Right here.
+
+So, what it does is, it creates a variable called mutex name, so the name what you supplied here. The
+
+variable is of type struct mutex.
+
+That means, each mutex is represented by an instance of the structure struct mutex, and it will be initialized
+
+by this macro futther.
+
+If you want to initialize a dynamically, then you can use mutex_init, which is similar
+
+to spinlock_init, isn't it?
+
+And after that, a to acquire and release a mutex, you can use a these functions mutex_lock,
+
+mutex_lock_nested, mutex_trylock,
+
+these functions are a pretty much similar to the spin locks, and to release you can use mutex unlock.
+
+I would suggest you to go through this documentation to explore various a functions.
+
+So, while using mutex, there are some a guidelines which is mentioned here, so you should a pay attention
+
+to these guidelines. Now,
+
+let's go back to our projects, various projects, what we coded in this course and will try to
+
+identify the critical sections and we will fix our code a using a
+
+spinlock or mutexes.
+
+Now, let's go to our first project on pseudo character driver, that is
+
+002pseudo_char_driver.
+
+So, in this project, let's open pcd.c.
+
+Now, before implementing locking, so you must first you know identify the critical section in your project.
+
+So, first of all, let's look at what are the global variables we are using in this project.
+
+So, you see here there are various global variables.
+
+If there are global variables, then there could be a possibility of race condition.
+
+So, you must pay attention to number of a global variables you have used and how that being accessed
+
+in your driver.
+
+Just because there is a global variable, that doesn't mean that it is subjected to a race condition
+
+issue.
+
+So, there could be a possibility, that you should analyze by going through your code.
+
+Now, first of all, you see in this project. So, all these global variables are not subjected to the
+
+issue of race condition. Why? Because, this is not shared between multiple processes or between a process
+
+and an interrupt handler.
+
+Why?
+
+Because, so you see are all those a global variables are actually used in our drivers init or in
+
+drivers exit function.
+
+Whenever you load a driver, you know that, this function will be executed only one time
+
+and those global variables are used to initialize the driver.
+
+I mean, they are used for the purpose of module initialization.
+
+Module initialization happens only one time, right?
+
+That's why,
+
+so those global variables are not shared between multiple processes.
+
+So, that's why, there are no issues of a race condition among these global variables.
+
+So, that's why, it need not to implement any locking for this project a when you are in drivers init
+
+or drivers cleanup function.
+
+Let's go to our file operation methods. So, we have got various file operation methods here. In open
+
+we are not doing anything for this project, so we are not accessing any global data here.
+
+That's why, no locking is required for open,
+
+so no locking is required for release.
+
+Let's move forward.
+
+So, now let's take a look into the write method. Write method can be executed by two processes at the
+
+same time.
+
+So, if it is a SMP system.
+
+This method can be entered simultaneously.
+
+So, just imagine a situation of multiple course where two processes are trying to e nter this function
+
+at the same time.
+
+You see in this function, that is a critical section.
+
+This is a critical section.
+
+Here you see the device_buffer is a global array, isn't it?
+
+This is a global data.
+
+And that global data is modified here, right? in this code block.
+
+So, that's why, you have to treat this as a critical section.
+
+Otherwise, when two processes are executing the write method simultaneously, there could be a corruption.
+
+Why?
+
+Because, this device_buffer is shared among two different processes.
+
+Both processes will try to put their own data into this device buffer. Hence,
+
+you may see a race condition issue. So, you may see inconsistency while storing a data into this buffer.
+
+That's why, only one process should be allowed to modify this device_buffer, and that's why access to
+
+this device_buffer must be serialized.
+
+In this project, we actually create only one device, right? That is
+
+dev/pcd.
+
+And all the read and write happens on this device. Let's say, there are two cores and two processes
+
+act on the device at the same time. Let's say, process 1 is 'echo' command
+
+and process 2 is let's say 'copy' command.
+
+Both these processes are trying to write into the device, that is dev/pcd at the same time.
+
+The device memory could be corrupted, because of concurrent access. We have to serialized read and
+
+write access to the device_buffer using locks.
+
+So, only one lock is sufficient in this project.
+
+And after that, we have got a couple of a local variables here. For example, this is a local variable.
+
+So, two processes will see different counts.
+
+So, let's again imagine two processes are a trying to execute pcd
+
+write.
+
+So, both the processes will have their own copy of this count variable.
+
+That's why, count variable is or any of these variables
+
+are not shared data.
+
+In this function, only device_buffer is a shared data between a two or more processes.
+
+That's why,
+
+here you are updating a count, OK?
+
+Some may argue that this also becomes a critical section.
+
+This is not a critical section code, because count here is a local variable. So, every process will
+
+have its own copy of local variables.
+
+That's why, you can't say this as a critical section.
+
+So, the same applies to the read function. Here also you are accessing a the global buffer, so you have
+
+to protect the critical section using locks here. And after that, in the lseek method, we are not referring
+
+to our projects a shared data,
+
+that is device_buffer.
+
+device_buffer is a not modified here, or so we don't do any read or write operation on the a global device buffer.
+
+Isn't it? That's why, it looks like you know no locking is required in seek.
+
+Basically we need locking in read and write methods.
+
+First learn how to use a spinlock. A
+
+for this project, we are going to use one global lock. So, just
+
+use static DEFINE
+
+SPINLOCK, or I will do one thing. I will
+
+just quit this and let me create one more file.
+
+Let me call this as pcd_lock.c.
+
+So, the changes related to a locking, OK? I'll implement in this file.
+
+Here, first let's create one global lock, static DEFINE_SPINLOCK.
+
+Let's a give one name pcd_lock. So, what this does? This creates a variable pcd_lock of type
+
+struct spinlock_t and the spinlock will be initialized to unlocked state.
+
+That's what this macro does.
+
+This macro is there in a spinlock_types.h.
+
+So, if you are planning to use spinlock or mutex, then you have to include the header file
+
+linux/spinlock.h. If you are planning to use mutex, then you have to include
+
+linux/mutex.h.
+
+So, now if you are planning to use mutex, then you can write the DEFINE_MUTEX.
+
+The spinlock may not be suitable for this project.
+
+You can either use spinlock or mutex. So, don't use both,
+
+this is just for your demonstration. So, you can either use spinlock or mutex.
+
+Here, we created a lock variable and initialized it.
+
+Now, let's first start with the write function. In the write function, whenever a process executes this a
+
+pcd_write,
+
+it first locks.
+
+So, we'll treat this function as a critical code,
+
+you can use spin_lock
+
+&pcd_lock.
+
+If you are planning to use mutex, then you can use mutex_lock,
+
+a pcd_lock.
+
+I think this may cause confusion, I will just replace this as pcd_spin_lock.
+
+pcd_mutex_lock.
+
+So, let me call this as spin_lock and pcd_mutex_lock.
+
+Please note that, so I'm just demonstrating you how to use these functions to lock a spin_lock.
+
+You have to call spin_lock and you have to send the address of the lock variable.
+
+So, if you want to use mutex lock, then you have to use the function mutex_lock and you
+
+have to send the address of the mutex_lock variable.
+
+So, you have to use either one of these, OK? not both.
+
+And before returning so you can unlock here. spin_unlock
+
+pcd_spin_lock.
+
+So, mutex_unlock(&pcd_mutex_lock).
+
+So, which one is a suitable for this method? spinlock or mutex.
+
+You see here, as I said in the previous lecture spinlock is not suitable if the critical section
+
+sleeps, isn't it? So, copy_from_user is a kernel function, which may sleep. That's why,
+
+using a spinlock to protect this critical section is not recommended.
+
+That's why, for this method mutex is recommended.
+
+So, that's why, I will just comment this out spinlock is not required here, so spinlock is not recommended
+
+here.
+
+Basically, we should favor mutex in this case.
+
+Now, same thing you should do for read as well.
+
+Let's Implement here mutex_lock and mutex unlock here.
+
+So, now let's explore mutex_lock. Note that, when you use mutex_lock, what it does is, lock the mutex
+
+exclusively for this task.
+
+If the task is not available right now, it will sleep until it can get it.
+
+Let's say, a process executes pcd_write and it tries to lock, and if the lock is not available, that process
+
+a will be blocked.
+
+That means, it will be in sleep state until the lock becomes available.
+
+So, what if the lock is not at all available?
+
+I mean, it is never released by its owner, then the process may sleep or it may get blocked indefinitely.
+
+So, if you want to come out of that indefinite blocking, you can sends signal to the process to terminate
+
+it.
+
+If you want to terminate a blocked process by sending a signal, OK? In that case, you have to use
+
+mutex_lock interruptible, that is another flavor actually.
+
+That's why, you may also use mutex_lock_interruptible.
+
+So, here it is mutex_lock_interruptible. Acquire the mutex, and it is interruptible by signals. So, lock
+
+the mutex like mutex_lock().
+
+If a signal is delivered while the process is sleeping, this function will return without acquiring
+
+the mutex.
+
+If the lock is not available, then
+
+this function will never return.
+
+It will block the process indefinitely. If you don't want to happen that, then you can use another
+
+flavor here
+
+mutex_lock_interruptible.
+
+And you have to send the address of the mutex.
+
+pcd_mutex_lock.
+
+So, when the process is blocked at this line, so if you send a signal like Ctrl+C or Ctrl+ Z
+
+from your keyboard, to terminate that or to suspend a process. At that time, this a function
+
+returns.
+
+Basically, it returns an error code. So, return 0 if the lock was successfully acquired or it returns this
+
+error code. That's why,
+
+so if it returns non-zero, then you can return EINTR.
+
+So, return this error code.
+
+You can use mutex_lock_interruptible instead of mutex_lock.
+
+So, spinlock is not suitable here, don't use it.
+
+Not suitable since
+
+critical section sleeps. So, I hope you get some idea of using spinlock and mutex_lock and unlock
+
+APIs.
+
+Now, the same thing you can also a do in read as well.
+
+Let's try to compile this. Let's see whether this builds or not, so I have to make a change in makefile,
+
+so just add pcd_lock.o. Now let's build.
+
+Right? It compiles. It says that, a pcd_spin_lock is defined but not used.
+
+That's OK.
+
+So, we have not used it.
+
+Let's go to our next project 003.
+
+In this project, we created multiple devices.
+
+Let's say there are 3 devices. dev/pcdev-1, dev/pcdev-2, pcdev-3.
+
+Here, we should not use one global lock as we used in earlier example. Why? consider this scenario.
+
+Let's say, there are two cores.
+
+echo command acts on let's say pcdev-1
+
+and it runs on core 0, and let's say there is another echo command which acts on pcdev-2, and runs
+
+on core-1.
+
+Both processes is going to execute
+
+at a time and they are going to execute the same write method of the driver simultaneously.
+
+In this case, both the processes are trying to modify device memory of different devices.
+
+So, if you use one global lock as we did in the previous exercise, then it may unnecessarily make
+
+one of the processes to spin, which is not good. Let's say
+
+P1 acquires the global lock to modify the device memory of pcdev-1 and now Process-2 a tries to acquire
+
+the same lock, same global lock and modified device memory of pcdev-2,
+
+but it spins which is not good, right?
+
+Because, P2's intention was to modify device memory of pcdev-2.
+
+That means, in this exercise, we have to use lock per device basis.
+
+There must be one lock for every device. So, that's why, in this case, lock becomes a private data of
+
+the device.
+
+Hence, you have to create a spinlock variable in the device private data structure.
+
+So, here using a global lock is not recommended for this project.
+
+That's why, let's put the lock in the device private data. That is inside this pcdev_private_data. Here,
+
+I'm going to keep a lock.
+
+A lock could be spinlock or mutex.
+
+If you want to use spinlock, then create a variable of type spinlock_t.
+
+I would call it as pcdev_lock.
+
+This is struct spinlock and it is struct mutex pcdev_lock. Now, before using lock and unlock
+
+you have to initialize it. So, we can't do static initialization here.
+
+For that, we can go for dynamic initialization method, we do initialization in the init section of
+
+the module.
+
+Let's go to the init section.
+
+So, this is init, right?
+
+Let's do in inside this for loop. For every device we have got one lock, that's why, each devices lock
+
+must be initialized.
+
+If you are planning to use spinlock, then use spin_lock_init, you have to send the address of
+
+the lock variable, address of the lock variable.
+
+So, you have to use here pcdrv_data.pcdev_data[i].pcd_lock.
+
+So, I think we have to give different names here, otherwise it will be confusing.
+
+I don't want to spinlock, because anyway this is not suitable for this module
+
+that's why, I will just comment this out, OK?
+
+So, I'll just go with mutex.
+
+Let's go back to the init section here.
+
+Let me called this as mutex_init.
+
+pcdrv_data.pcdev_data[i]
+
+pcd_lock. That's how you initialize a mutex dynamically by sending the address of the mutex variable.
+
+Now, let's analyze this release function, so no access to the shared data here, so no problem the
+
+release method is fine. Let's go to the open method,
+
+these are all the local variables.
+
+So, this is a local variable
+
+and here you initialize the local variable.
+
+That's fine.
+
+So, here a again this is a local variable initialization.
+
+Basically, you are extracting the pointer to the device private data by using a cdev field in the
+
+inode.
+
+Do you think you know there could be any race condition issue here?
+
+No. Because, you see here
+
+this is a local variable and if two processes are executing this function at the same time, then they
+
+will have their own copy of this variable a populated with some pointer value.
+
+And after that, there is a file pointer.
+
+This is a file pointer. So, there will be one file pointer for each open of a file.
+
+That's why, here you just hook the pointer of the device private data into the private data field of
+
+the file structure.
+
+So, that's fine. Here,
+
+I don't see any race condition issues.
+
+And after that, let's go to the read and write. Here you have to lock it.
+
+So, let's implement here.
+
+mutex_lock or lock_interruptible, I'll just go with mutex_lock.
+
+So, you have got pointer to the device private data here.So, use that pcdev_data,
+
+dereference that.
+
+The lock variable is pcdev_lock.
+
+Sorry, in the mutex_init, this is not pcd_lock, this is pcdev_lock.
+
+So, here it is pcdev_lock.
+
+So, you have to send the address of the lock variable.
+
+Let's copy this.
+
+And before returning, you can unlock it.
+
+And let's do the same thing in pcd_read.
+
+That completes a taking care of a critical sections in this project.
+
+Let's try to build this. So, now let's try to build this
+
+and it builds, no problem.
+
+Let's go to the next project 004 platform driver, pcd_platform driver.
+
+And here we have got platform_driver.c. And here in the init or in the exit function,
+
+we actually don't need any a locking things.
+
+And whenever a device is instantiated, the drivers probe method will get called.
+
+In the probe method and first we allocate the memory for the device private data.
+
+After that, you have to do the mutex or spinlock initialization, I think you should do lock initialization
+
+here.
+
+I think you can do that. And after that, the remove method will get called whenever a device is removed
+
+or a driver is removed.
+
+So, basically you access the global variable here. So, this is a global variable, but I don't think
+
+lock is required for the remove function. Even though the
+
+global variable is being modified here. Because, there will not be a concurrent execution of the remove function.
+
+And after that, you need to take care of critical sections of read and write exactly like what you
+
+did in the previous lecture.
+
+I hope you can you know take care of locking here.
+
+The only thing is, a you need to initialize the lock in the probe function
+
+remember that. You have to use dynamic initialization.
+
+Now, let's exit this and let's go to this project 006 sysfs.
+
+And here the file is pcd_platform_driver_dt_sysfs.c.
+
+So, here we have some extra functions, like we have show and store methods. Here, the locking may be required.
+
+Because, the user may try to read or write into the sysfs attributes concurrently.
+
+So, that's possible. This function
+
+can be executed from two or more processes at the same time.
+
+That's why, you have to serialize access to the shared resource.
+
+So, now if you take this a show method, here show_serial_num. Here, you see we have a local variable
+
+here.
+
+And here you actually you know get the address of the device private data structure. Basically, this holds
+
+the address of the device private data structure. And you manipulate that address,
+
+that address contents here.
+
+That's why, it's better if you make a such access serialized. Because, there is a possibility of concurrent
+
+access. Isn't it?
+
+So, we have to refactor this code.
+
+I'll just a write this
+
+a return is equal to and return.
+
+And here, you have to use
+
+mutex_lock, &dev_data of a you can call it as pcd_lock.
+
+Make sure that this lock variable is defined in the device private data.
+
+And after that, unlock here.
+
+For every show method you have to do that.
+
+Right? So, for the store method also you need to do. Look at this store method. Here,
+
+this is a local variable, which holds address of the device private data. On which the concurrent access
+
+may happen by two or more processes.
+
+And after that, what you do here is,
+
+you populate a this variable here. And after that, this variable value you will be storing into the
+
+device private data.
+
+That's why, locking is required here, because you are accessing the device private data.
+
+As I said, there could be an attempt of concurrent access on that device private data. Because, two
+
+or more processes may try to write data into this a max_size attribute.
+
+So, let me keep that here and here.
+
+For this show method also locking is required, OK? I will just write Lock TODO.
+
+Now, let's go to the device private data.
+
+Go to the header file. And in the header file, in the pcd private data, you have to a add
+
+a lock variable.
+
+And make sure that you add the header files.
+
+In this case, spinlock may be
+
+a good choice, because you are copying data from
+
+this a kernel memory to this kernel memory, isn't it?
+
+It's a simple data copy,
+
+sprintf may not sleep.
+
+But, if you are unsure about any kernel functions, then by default, you can go for mutex over spinlock.
+
+But, it looks like you know a spinlock is more suitable a for this show method, but that's OK.
+
+So, if you are unsure about your critical section, whether it sleeps or not, then always go for mutex.
+
+That's why, I have chose in mutex as a default case.
+
+Because, I'm not sure about the critical section, whether it sleeps or not. For example, here it
+
+may not sleep, but this function may sleep.
+
+Because, a this internally calls a kmalloc and a kmalloc may sleep.
+
+If you use the flag GFP_KERNEL. You can make kmalloc not to sleep, for that you have to change
+
+this flag.
+
+So, you can get more information in the Linux kernel source tree, where the kmalloc function is implemented.
+
+How usage of different flags you know affects a kmallocs memory allocation a procedures?
+
+For this a critical section a mutex is more suitable, because there is a function a which may sleep.
+
+So, that's why, in your project before using locking, you should always analyze the code and you should
+
+identify the locations where concurrent access may happen.
+
+Let's go back to our project. Now, let's get into the project 007_gpio_sysfs and here
+
+we have got gpio_sysfs.c. Here,
+
+we have a couple of a show and store method,
+
+so everywhere you have to implement a locking.
+
+I hope you can do that, and with that note I would like to end this lecture here, and if you have
+
+any doubts you can always post in the course Q&A section. And please go through the kernel documentations
+
+about spinlock and a mutex.
+
+It's really important, you can understand a lot of things by a building the habit of a reading kernel documentation.
+
+This course a just gives an overview of a various subsystems and a various kernel functions, a which we frequently
+
+use in a kernel module development.
+
+So, nothing can replace the information which is available in kernel documentation.
+
+That's why, you should always invest some time in reading documentations.
+
+So, with that note, I would like to a end this LDD1 course.
+
+So, thanks for enrolling to this course and I wish you all the best.
+
+information alert
+Schedule learning time
+Learning a little each day adds up. Research shows that students who make learning a habit are more likely to reach their goals. Set time aside to learn and get reminders using your learning scheduler.
+Foundation course on practical Linux device driver programming
