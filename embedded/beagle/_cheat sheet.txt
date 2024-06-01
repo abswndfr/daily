@@ -1,0 +1,193 @@
+xchen@petaio.com	cxh197798
+Cjffughk!25		zhe zeng 
+
+remnantchildren@outlook.com	/ Rutc@237
+
+
+
+
+
+177			192.168.7.2  	internet over usb		
+							ssh -l debian 192.168.7.2
+
+1GB 	: Angstrom SD boot, tftpboot
+2GB		: nfs boot
+4GB(RD)	: nfs boot
+
+4GB		: 
+16GB	: 
+
+/media/scott/BOOT : boot & lba flags
+
+
+>> BOOT & ROOTFS manually assembled from Angstrom package
+
+power cable -> eMMC boot		
+USB cable   -> SD boot			for MLO & u-boot experiment, use USB cable
+				
+	console=tyO0, 115200n8
+	ipaddr=192.168.7.2
+	serverip=192.168.7.1
+	loadaddr=0x82000000
+	fdtaddr=0x88000000
+	loadfromsd\load mmc 0:2 ${loadaddr} /boot/uImage;load mmc 0:2 ${fdtaddr} /boot/am335x-boneblack.dtb 	-> uImage & dtb come in ROOTFS/boot
+	linuxbootargs=setenv bootargs console=${console} root=/dev/mmcblk0p2 rw
+	uenvcmd=setenv autoload no; run loadfromsd; run linuxbootargs; bootm ${loadaddr} - ${fdtaddr}
+							
+		 root@beagleboard:~# ifconfig
+		 eth0      Link encap:Ethernet  HWaddr D0:39:72:6B:B0:CE  
+		 		inet addr:192.168.1.18  Bcast:192.168.1.255  Mask:255.255.255.0			<= not 192.168.7.2  !!
+			
+			
+
+>> latest debian IoT image booting from SD
+
+		debian@beaglebone:~$ ifconfig
+		eth0: flags=-28605<UP,BROADCAST,RUNNING,MULTICAST,DYNAMIC>  mtu 1500
+				inet 192.168.1.18  netmask 255.255.255.0  broadcast 192.168.1.255
+		
+		usb0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+				inet 192.168.7.2  netmask 255.255.255.0  broadcast 192.168.7.255		<= 192.168.7.2 working
+		
+		usb1: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+				inet 192.168.6.2  netmask 255.255.255.0  broadcast 192.168.6.255
+
+
+
+>> manual booting from SD 
+
+		U-Boot# setenv bootargs console=ttyO0,115200 root=/dev/mmcblk0p2 rw	
+		U-Boot# load mmc 0:2 0x82000000 /boot/uImage										4002080 bytes read in 485 ms (7.9 MiB/s)		
+		U-Boot# load mmc 0:2 0x88000000 /boot/am335x-boneblack.dtb							23334 bytes read in 14 ms (1.6 MiB/s)
+		U-Boot# bootm 0x82000000 - 0x88000000
+
+		
+>> booting by uEnv.txt from SD
+
+		>> uEnv.txt
+		
+		  mypcip=setenv serverip 192.168.1.2
+		  ipaddr=192.168.27.1
+		  bootargs=console=ttyO0,115200 root=/dev/mmcblk0p2 rw
+		  bootcmd=echo "***************Booting from SD***************";load mmc 0:2 0x82000000 /boot/uImage;load mmc 0:2 0x88000000 /boot/am335x-boneblack.dtb;bootm 0x82000000 - 0x88000000
+
+		$ boot 			=> same as "run bootcmd"
+
+			U-Boot# 
+			U-Boot# boot
+			***************Booting from SD***************
+			4002080 bytes read in 484 ms (7.9 MiB/s)
+			23334 bytes read in 13 ms (1.7 MiB/s)
+			## Booting kernel from Legacy Image at 82000000 ...
+			...
+			## Flattened Device Tree blob at 88000000
+			Booting using the fdt blob at 0x88000000
+			Loading Kernel Image ... OK
+			OK
+			Using Device Tree in place at 88000000, end 88008b25
+			
+			Starting kernel ...
+              				
+
+>> booting over UART
+																					
+		CCCCCCCCCCCCCCCCCC                                                                <- in uart boot mode     
+		U-Boot SPL 2017.03-00270-g5cf618e (Mar 28 2017 - 17:14:21)                        <- downloaded SPL/MLO     xmodem	
+		Trying to boot from UART                                                               
+		CCCCCxyzModem - CRC mode, 2846(SOH)/0(STX)/0(CAN) packets, 8 retries           <- downloaded u-boot      xmodem rarely works => ymodem  	
+		Loaded 364100 bytes                                                                    
+																							
+		U-Boot 2016.11-rc1 (Mar 29 2017 - 09:34:17 +0530)                                      
+																							
+		I2C:   ready                                                                           
+		DRAM:  512 MiB                                                                         
+		MMC:   OMAP SD/MMC: 0, OMAP SD/MMC: 1                                                  
+		*** Warning - bad CRC, using default environment                                       
+																							
+		Net:   <ethaddr> not set. Validating first E-fuse MAC
+		cpsw, usb_ether                                                                        
+		Press SPACE to abort autoboot in 2 seconds
+		
+		=> loadx 0x82000000                                                                    
+		## Ready for binary (xmodem) download to 0x82000000 at 115200 bps...            <- download uImage       	
+		CxyzModem - CRC mode, 33677(SOH)/0(STX)/0(CAN) packets, 1 retries                     
+		CACHE: Misaligned operation at range [82000000, 8241c660]                              
+		## Total Size      = 0x0041c660 = 4,310,624 Bytes                                        
+		=>
+		=> loadx 0x88000000                                                                    
+		## Ready for binary (xmodem) download to 0x88000000 at 115200 bps...                   
+		CxyzModem - CRC mode, 191(SOH)/0(STX)/0(CAN) packets, 1 retries        		<- download dtb               
+		CACHE: Misaligned operation at range [88000000, 88005f6c]                              
+		## Total Size      = 0x00005f6c = 24,428 Bytes                                          
+		=>
+		=> loadx 0x88080000                                                                    
+		## Ready for binary (xmodem) download to 0x88080000 at 115200 bps...          	<- download initramfs         
+		CxyzModem - CRC mode, 24215(SOH)/0(STX)/0(CAN) packets, 1 retries                     
+		CACHE: Misaligned operation at range [88080000, 88374b36]                              
+		## Total Size      = 0x002f4b36 = 3,099,446 Bytes                                        
+		=>
+		=> setenv bootargs console=ttyO0,115200 root=/dev/ram0 rw initrd=0x88080000
+		=> bootm 0x82000000 0x88080000 0x88000000
+	
+
+
+>> booting via tftpboot
+
+		U-Boot# setenv serverip 192.168.1.16
+		U-Boot# setenv ipaddr 192.168.1.18
+		U-Boot# ping 192.168.1.16
+
+		U-Boot# tftpboot 0x82000000 uImage
+		U-Boot# tftpboot 0x88000000 am335x-boneblack.dtb
+		U-Boot# tftpboot 0x88080000 initramfs
+		U-Boot# setenv bootargs console=ttyO0,115200 root=/dev/ram0 rw initrd=0x88080000
+		U-Boot# bootm 0x82000000 0x88080000 0x88000000
+
+
+		console=ttyO0,115200n8
+		serverip=192.168.1.16
+		ipaddr=192.168.1.18
+		
+		loadaddr=0x82000000
+		fdtaddr=0x88000000
+		initrdaddr=0x88080000
+		
+		loadfromtftp=echo Booting from network ...;tftpboot ${loadaddr} uImage; tftpboot ${fdtaddr} am335x-boneblack.dtb; tftpboot ${initrdaddr} initramfs
+		
+		linuxbootargs=setenv bootargs console=${console} root=/dev/ram0 rw initrd=${initrdaddr}
+		
+		uenvcmd=setenv autoload no; run loadfromtftp; run linuxbootargs; bootm ${loadaddr} ${initrdaddr} ${fdtaddr}
+
+
+			U-Boot#
+			U-Boot# boot
+			gpio: pin 53 (gpio 53) value is 1				mmc0 is current device				micro SD card found				mmc0 is current device
+			gpio: pin 54 (gpio 54) value is 1				SD/MMC found on device 0		
+			reading uEnv.txt							468 bytes read in 3 ms (152.3 KiB/s)					Loaded environment from uEnv.txt
+
+			Importing environment from mmc ...			
+			Running uenvcmd ...
+
+			Booting from network ...							link up on port 0, speed 100, full duplex			Using cpsw device
+			TFTP from server 192.168.1.16; our IP address is 192.168.1.18
+			Filename 'uImage'.
+			Load address: 0x82000000
+			Loading: #################################################################
+					#################################################################
+					...
+					##############################################################
+					542 KiB/s
+			done
+			
+			Bytes transferred = 4310624 (41c660 hex)			link up on port 0, speed 100, full duplex 			Using cpsw device
+			TFTP from server 192.168.1.16; our IP address is 192.168.1.18
+			Filename 'am335x-boneblack.dtb'.
+			Load address: 0x88000000
+			Loading: #####
+					496.1 KiB/s
+			done
+			
+
+
+>> booting from tftp & nfs
+

@@ -1,0 +1,185 @@
+Beaglebone Black booting using TFTP Protocol			1
+
+Kernel Boot Arguments 									2
+
+U-boot’s Boot From Memory command						5
+
+BBB booting using TFTP Protocol
+Uboot’s TFTP boot command								10
+Advantage of using TFTP boot							11
+TFTP boot Conclusion									13
+
+uEnv.txt from Scratch									14
+
+U-boot’s load from memory device commands				21
+U-boot’s serial port transfer protocols commands		23	
+
+Exploring BBB Web Interface								39
+SYSFS													40
+Flashing BBB’s eMMC using Angstrom eMMC flasher			45
+
+Linux Device Tree (Flattened Device Tree)				49
+Linux Device Tree Lectures								50
+Platform devices										55
+Why Device Tree is introduced ??						62
+Device Tree Source File (DTS)							65
+			
+			
+..		
+			
+			
+For the Successful boot of BBB, we need					80
+Linux Boot Requirements									108	
+BBB Linux boot sequence discussion:	RBL and SPL			113
+BBB Linux boot sequence discussion: Boot Strap Loader	114
+
+Control Flow during boot								115
+Control Flow during Linux boot							116
+
+U-boot‟s “bootm.c”	- arch/arm/lib/bootm.c
+Linux “Boot Strap Loader”  …arch/arm/boot/compressed/	
+Linux kernel “ARCH” Dependent files …arch/arm/kernel/
+
+Linux Boot Requirements									121
+
+Control Flow during boot								125
+Control Flow during Linux boot							126
+
+arch/arm/kernel/head.S and friends do:					127
+BBB Linux boot sequence discussion: Boot Strap Loader	128
+BBB Linux boot sequence discussion: ROM and SPL			129
+
+The job of “U-boot”										134
+uEnv.txt												135
+Ångström repository										136
+Read U-boot header information of the uImage manually	138
+Busybox: Introduction									143	
+Decoding U-boot Header of uImage Manually				156
+Exploring Tera-Term and Putty							157
+eMMC Booting: Big Picture								162
+Locating Device Drivers for your SOC Peripherals. 		172	
+Understanding Linux Source Tree							182
+ARM code organization in Linux							187
+Processor (CPU) specific codes go here					188
+SOC & board specific codes go here						191
+OMAP2+ Machine Shared Common Code						200
+OMAP2 Board files										205
+Sitara Vs DaVinci										209
+	
+MPU6050 GY-251 Breakout board							211
+
+Control Flow during Linux boot							215
+Linux “init” Program									216
+rcS														217
+Linux main.c -> /sbin/init -> /etc/init.d/rcS -> ...	218
+
+How to connect 7 Segment Display to MCU ?? 				219
+AM335x GPIOs											222
+
+BBB eMMC update: Networking Configuration				224
+TFTP boot : Big picture 								229
+Serial boot : Big picture 								238
+
+MPU6050 Basics											258
+Why Accelerometers are used ?							271
+Why Gyroscopes are used ?								301
+
+
+
+
+==================================================================================================================================
+
+Beaglebone Black booting using TFTP Protocol			1
+Kernel Boot Arguments 									2
+U-boot’s Boot From Memory command						5
+BBB booting using TFTP Protocol
+Uboot’s TFTP boot command								10
+Advantage of using TFTP boot							11
+TFTP boot Conclusion									13
+
+uEnv.txt from Scratch									14
+
+U-boot’s load from memory device commands				21
+U-boot’s serial port transfer protocols commands		23	
+
+TFTP boot : Big picture 								229
+Serial boot : Big picture 								238
+
+
+Exploring BBB Web Interface								39
+SYSFS													40
+Flashing BBB’s eMMC using Angstrom eMMC flasher			45
+
+
+
+Linux Device Tree (Flattened Device Tree)				49
+Linux Device Tree Lectures								50
+Platform devices										55
+Why Device Tree is introduced ??						62
+Device Tree Source File (DTS)							65
+			
+..		
+		
+			
+
+
+
+For the Successful boot of BBB, we need					80
+Linux Boot Requirements									108	
+BBB Linux boot sequence discussion:	RBL and SPL			113
+BBB Linux boot sequence discussion: Boot Strap Loader	114
+
+Control Flow during boot								115
+Control Flow during Linux boot							116
+
+U-boot‟s “bootm.c”	- arch/arm/lib/bootm.c
+Linux “Boot Strap Loader”  …arch/arm/boot/compressed/	
+Linux kernel “ARCH” Dependent files …arch/arm/kernel/
+
+Linux Boot Requirements									121
+
+Control Flow during boot								125
+Control Flow during Linux boot							126
+
+arch/arm/kernel/head.S and friends do:					127
+BBB Linux boot sequence discussion: Boot Strap Loader	128
+BBB Linux boot sequence discussion: ROM and SPL			129
+
+The job of “U-boot”										134
+uEnv.txt												135
+Ångström repository										136
+Read U-boot header information of the uImage manually	138
+Busybox: Introduction									143	
+Decoding U-boot Header of uImage Manually				156
+Exploring Tera-Term and Putty							157
+eMMC Booting: Big Picture								162
+
+
+Locating Device Drivers for your SOC Peripherals. 		172	
+Understanding Linux Source Tree							182
+ARM code organization in Linux							187
+Processor (CPU) specific codes go here					188
+SOC & board specific codes go here						191
+
+
+Control Flow during Linux boot							215
+Linux “init” Program									216
+rcS														217
+Linux main.c -> /sbin/init -> /etc/init.d/rcS -> ...	218
+
+BBB eMMC update: Networking Configuration				224
+
+
+
+OMAP2+ Machine Shared Common Code						200
+OMAP2 Board files										205
+Sitara Vs DaVinci										209
+	
+MPU6050 GY-251 Breakout board							211
+How to connect 7Segment Display to MCU ?? 				219
+AM335x GPIOs											222
+
+
+MPU6050 Basics											258
+Why Accelerometers are used ?							271
+Why Gyroscopes are used ?								301

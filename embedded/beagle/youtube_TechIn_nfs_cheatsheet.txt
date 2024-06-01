@@ -1,0 +1,82 @@
+https://www.youtube.com/watch?v=b_GqG4_P7m8
+
+1. installing TFTP server:
+
+  sudo apt install tftpd-hpa
+  sudo systemctl status tftpd-hpa
+  
+  
+2. configuring tftp server:
+
+  the drfeault configuration file of tftpd-hpa server is /etc/default/tftpd-hpa. To configure the tftp server, we need to modify this configuration file and restart the tftpd-hpa service.
+  
+  
+  For modification:
+
+	sudo nano /etc/default/tftpd-hpa	
+	sudo chown tftp:tftp /tftp path	
+	sudo systemctl restart tftpd-hpa
+	
+  Installing NFS server
+
+	sudo apt install nfs-kernel-server
+	
+  Create shared NFS directory
+  
+	sudo mkdir -p /srv/nfs/TechIn
+	sudo chown -R nobody:nogrouup /srv/nfs/TechIn
+	sudo chmod 777 /srv/nfs/TechIn	
+	
+  grant access to the client system for accessing the NFS server
+  
+	sudo nano /etc/exports	
+	sudo exportfs -arv
+	sudo systemctl restart nfs-kernel-server
+	
+##############################
+
+Build linux kernel
+
+  make ARCH=arm bb.org_defconfig
+  make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- menuconfig
+  make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- uImage dtbs LOADADDR=0x80008000 -j4
+  
+  make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules -j4  
+  or 
+  make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=/home/kdroid/vidoes/TechIn/RFS modules_install -j16
+  sudo cp arch/arm/boot/uImage /var/lib/tftpboot/
+  sudo cp arch/arm/boot/dts/am335x-boneblack.dtb /var/lib/tftpboot/
+  
+  sudo cp -r /home/kdroid/vidoes/TechIn/RFS/lib/modues/4.14.108 /srv/nfs/TechIn/lib/modules/
+  
+  
+  
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

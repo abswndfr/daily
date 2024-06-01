@@ -1,0 +1,147 @@
+>> VFS: Unable to mount root fs, nfs rfs problem
+
+Yucel · Lecture 69 · 3 years ago
+
+	Hello, I'm stucked on general problem. I have solved the tftboot problem but i could not nfs booting. Could you help me on this issue ? 
+
+  uEnv.txt
+
+    console=ttyO0,115200n8
+    ipaddr=192.168.7.2
+    serverip=192.168.7.1
+    #fdtaddr=0x88000000
+    absolutepath=/var/lib/tftpboot/
+    loadramfsaddr=0x88080000
+    rootpath=/srv/nfs/bbb, nfsvers=3,tcp ip=dhcp,nolock,wsize=1024,rsize=1024 rootwait rootdelay=5
+    loadtftp=echo Booting from network ...;tftpboot ${loadaddr} uImage; tftpboot ${fdtaddr} am335x-boneblack.dtb
+    netargs=echo Running netargs...;setenv bootargs console=${console} root=/dev/nfs rw rootfstype=nfs ip=${ipaddr} nfsroot=${serverip}:${rootpath} 
+    uenvcmd=setenv autoload no; run loadtftp; run netargs; bootm ${loadaddr} - ${fdtaddr}
+ 
+ 
+	
+Jennifer  - 3 years ago
+
+	Hey,
+	This is already answered here check this out   
+	https://www.udemy.com/course/embedded-linux-step-by-step-using-beaglebone/learn/lecture/7255616#questions/10523936	
+ 
+ 
+Yucel	- 3 years ago
+
+	I've solved my problem. I've already looked there before but my mistake was in the "rootpath=/srv/nfs/bbb, nfsvers=3,tcp ip=dhcp,nolock" line, with rootpath and nfsvers should not be seperate, should be close like this "rootpath=/srv/nfs/bbb,nfsvers=3,etc..."
+	
+	
+	
+		[    3.359338] [drm] Cannot find any crtc or sizes
+		
+		[    4.768046] cpsw 4a100000.ethernet eth0: Link is Up - 100Mbps/Full - flow control rx/tx
+		[    4.776198] IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+		[    4.795045] IP-Config: Guessing netmask 255.255.255.0
+		[    4.800268] IP-Config: Complete:
+		[    4.803586]      device=eth0, hwaddr=d0:39:72:6b:b0:ce, ipaddr=192.168.1.18, mask=255.255.255.0, gw=255.255.255.255
+		[    4.814141]      host=192.168.1.18, domain=, nis-domain=(none)
+		[    4.820028]      bootserver=255.255.255.255, rootserver=192.168.1.16, rootpath=
+		
+		[    4.827905] ALSA device list:
+		[    4.831120]   #0: TI BeagleBone Black
+		
+		[    4.835338] Waiting 5 sec before mounting root device...
+		
+		[    9.974196] VFS: Mounted root (nfs filesystem) on device 0:18.
+		[    9.981000] devtmpfs: error mounting -2
+		[    9.988640] Freeing unused kernel memory: 1024K
+		can't run '/etc/init.d/rcS': No such file or directory
+		
+		can't open /dev/tty4: No such file or directory
+		can't open /dev/tty3: No such file or directory
+		can't open /dev/tty2: No such file or directory
+		
+			
+			
+			
+			
+			
+
+>> NFS seems to mount but then Kernel Panic
+
+Mark · Lecture 69 · 3 years ago
+
+	After reading other posts I have tftpboot working and I think that the NFS filesystem mounts but then I get a kernel panic.
+
+	This was built with:
+	
+	  busybox-1.33.0
+	  u-boot-2021.01-rc5
+	  linux-4.14 from https://github.com/beagleboard/linux
+	
+		[    4.615140] Root-NFS: nfsroot=/srv/nfs/bbb,nolock,timeo=10,nfsvers=3
+		[    4.622597] NFS: nfs mount opts='vers=2,udp,rsize=4096,wsize=4096,nolock,timeo=10,nfsvers=3,nolock,addr=192.168.7.1'
+		[    4.633288] NFS:   parsing nfs mount option 'vers=2'
+		[    4.638357] NFS:   parsing nfs mount option 'udp'
+		[    4.643113] NFS:   parsing nfs mount option 'rsize=4096'
+		[    4.648565] NFS:   parsing nfs mount option 'wsize=4096'
+		[    4.654070] NFS:   parsing nfs mount option 'nolock'
+		[    4.659132] NFS:   parsing nfs mount option 'timeo=10'
+		[    4.664393] NFS:   parsing nfs mount option 'nfsvers=3'
+		[    4.669712] NFS:   parsing nfs mount option 'nolock'
+		[    4.674727] NFS:   parsing nfs mount option 'addr=192.168.7.1'
+		[    4.680635] NFS: MNTPATH: '/srv/nfs/bbb'
+		[    4.684616] NFS: sending MNT request for 192.168.7.1:/srv/nfs/bbb
+		[    4.698605] NFS: received 1 auth flavors
+		[    4.702708] NFS:   auth flavor[0]: 1
+		[    4.706653] NFS: MNT request succeeded
+		[    4.710565] NFS: attempting to use auth flavor 1
+		[    4.720788] VFS: Mounted root (nfs filesystem) on device 0:18.
+		[    4.727211] devtmpfs: error mounting -2
+		[    4.734456] Freeing unused kernel memory: 1024K
+		[    4.741335] Kernel panic - not syncing: No working init found.  Try passing init= option to kernel. See Linux Documentation/admin-guide/init.rst for guidance.
+		[    4.755593] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 4.14.108 #1
+		[    4.761712] Hardware name: Generic AM33XX (Flattened Device Tree)
+		[    4.767878] [<c0112ddc>] (unwind_backtrace) from [<c010d7e0>] (show_stack+0x20/0x24)
+		[    4.775666] [<c010d7e0>] (show_stack) from [<c0cc6968>] (dump_stack+0x80/0x94)
+		[    4.782928] [<c0cc6968>] (dump_stack) from [<c01401d8>] (panic+0x100/0x274)
+		[    4.789932] [<c01401d8>] (panic) from [<c0cdb630>] (kernel_init+0x110/0x120)
+		[    4.797023] [<c0cdb630>] (kernel_init) from [<c0108f88>] (ret_from_fork+0x14/0x2c)
+		[    4.804650] ---[ end Kernel panic - not syncing: No working init found.  Try passing init= option to kernel. See Linux Documentation/admin-guide/init.rst for guidance.
+
+	
+	
+	
+	2 replies
+	
+	Jennifer		3 years ago
+
+	Hello Mark,
+	
+	Use this uEnv.txt:
+	
+		console=ttyO0,115200n8
+		ipaddr=192.168.0.2
+		serverip=192.168.0.105
+		absolutepath=/var/lib/tftpboot/
+		loadramfsaddr=0x88080000
+		rootpath=/media/tuat/Linux/workspace/rfs,nfsvers=3,tcp ip=dhcp,nolock,wsize=1024,rsize=1024 rootwait rootdelay=5
+		loadtftp=echo Booting from network ...;tftpboot ${loadaddr} uImage; tftpboot ${fdtaddr} am335x-boneblack.dtb
+		netargs=setenv bootargs console=${console} root=/dev/nfs rw rootfstype=nfs ip=${ipaddr} nfsroot=${serverip}:${rootpath}
+		uenvcmd=setenv autoload no; run loadtftp; run netargs; bootm ${loadaddr} - ${fdtaddr}
+	
+
+	Below Q & A may help you kindly refer:
+	
+		htps://www.udemy.com/course/embedded-linux-step-by-step-using-beaglebone/learn/lecture/7255616#questions/10523936
+	
+	TH		1 year ago
+	
+		I use Linux 5.18 and Busybox 1.35.0. I use all original files from the posted /compiled_bins. I follow this mentioned uEnv.txt structure and saw the rfs is mounted and successfully get the same point as the lecture shown:
+	
+			can't run '/etc/init.d/rcS': No such file or directory
+			Please press Enter to activate this console.
+		
+			/ #
+	
+		So completed up to Course 72.
+		I believe most of the errors were due to wrong or missing steps, typos, etc...
+	
+		Tom
+		
+		
